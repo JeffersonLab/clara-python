@@ -1,0 +1,21 @@
+#!/bin/csh -f
+
+# author gurjyan
+# date 9.26.14
+
+setenv PYTHONPATH $PCLARA_HOME\:$PCLARA_HOME/src/sys\:$PCLARA_HOME/src/base\:$PCLARA_HOME/src/util\:$PCLARA_HOME/example\:$PCLARA_HOME/example/engines\:$PCLARA_HOME/example/etc
+
+cd "$PCLARA_HOME/core/system/service"
+
+if ( $#argv != 4 || $1 == "-h" || $1 == "-help" ) then
+    echo ""
+    echo "Starts CLARA service (python binding)"
+    echo "-------------------------------------"
+    echo "synopsis:"
+    echo "p_service [service engine module] [container] [service class] [object pool size] "
+    echo ""
+else
+    python Service.py $1 $2 $3 $4
+endif
+
+

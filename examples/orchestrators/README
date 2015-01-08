@@ -1,0 +1,10 @@
+python orchestrator.py x y
+x = is the starting service, i.e. the source of the data
+y = is the data path algorithm or SOA application design/composition
+
+examples of y:
+s1 s1+s2+s3+s4
+s1 s1,s2,s3+&s4 (s4 fires when s1, s2 and s3 generate data and send it to s4).
+               In this example s4 plays the role of an event builder.
+
+Note: "&" and ";" must be escaped in command line with "\"

@@ -1,0 +1,25 @@
+##!/bin/tcsh -f
+
+# author gurjyan
+# date 9.26.14
+
+if ( $#argv != 1 || $1 == "-h" || $1 == "-help" ) then
+    echo ""
+    echo "Kills CLARA service/s by engine or container name (python binding)"
+    echo "------------------------------------------------------------------"
+    echo "synopsis:"
+    echo "p_kill_service [engine name/container name] "
+    echo ""
+else
+
+    set a = `ps aux | grep $1 | grep -v grep | grep -v p_kill_service | grep -v csh | awk '{print $2}'`
+
+   foreach x ( $a )
+    set s = `ps aux | grep $x | grep -v grep`
+    if ( $#s > 0 ) then
+        kill -15 $x
+    endif
+
+    end
+
+endif

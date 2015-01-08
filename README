@@ -1,0 +1,11 @@
+author: gurjyan
+date:    December 26, 2014
+Clara Python implementation.
+Uses xMsg as a communication transport.
+
+Following are design conventions:
+1) service names are composed as -> dpe_host:container:engine
+2) names must be unique within entire cloud
+3) registration requests are always sync with timeout defined in xMsgConstants.REGISTER_REQUEST_TIMEOUT
+4) finding a service request are also sync with timeout defined as xMsgConstants.FIND_REQUEST_TIMEOUT
+5) DPE registration database is duplicated in the FE database.
