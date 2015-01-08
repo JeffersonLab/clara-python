@@ -50,7 +50,6 @@ class ServiceExecutor(object, ServiceBase):
         service_name = CUtility.form_canonical_name(CUtility.get_local_ip(),
                                                     container,
                                                     engine_class_name)
-
         ServiceBase.__init__(self, service_name)
 
         # dynamically loads service engine class

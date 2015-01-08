@@ -1,5 +1,6 @@
 import time
 import signal
+from core.xMsgUtil import xMsgUtil
 from xsys.xMsgNode import xMsgNode
 
 __author__ = 'gurjyan'
@@ -14,15 +15,15 @@ class Dpe():
     def start():
         """Clara DPE
         """
-        xn = xMsgNode()
-
-        print "================================"
+        print " ================================"
         print "           CLARA Dpe "
-        print "================================"
-        print "lang = Python"
-        print "date = " + time.strftime("%c")
-        print "host = " + xn.host
+        print " ================================"
+        print " lang = Python"
+        print " date = " + time.strftime("%c")
+        print " host = " + xMsgUtil.get_local_ip()
+        print " ================================"
 
+        xn = xMsgNode()
         signal.signal(signal.SIGTERM, xn.exit_gracefully)
         signal.signal(signal.SIGINT, xn.exit_gracefully)
 

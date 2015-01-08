@@ -3,6 +3,7 @@ from copy import deepcopy
 import threading
 import sys
 from core.xMsgConstants import xMsgConstants
+from core.xMsgUtil import xMsgUtil
 from data import xMsgData_pb2
 from src.base.ServiceBase import ServiceBase
 from src.sys.ServiceExecutor import ServiceExecutor
@@ -47,7 +48,7 @@ class Service(ServiceBase):
 
     # initial size of the object pool that will grow
     # based on number of simultaneous requests
-    pool_size = 1
+    object_pool_size = 1
 
     # user provided engine class container class name
     engine_class = xMsgConstants.UNDEFINED
@@ -69,18 +70,17 @@ class Service(ServiceBase):
                 :param container: the name of service container, for logical grouping of services.
                 :param engine_class_name: the name of the service engine python class
                                         within the engine_container_class
-                :param p_size: ServiceMP object pool size, i.e. number of parallel services
+                :param p_size: Service object pool size, i.e. number of parallel services
                 """
         self.engine_class = engine_class
         self.container = container
         self.engine_class_name = engine_class_name
-        self.pool_size = int(p_size)
+        self.object_pool_size = int(p_size)
 
         # Defines this service canonical name
-        service_name = CUtility.form_canonical_name(CUtility.get_local_ip(),
+        service_name = CUtility.form_canonical_name(xMsgUtil.get_local_ip(),
                                                     self.container,
                                                     self.engine_class_name)
-
         ServiceBase.__init__(self, service_name)
 
         # Create an object pools
@@ -88,7 +88,7 @@ class Service(ServiceBase):
         self.used_object_pool = Queue.Queue()
 
         # Create service executor objects and fill the pool
-        for i in range(self.pool_size):
+        for i in range(self.object_pool_size):
             instance = ServiceExecutor(self.engine_class, self.container, self.engine_class_name)
             self.available_object_pool.put(instance)
 
@@ -99,15 +99,20 @@ class Service(ServiceBase):
         # Get description defined in the service engine
         self.description = self.engine_object.get_description()
 
-        print "registering with registrar and discovery services..."
+        print "Registering with registration services..."
 
-        self.register_local(self.name, self.description, True)
+        # registration
+        self.registerSubscriber(self.name,
+                                xMsgUtil.get_local_ip(),
+                                self.container,
+                                self.engine_class_name,
+                                self.description)
 
         # Subscribe messages back from the service executor object
         self.receive("b_done_" + self.name, self.object_done_call_back)
-
         # Subscribe messages addressed to this service container
         self.receive(self.name, self.call_back)
+        xMsgUtil.keep_alive()
 
     def call_back(self, tr_data):
         """
@@ -252,8 +257,8 @@ class Service(ServiceBase):
             t.start()
 
 
-def main(engine_class, container, engine, pool_size):
-    Service(engine_class, container, engine, pool_size)
+def main(engine_class, container, engine, object_pool_size):
+    Service(engine_class, container, engine, object_pool_size)
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

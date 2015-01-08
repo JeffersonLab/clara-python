@@ -1,5 +1,6 @@
 import random
 from core.xMsgConstants import xMsgConstants
+from core.xMsgUtil import xMsgUtil
 from src.base.CBase import CBase
 
 from src.util.CUtility import CUtility
@@ -37,11 +38,11 @@ class OrchestratorBase(CBase):
         s_name = CUtility.form_canonical_name(dpe_host, xMsgConstants.ANY, xMsgConstants.ANY)
         return self.find_service(s_name)
 
-    def get_service_by_container(self, container_name, dpe_host=CUtility.get_local_ip()):
+    def get_service_by_container(self, container_name, dpe_host=xMsgUtil.get_local_ip()):
         s_name = CUtility.form_canonical_name(dpe_host, container_name, xMsgConstants.ANY)
         return self.find_service(s_name)
 
-    def get_service_by_engine(self, engine_name, dpe_host=CUtility.get_local_ip()):
+    def get_service_by_engine(self, engine_name, dpe_host=xMsgUtil.get_local_ip()):
         s_name = CUtility.form_canonical_name(dpe_host, xMsgConstants.ANY, engine_name)
         return self.find_service(s_name)
 

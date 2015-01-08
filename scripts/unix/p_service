@@ -1,11 +1,11 @@
 #!/bin/csh -f
 
 # author gurjyan
-# date 9.26.14
+# date 1.7.15
 
-setenv PYTHONPATH $PCLARA_HOME\:$PCLARA_HOME/src/sys\:$PCLARA_HOME/src/base\:$PCLARA_HOME/src/util\:$PCLARA_HOME/example\:$PCLARA_HOME/example/engines\:$PCLARA_HOME/example/etc
+setenv PYTHONPATH $PCLARA_HOME\:$PCLARA_HOME/src/sys\:$PCLARA_HOME/src/base\:$PCLARA_HOME/src/util\:$PCLARA_HOME/examples\:$PCLARA_HOME/examples/engines\:$PCLARA_HOME/example/etc\:$PXMSG_HOME\:$PXMSG_HOME/core\:$PXMSG_HOME/sys\:$PXMSG_HOME/sys/regdis\:$PXMSG_HOME/data\:$PXMSG_HOME/net
 
-cd "$PCLARA_HOME/core/system/service"
+cd "$PCLARA_HOME/src/sys"
 
 if ( $#argv != 4 || $1 == "-h" || $1 == "-help" ) then
     echo ""

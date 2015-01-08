@@ -15,10 +15,11 @@ else
     set a = `ps aux | grep $1 | grep -v grep | grep -v p_kill_service | grep -v csh | awk '{print $2}'`
 
    foreach x ( $a )
-    set s = `ps aux | grep $x | grep -v grep`
-    if ( $#s > 0 ) then
-        kill -15 $x
-    endif
+    kill -9 $x
+#    set s = `ps aux | grep $x | grep -v grep`
+#    if ( $#s > 0 ) then
+#        kill -15 $x
+#    endif
 
     end
 

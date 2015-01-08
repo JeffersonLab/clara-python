@@ -14,14 +14,15 @@ class Platform():
     def start():
         """Clara DPE
         """
-        xn = xMsgFE()
 
-        print "================================"
+        print " ================================"
         print "      CLARA Cloud Manager       "
-        print "================================"
-        print "lang = Python"
-        print "date = " + time.strftime("%c")
+        print " ================================"
+        print " lang = Python"
+        print " date = " + time.strftime("%c")
+        print " ================================"
 
+        xn = xMsgFE()
         signal.signal(signal.SIGTERM, xn.exit_gracefully)
         signal.signal(signal.SIGINT, xn.exit_gracefully)
 

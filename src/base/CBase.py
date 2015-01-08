@@ -1,5 +1,6 @@
 from core.xMsg import xMsg
 from core.xMsgConstants import xMsgConstants
+from core.xMsgUtil import xMsgUtil
 from net.xMsgAddress import xMsgAddress
 from src.util.CUtility import CUtility
 
@@ -150,21 +151,21 @@ class CBase(xMsg):
         :param service_name: service canonical name
         :return: set of xMsgRegistrationData object
         """
-        if CUtility.get_domain(service_name) is xMsgConstants.ANY:
+        if xMsgUtil.get_domain(service_name) is xMsgConstants.ANY:
             raise Exception("Host name of the DPE must be specified")
         else:
-            if CUtility.get_domain(service_name) is \
-                    CUtility.get_local_ip():
+            if xMsgUtil.get_domain(service_name) is \
+                    xMsgUtil.get_local_ip():
                 return self.findLocalSubscriber(self.name,
-                                                CUtility.get_domain(service_name),
-                                                CUtility.get_subject(service_name),
-                                                CUtility.get_type(service_name))
+                                                xMsgUtil.get_domain(service_name),
+                                                xMsgUtil.get_subject(service_name),
+                                                xMsgUtil.get_type(service_name))
             else:
                 return self.findSubscriber(self.name,
-                                           CUtility.get_domain(service_name),
-                                           CUtility.get_subject(service_name),
-                                           CUtility.get_type(service_name),
-                                           CUtility.get_domain(service_name))
+                                           xMsgUtil.get_domain(service_name),
+                                           xMsgUtil.get_subject(service_name),
+                                           xMsgUtil.get_type(service_name),
+                                           xMsgUtil.get_domain(service_name))
 
     def receive(self, topic, call_back, is_sync=True):
 
@@ -178,9 +179,9 @@ class CBase(xMsg):
         :param is_sync: User provided call_back function.
         """
         self.subscribe(self.node_connection,
-                       CUtility.get_domain(topic),
-                       CUtility.get_subject(topic),
-                       CUtility.get_type(topic),
+                       xMsgUtil.get_domain(topic),
+                       xMsgUtil.get_subject(topic),
+                       xMsgUtil.get_type(topic),
                        call_back,
                        is_sync)
 
@@ -193,8 +194,8 @@ class CBase(xMsg):
         :param data: xMsgData object
         """
         self.publish(self.node_connection,
-                     CUtility.get_domain(topic),
-                     CUtility.get_subject(topic),
-                     CUtility.get_type(topic),
+                     xMsgUtil.get_domain(topic),
+                     xMsgUtil.get_subject(topic),
+                     xMsgUtil.get_type(topic),
                      self.name,
                      data)
