@@ -1,5 +1,6 @@
 import sys
 from core.xMsgConstants import xMsgConstants
+from core.xMsgUtil import xMsgUtil
 from data import xMsgData_pb2
 from src.base.OrchestratorBase import OrchestratorBase
 
@@ -62,22 +63,25 @@ class Composer(OrchestratorBase):
         # define transient data
         tr = xMsgData_pb2.Data()
         tr.sender = self.get_my_name()
-        tr.request_id = 1
+        tr.id = 1
         tr.action = xMsgData_pb2.Data.EXECUTE
         tr.composition = _cmd
         # creating a byte buffer using a character as a byte
-        tr.data = 'v'
-        tr.dataType = xMsgData_pb2.Data.STRING
-        tr.status = xMsgData_pb2.Data.INFO
+        tr.STRING = 'v'
+        tr.dataType = xMsgData_pb2.Data.T_STRING
+        tr.dataGenerationStatus = xMsgData_pb2.Data.INFO
 
-        print "sending request to " + service_1 + " with the payload: \n" + str(tr)
-        self.send(service_1, tr)
-        print "sending request to " + service_2 + " with the payload: \n" + str(tr)
-        self.send(service_2, tr)
-        print "sending request to " + service_3 + " with the payload: \n" + str(tr)
-        self.send(service_3, tr)
-        print "sending request to " + service_4 + " with the payload: \n" + str(tr)
-        self.send(service_4, tr)
+        print "sending request to " + service_1.name + " with the payload: \n" + str(tr)
+        self.send(service_1.name, tr)
+        xMsgUtil.sleep(0.01)
+        print "sending request to " + service_2.name + " with the payload: \n" + str(tr)
+        self.send(service_2.name, tr)
+        xMsgUtil.sleep(0.01)
+        print "sending request to " + service_3.name + " with the payload: \n" + str(tr)
+        self.send(service_3.name, tr)
+        xMsgUtil.sleep(0.01)
+        print "sending request to " + service_4.name + " with the payload: \n" + str(tr)
+        self.send(service_4.name, tr)
 
 
 def main(e1, e2, e3, e4, cmd):

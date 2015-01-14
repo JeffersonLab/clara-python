@@ -1,0 +1,8 @@
+#!/bin/csh -f
+
+# author gurjyan
+# date 1.7.15
+
+cd "$PCLARA_HOME/examples/etc"
+
+python Decomposer.py $1

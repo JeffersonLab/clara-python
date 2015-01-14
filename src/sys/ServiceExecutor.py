@@ -1,4 +1,5 @@
 from core.xMsgConstants import xMsgConstants
+from core.xMsgUtil import xMsgUtil
 from data import xMsgData_pb2
 from src.base.ServiceBase import ServiceBase
 from src.util.CUtility import CUtility
@@ -47,7 +48,7 @@ class ServiceExecutor(object, ServiceBase):
                                         within the engine_class (container of classes)
                 """
         # defines this service canonical name
-        service_name = CUtility.form_canonical_name(CUtility.get_local_ip(),
+        service_name = CUtility.form_canonical_name(xMsgUtil.get_local_ip(),
                                                     container,
                                                     engine_class_name)
         ServiceBase.__init__(self, service_name)
@@ -65,6 +66,7 @@ class ServiceExecutor(object, ServiceBase):
         :param in_data_list: list of already deserialized protocol-buffer data objects
                              de-serialization done at the Broker of this service.
         """
+
         in_data_list = args
         tr_object = in_data_list[0]
 
@@ -136,28 +138,25 @@ class ServiceExecutor(object, ServiceBase):
 
         new_transient_data.sender = self.name
 
-        self.__service_send(new_transient_data, new_transient_data.request_id)
+        self.__service_send(new_transient_data, new_transient_data.id)
 
     def __service_send(self, transient_data, c_id):
 
         transient_data.id = c_id
 
-        # Serializing google protocol-buffer xMsgData
-        # to set into the CLARA message envelope
-        serialized_transient_data = transient_data.SerializeToString()
-
         # send to all output-linked services.
         # Note: service-service communication
         for ss in self.out_links:
-            print "sending to " + ss
-            self.send(str(ss), str(serialized_transient_data))
+            if len(self.out_links) > 1:
+                xMsgUtil.sleep(0.01)
+            self.send(str(ss), transient_data)
 
         # check the status of the engine execution and
         # if it is warning or error broadcast exception data
         if transient_data.dataGenerationStatus == xMsgData_pb2.Data.ERROR:
             self.report_data(transient_data, xMsgConstants.ERROR)
 
-        elif transient_data.status == xMsgData_pb2.Data.WARNING:
+        elif transient_data.dataGenerationStatus == xMsgData_pb2.Data.WARNING:
             self.report_data(transient_data, xMsgConstants.WARNING)
 
         # if data monitors are registered broadcast data
@@ -169,4 +168,4 @@ class ServiceExecutor(object, ServiceBase):
         if transient_data.doneMonitor:
             self.report_info(xMsgConstants.DONE)
 
-        # @todo the following message is for object recycling into the object pool
+        self.return_object_to_pool()

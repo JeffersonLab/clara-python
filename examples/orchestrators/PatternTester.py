@@ -18,7 +18,6 @@ class PatternTester(OrchestratorBase):
               host and have the same container name
 
         1) the name of the first service engine in the service chain
-        2) the name of a container
         2) data size in bytes
         3) actual application composition,
            e.g. s1+s2+s3+s4 or s1,s2,s3+s4
@@ -55,18 +54,19 @@ class PatternTester(OrchestratorBase):
         # define transient data
         tr = xMsgData_pb2.Data()
         tr.sender = self.get_my_name()
-        tr.request_id = 1
+        tr.id = 1
         tr.action = xMsgData_pb2.Data.EXECUTE
         tr.composition = _cmd
         # creating a byte buffer using a character as a byte
-        tr.data = 'v' * self.data_size
+        tr.BYTES = 'v' * self.data_size
         # tr.data = str(randint(1, 100))
-        tr.dataType = xMsgData_pb2.Data.STRING
+        tr.dataType = xMsgData_pb2.Data.T_BYTES
         tr.dataGenerationStatus = xMsgData_pb2.Data.INFO
 
-        print "sending request to " + service_1 + " with the payload: \n" + str(tr)
+        print "sending request to " + service_1.name + " with the payload: \n"
+        print tr
 
-        self.send(service_1, tr)
+        self.send(service_1.name, tr)
 
 
 def main(name, d_size, cmd):

@@ -180,7 +180,7 @@ class OrchestratorBase(CBase):
                             return xMsgConstants.NO_RESULT
                         else:
                             _s_name = l[0]
-                            _csName.append(_s_name)
+                            _csName.append(_s_name.name)
 
                     # recreate logical OR (, separated service names) string
                     # with actual service names
@@ -200,18 +200,19 @@ class OrchestratorBase(CBase):
                             return xMsgConstants.NO_RESULT
                         else:
                             _s_name = l[0]
-                            _sName.append("&" + _s_name)
+                            _sName.append("&" + _s_name.name)
                     else:
                         l = self.get_service_by_engine(s)
                         if l[0] == xMsgConstants.NO_RESULT:
                             return xMsgConstants.NO_RESULT
                         else:
                             _s_name = l[0]
-                            _sName.append(_s_name)
+                            _sName.append(_s_name.name)
 
             # build the final composition
             tf = ""
             for ss in _sName:
+                print type(ss)
                 tf = tf + ss + "+"
 
             # removing the last + character

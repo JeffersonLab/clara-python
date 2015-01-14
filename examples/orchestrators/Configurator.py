@@ -57,24 +57,24 @@ class Configurator(OrchestratorBase):
 
         tr = xMsgData_pb2.Data()
         tr.sender = self.name
-        tr.request_id = 1
+        tr.id = 1
         tr.action = xMsgData_pb2.Data.CONFIGURE
-        tr.dataType = xMsgData_pb2.Data.STRING
-        tr.status = xMsgData_pb2.Data.INFO
-        tr.data = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d1.txt"
-        print "sending configure request to " + service_1 + " with the payload: \n" + str(tr)
-        self.send(service_1, tr)
-        tr.data = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d2.txt"
-        print "sending configure request to " + service_2 + " with the payload: \n" + str(tr)
-        self.send(service_2, tr)
-        tr.data = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d3.txt"
-        print "sending configure request to " + service_3 + " with the payload: \n" + str(tr)
-        self.send(service_3, tr)
-        tr.data = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d4.txt"
-        print "sending configure request to " + service_4 + " with the payload: \n" + str(tr)
-        self.send(service_4, tr)
-        print "sending configure request to " + service_5 + " with the payload: \n" + str(tr)
-        self.send(service_5, tr)
+        tr.dataType = xMsgData_pb2.Data.T_STRING
+        tr.dataGenerationStatus = xMsgData_pb2.Data.INFO
+        tr.STRING = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d1.txt"
+        print "sending configure request to " + service_1.name + " with the payload: \n" + str(tr)
+        self.send(service_1.name, tr)
+        tr.STRING = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d2.txt"
+        print "sending configure request to " + service_2.name + " with the payload: \n" + str(tr)
+        self.send(service_2.name, tr)
+        tr.STRING = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d3.txt"
+        print "sending configure request to " + service_3.name + " with the payload: \n" + str(tr)
+        self.send(service_3.name, tr)
+        tr.STRING = os.environ["PCLARA_HOME"] + "/examples/engines/Data/d4.txt"
+        print "sending configure request to " + service_4.name + " with the payload: \n" + str(tr)
+        self.send(service_4.name, tr)
+        print "sending configure request to " + service_5.name + " with the payload: \n" + str(tr)
+        self.send(service_5.name, tr)
 
 
 def main(n1, n2, n3, n4, n5):

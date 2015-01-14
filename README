@@ -9,3 +9,6 @@ Following are design conventions:
 3) registration requests are always sync with timeout defined in xMsgConstants.REGISTER_REQUEST_TIMEOUT
 4) finding a service request are also sync with timeout defined as xMsgConstants.FIND_REQUEST_TIMEOUT
 5) DPE registration database is duplicated in the FE database.
+
+For installation instructions refer to the "hands-on" section of the CLARA documentation at :
+ http://claraweb.jlab.org

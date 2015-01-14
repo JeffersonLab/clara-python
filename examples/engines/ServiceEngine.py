@@ -10,16 +10,16 @@ class Engine1(ACEngine):
 
     def execute(self, x):
         print "INPUT SERVICE .....> " + x.sender
-        print "INPUT DATA    .....> " + x.data
-        x.data = 'a' * 10
+        print "INPUT DATA    .....> " + x.BYTES
+        x.BYTES = 'a' * 10
         return x
 
     def execute_group(self, x):
         print "MULTI-INPUT DATA .....> "
         for k in x:
             print "INPUT SERVICE    .....> " + k.sender
-            print k.data
-        x[0].data = 'm' * 10
+            print k.BYTES
+        x[0].BYTES = 'm' * 10
         return x[0]
 
     def get_description(self):
@@ -53,16 +53,16 @@ class Engine1(ACEngine):
 class Engine2(ACEngine):
     def execute(self, x):
         print "INPUT SERVICE .....> " + x.sender
-        print "INPUT DATA    .....> " + x.data
-        x.data = 'b' * 10
+        print "INPUT DATA    .....> " + x.BYTES
+        x.STRING = 'b' * 10
         return x
 
     def execute_group(self, x):
         print "MULTI-INPUT DATA .....> "
         for k in x:
             print "INPUT SERVICE    .....> " + k.sender
-            print k.data
-        x[0].data = 'm' * 10
+            print k.BYTES
+        x[0].BYTES = 'm' * 10
         return x[0]
 
     def get_description(self):
@@ -99,16 +99,16 @@ class Engine2(ACEngine):
 class Engine3(ACEngine):
     def execute(self, x):
         print "INPUT SERVICE .....> " + x.sender
-        print "INPUT DATA    .....> " + x.data
-        x.data = 'c' * 10
+        print "INPUT DATA    .....> " + x.BYTES
+        x.BYTES = 'c' * 10
         return x
 
     def execute_group(self, x):
         print "MULTI-INPUT DATA .....> "
         for k in x:
             print "INPUT SERVICE    .....> " + k.sender
-            print k.data
-        x[0].data = 'm' * 10
+            print k.BYTES
+        x[0].BYTES = 'm' * 10
         return x[0]
 
     def get_description(self):
@@ -155,12 +155,12 @@ class F1(ACEngine):
 
         print "INPUT SERVICE .....> " + x.sender + " " + self.f_content
         if self.c_count < len(self.f_content):
-            x.data = self.f_content[self.c_count]
+            x.STRING = self.f_content[self.c_count]
             self.c_count += 1
         else:
             self.c_count = 0
-            x.data = " "
-        print "SENDING DATA = "+x.data
+            x.STRING = " "
+        print "SENDING DATA = " + x.STRING
         return x
 
     def execute_group(self, x):
@@ -174,7 +174,7 @@ class F1(ACEngine):
 
     def configure(self, x):
         print "GOT CONFIGURE REQUEST"
-        f = open(str(x.data), "r+b")
+        f = open(str(x.STRING), "r+b")
         self.f_content = f.readline()
         self.c_count = 0
         f.close()
@@ -212,12 +212,12 @@ class F2(ACEngine):
 
         print "INPUT SERVICE .....> " + x.sender + " " + self.f_content
         if self.c_count < len(self.f_content):
-            x.data = self.f_content[self.c_count]
+            x.STRING = self.f_content[self.c_count]
             self.c_count += 1
         else:
             self.c_count = 0
-            x.data = " "
-        print "SENDING DATA = "+x.data
+            x.STRING = " "
+        print "SENDING DATA = "+x.STRING
         return x
 
     def execute_group(self, x):
@@ -231,7 +231,7 @@ class F2(ACEngine):
 
     def configure(self, x):
         print "GOT CONFIGURE REQUEST"
-        f = open(str(x.data), "r+b")
+        f = open(str(x.STRING), "r+b")
         self.f_content = f.readline()
         self.c_count = 0
         f.close()
@@ -269,12 +269,12 @@ class F3(ACEngine):
 
         print "INPUT SERVICE .....> " + x.sender + " " + self.f_content
         if self.c_count < len(self.f_content):
-            x.data = self.f_content[self.c_count]
+            x.STRING = self.f_content[self.c_count]
             self.c_count += 1
         else:
             self.c_count = 0
-            x.data = " "
-        print "SENDING DATA = "+x.data
+            x.STRING = " "
+        print "SENDING DATA = "+x.STRING
         return x
 
     def execute_group(self, x):
@@ -288,11 +288,11 @@ class F3(ACEngine):
 
     def configure(self, x):
         print "GOT CONFIGURE REQUEST"
-        f = open(str(x.data), "r+b")
+        f = open(str(x.STRING), "r+b")
         self.f_content = f.readline()
         self.c_count = 0
         f.close()
-        print "FILE CONTENT = "+self.f_content
+        print "FILE CONTENT = " + self.f_content
 
     def get_returned_data_type(self, x):
         pass
@@ -326,12 +326,12 @@ class F4(ACEngine):
 
         print "INPUT SERVICE .....> " + x.sender + " " + self.f_content
         if self.c_count < len(self.f_content):
-            x.data = self.f_content[self.c_count]
+            x.STRING = self.f_content[self.c_count]
             self.c_count += 1
         else:
             self.c_count = 0
-            x.data = " "
-        print "SENDING DATA = "+x.data
+            x.STRING = " "
+        print "SENDING DATA = "+x.STRING
         return x
 
     def execute_group(self, x):
@@ -345,7 +345,7 @@ class F4(ACEngine):
 
     def configure(self, x):
         print "GOT CONFIGURE REQUEST"
-        f = open(str(x.data), "r+b")
+        f = open(str(x.STRING), "r+b")
         self.f_content = f.readline()
         self.c_count = 0
         f.close()
@@ -383,17 +383,17 @@ class EB(ACEngine):
         d = ["", "", "", ""]
         for k in x:
             if "F1" in k.sender:
-                d[0] = k.data
+                d[0] = k.STRING
             elif "F2" in k.sender:
-                d[1] = k.data
+                d[1] = k.STRING
             elif "F3" in k.sender:
-                d[2] = k.data
+                d[2] = k.STRING
             elif "F4" in k.sender:
-                d[3] = k.data
+                d[3] = k.STRING
         s = ""
         for y in d:
             s += y
-        x[0].data = s
+        x[0].STRING = s
         return x[0]
 
     def get_description(self):
@@ -403,7 +403,7 @@ class EB(ACEngine):
         pass
 
     def configure(self, x):
-        f = open(str(x.data), "r+b")
+        f = open(str(x.STRING), "r+b")
         self.f_content = f.readline()
         f.close()
 
@@ -434,7 +434,7 @@ class R(ACEngine):
     result = ""
 
     def execute(self, x):
-        self.result = self.result + x.data
+        self.result = self.result + x.STRING
         print self.result
         return x
 

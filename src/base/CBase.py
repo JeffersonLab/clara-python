@@ -2,7 +2,6 @@ from core.xMsg import xMsg
 from core.xMsgConstants import xMsgConstants
 from core.xMsgUtil import xMsgUtil
 from net.xMsgAddress import xMsgAddress
-from src.util.CUtility import CUtility
 
 __author__ = 'gurjyan'
 
@@ -14,6 +13,7 @@ class CBase(xMsg):
     """
     name = xMsgConstants.UNDEFINED
     node_connection = xMsgConstants.UNDEFINED
+    node_con_internal_context = xMsgConstants.UNDEFINED
     call_back = xMsgConstants.UNDEFINED
 
     def __init__(self, name, feHost=xMsgConstants.LOCALHOST):
@@ -23,6 +23,7 @@ class CBase(xMsg):
         # Create a socket connections to the xMsg node
         address = xMsgAddress()
         self.node_connection = self.connect(address)
+        self.node_con_internal_context = self.connect(address)
 
     @staticmethod
     def parse_out_linked(service_name, composition):
@@ -154,8 +155,7 @@ class CBase(xMsg):
         if xMsgUtil.get_domain(service_name) is xMsgConstants.ANY:
             raise Exception("Host name of the DPE must be specified")
         else:
-            if xMsgUtil.get_domain(service_name) is \
-                    xMsgUtil.get_local_ip():
+            if xMsgUtil.get_domain(service_name) == xMsgUtil.get_local_ip():
                 return self.findLocalSubscriber(self.name,
                                                 xMsgUtil.get_domain(service_name),
                                                 xMsgUtil.get_subject(service_name),
@@ -176,9 +176,28 @@ class CBase(xMsg):
         :param topic: Service canonical name that this
                              method will subscribe or listen
         :param call_back: User provided call_back function.
-        :param is_sync: User provided call_back function.
+        :param is_sync:
         """
         self.subscribe(self.node_connection,
+                       xMsgUtil.get_domain(topic),
+                       xMsgUtil.get_subject(topic),
+                       xMsgUtil.get_type(topic),
+                       call_back,
+                       is_sync)
+
+    def receive_new(self, connection, topic, call_back, is_sync=True):
+
+        """
+        This method simply calls xMsg subscribe method
+        passing the reference to user provided call_back method.
+
+        :param connection object
+        :param topic: Service canonical name that this
+                             method will subscribe or listen
+        :param call_back: User provided call_back function.
+        :param is_sync:
+        """
+        self.subscribe(connection,
                        xMsgUtil.get_domain(topic),
                        xMsgUtil.get_subject(topic),
                        xMsgUtil.get_type(topic),
@@ -194,6 +213,21 @@ class CBase(xMsg):
         :param data: xMsgData object
         """
         self.publish(self.node_connection,
+                     xMsgUtil.get_domain(topic),
+                     xMsgUtil.get_subject(topic),
+                     xMsgUtil.get_type(topic),
+                     self.name,
+                     data)
+
+    def send_new(self, connection, topic, data):
+        """
+        Sends xMsgData object to a service defined by:
+
+        :param topic: Clara service canonical name where
+                             the data will be sent as an input
+        :param data: xMsgData object
+        """
+        self.publish(connection,
                      xMsgUtil.get_domain(topic),
                      xMsgUtil.get_subject(topic),
                      xMsgUtil.get_type(topic),

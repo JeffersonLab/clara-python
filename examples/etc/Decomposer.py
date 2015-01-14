@@ -8,6 +8,7 @@ class Decomposer:
     def __init__(self, sentence):
         while len(sentence) % 4 != 0:
             sentence += " "
+
         f1 = open("../engines/Data/d1.txt", "wb")
         f2 = open("../engines/Data/d2.txt", "wb")
         f3 = open("../engines/Data/d3.txt", "wb")
@@ -40,6 +41,9 @@ def main(sent):
     Decomposer(sent)
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    snt = ""
+    for s in sys.argv[1:]:
+        snt = snt + " " + s
+    main(snt)
 
 

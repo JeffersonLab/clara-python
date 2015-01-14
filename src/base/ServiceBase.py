@@ -1,3 +1,4 @@
+import Queue
 from core.xMsgConstants import xMsgConstants
 from data import xMsgData_pb2
 from src.base.CBase import CBase
@@ -6,6 +7,15 @@ __author__ = 'gurjyan'
 
 
 class ServiceBase(CBase):
+
+    # object pools
+    available_object_pool = Queue.Queue()
+    used_object_pool = Queue.Queue()
+
+    # initial size of the object pool that will grow
+    # based on number of simultaneous requests
+    object_pool_size = 1
+
     """
      The base class for service containers
      Clara service name convention - host:container:name
@@ -15,6 +25,38 @@ class ServiceBase(CBase):
 
     def __init__(self, name):
         CBase.__init__(self, name)
+
+    @staticmethod
+    def return_object_to_pool():
+
+        """
+        Callback is called after objects from the object pool
+        inform that the service execution is completed
+        """
+        try:
+            # transfer object from used objects pool to the available pool
+            ins = ServiceBase.used_object_pool.get()
+            ServiceBase.available_object_pool.put(ins)
+        except Queue.Empty:
+            pass
+
+    @staticmethod
+    def get_object_from_pool():
+        """
+        Returns the object form the object pool. In case pool is empty
+        it will create a new instance of the service class and add to the pool.
+
+        :return: object of the ServiceMP class
+        """
+        # transfer object from available pool to the used one
+        try:
+            ins = ServiceBase.available_object_pool.get()
+            ServiceBase.used_object_pool.put(ins)
+        except Queue.Empty:
+            print "available pool is empty"
+            return
+        return ins
+
 
     @staticmethod
     def _for_name(modname, class_name):
