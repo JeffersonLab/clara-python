@@ -38,7 +38,7 @@ class ServiceExecutor(object, ServiceBase):
 
     def __init__(self, engine_class, container, engine_class_name):
         """
-                Service constructor.
+                Service executor constructor.
                 Does registration request to the local Registrar service.
 
                 :param engine_class: the name of the python class containing

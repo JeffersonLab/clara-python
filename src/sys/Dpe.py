@@ -16,11 +16,11 @@ class Dpe():
         """Clara DPE
         """
         print " ================================"
-        print "           CLARA Dpe "
+        print "           CLARA DPE "
         print " ================================"
-        print " lang = Python"
-        print " date = " + time.strftime("%c")
-        print " host = " + xMsgUtil.get_local_ip()
+        print " Binding = Python"
+        print " Date = " + time.strftime("%c")
+        print " Host = " + xMsgUtil.get_local_ip()
         print " ================================"
 
         xn = xMsgNode()

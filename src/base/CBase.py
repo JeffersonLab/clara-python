@@ -13,7 +13,6 @@ class CBase(xMsg):
     """
     name = xMsgConstants.UNDEFINED
     node_connection = xMsgConstants.UNDEFINED
-    node_con_internal_context = xMsgConstants.UNDEFINED
     call_back = xMsgConstants.UNDEFINED
 
     def __init__(self, name, feHost=xMsgConstants.LOCALHOST):
@@ -23,7 +22,6 @@ class CBase(xMsg):
         # Create a socket connections to the xMsg node
         address = xMsgAddress()
         self.node_connection = self.connect(address)
-        self.node_con_internal_context = self.connect(address)
 
     @staticmethod
     def parse_out_linked(service_name, composition):
@@ -150,7 +148,7 @@ class CBase(xMsg):
          engine names. * is not permitted for dpe_host specification
 
         :param service_name: service canonical name
-        :return: set of xMsgRegistrationData object
+        :return: set of xMsgRegistrationData objects
         """
         if xMsgUtil.get_domain(service_name) is xMsgConstants.ANY:
             raise Exception("Host name of the DPE must be specified")
@@ -190,6 +188,9 @@ class CBase(xMsg):
         """
         This method simply calls xMsg subscribe method
         passing the reference to user provided call_back method.
+        The only difference is that this method requires a
+        connection socket different than the default socket connection
+        to the local dpe proxy.
 
         :param connection object
         :param topic: Service canonical name that this
@@ -209,7 +210,7 @@ class CBase(xMsg):
         Sends xMsgData object to a service defined by:
 
         :param topic: Clara service canonical name where
-                             the data will be sent as an input
+                      the data will be sent as an input
         :param data: xMsgData object
         """
         self.publish(self.node_connection,
@@ -223,8 +224,9 @@ class CBase(xMsg):
         """
         Sends xMsgData object to a service defined by:
 
+        :param connection: connection socket
         :param topic: Clara service canonical name where
-                             the data will be sent as an input
+                      the data will be sent as an input
         :param data: xMsgData object
         """
         self.publish(connection,

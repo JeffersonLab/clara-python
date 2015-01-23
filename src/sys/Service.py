@@ -17,7 +17,7 @@ class Service(ServiceBase):
     """
     Service container/broker class. This creates ServiceMP object pool.
     Handles subscriptions and callbacks.
-    Calls service object's run method in a separate thread.
+    Calls service (service executor) object's run method in a separate thread.
     """
 
     def __init__(self, engine_class, container, engine_class_name, p_size):

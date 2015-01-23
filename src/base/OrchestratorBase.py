@@ -35,18 +35,58 @@ class OrchestratorBase(CBase):
         return self.name
 
     def get_service_by_host(self, dpe_host):
+        """
+        Asks the Registrar service of a specified DPE
+        (host) to return the registration information of
+        service/services based on dpe_host
+
+        :param dpe_host:
+        :return: set of xMsgRegistrationData objects
+        """
         s_name = CUtility.form_canonical_name(dpe_host, xMsgConstants.ANY, xMsgConstants.ANY)
         return self.find_service(s_name)
 
     def get_service_by_container(self, container_name, dpe_host=xMsgUtil.get_local_ip()):
+        """
+        Asks the Registrar service of a specified DPE
+        (host) to return the registration information of
+        service/services based on the name of the service
+        container
+
+        :param container_name: the name of the service container
+        :param dpe_host:
+        :return: set of xMsgRegistrationData objects
+        """
         s_name = CUtility.form_canonical_name(dpe_host, container_name, xMsgConstants.ANY)
         return self.find_service(s_name)
 
     def get_service_by_engine(self, engine_name, dpe_host=xMsgUtil.get_local_ip()):
+        """
+        Asks the Registrar service of a specified DPE
+        (host) to return the registration information of
+        service/services based on the name of the service
+        engine
+
+        :param engine_name: the name of the service engine
+        :param dpe_host:
+        :return: set of xMsgRegistrationData objects
+        """
+
         s_name = CUtility.form_canonical_name(dpe_host, xMsgConstants.ANY, engine_name)
         return self.find_service(s_name)
 
     def get_service_description(self, dpe_host, container, engine):
+        """
+        Asks the Registrar service of a specified DPE
+        (host) to return the description of a service
+        based on the name of the service container and
+        the name of the service engine
+
+        :param dpe_host:
+        :param container: service container name
+        :param engine: service engine name
+        :return: Description of the service
+        """
         s_name = CUtility.form_canonical_name(dpe_host, container, engine)
         s = self.find_service(s_name)
         return s[0].description
@@ -234,7 +274,7 @@ class OrchestratorBase(CBase):
         getting xMsgData in the call back.
 
         :param callback_function: call back function
-        :param is_sync: This call will block until
+        :param is_sync: if true this call will block until
                         callback receives the data
         """
         sev = "1"
@@ -283,6 +323,7 @@ class OrchestratorBase(CBase):
         The construct service_name = *:container:engine is equivalent to
         receive_all_ call. Also note that no other combinations are supported.
 
+        :param service_name: the name of the service of interest
         :param callback_function: call back function
         :param is_sync: This call will block until
                         callback receives the data

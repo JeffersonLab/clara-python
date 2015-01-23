@@ -7,4 +7,13 @@ setenv PYTHONPATH $PCLARA_HOME\:$PCLARA_HOME/src/sys\:$PCLARA_HOME/src/base\:$PC
 
 cd "$PCLARA_HOME/examples/orchestrators"
 
+if ( $#argv != 3 || $1 == "-h" || $1 == "-help" ) then
+    echo ""
+    echo "Starts CLARA application (python binding)"
+    echo "-------------------------------------"
+    echo "synopsis:"
+    echo "p_pattern [starting service engine] [data size (bytes)] [composition] "
+    echo ""
+else
 python PatternTester.py $1 $2 $3
+endif
