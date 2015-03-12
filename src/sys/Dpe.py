@@ -26,7 +26,7 @@ class Dpe():
         xn = xMsgNode()
         signal.signal(signal.SIGTERM, xn.exit_gracefully)
         signal.signal(signal.SIGINT, xn.exit_gracefully)
-
+        xn.join()
 
 def main():
     dpe = Dpe()

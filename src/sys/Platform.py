@@ -25,7 +25,7 @@ class Platform():
         xn = xMsgFE()
         signal.signal(signal.SIGTERM, xn.exit_gracefully)
         signal.signal(signal.SIGINT, xn.exit_gracefully)
-
+        xn.join()
 
 def main():
     dpe = Platform()
