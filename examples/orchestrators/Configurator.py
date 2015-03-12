@@ -2,6 +2,7 @@ import os
 import sys
 from core.xMsgConstants import xMsgConstants
 from data import xMsgData_pb2
+from data.xMsgData_pb2 import Data
 from src.base.OrchestratorBase import OrchestratorBase
 
 
