@@ -7,3 +7,7 @@ dist/
 *.egg-info
 .project
 .pydevproject
+examples/engines/Data/d1.txt
+examples/engines/Data/d2.txt
+examples/engines/Data/d3.txt
+examples/engines/Data/d4.txt
