@@ -6,8 +6,8 @@ Created on 11-05-2015
 import re
 from src.util.CConstants import CConstants
 
-CANONICAL_NAME_PATTERN = "^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
-CANONICAL_NAME_VALIDATOR = re.compile(CANONICAL_NAME_PATTERN)
+CNAME_PATTERN = "^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
+CNAME_VALIDATOR = re.compile(CNAME_PATTERN)
 
 
 class ClaraUtils():
@@ -17,27 +17,18 @@ class ClaraUtils():
 
     @staticmethod
     def isDpeName(name):
-        dpe_name = CANONICAL_NAME_VALIDATOR.match(name)
-        if dpe_name and len(name.split(CConstants.TOPIC_SEP)) == 1:
-            return True
-        else:
-            return False
+        return bool(CNAME_VALIDATOR.match(name) and
+                    len(name.split(CConstants.TOPIC_SEP)) is 1)
 
     @staticmethod
     def isContainerName(name):
-        container_name = CANONICAL_NAME_VALIDATOR.match(name)
-        if container_name and len(name.split(CConstants.TOPIC_SEP)) == 2:
-            return True
-        else:
-            return False
+        return bool(CNAME_VALIDATOR.match(name) and
+                    len(name.split(CConstants.TOPIC_SEP)) is 2)
 
     @staticmethod
     def isServiceName(name):
-        service_name = CANONICAL_NAME_VALIDATOR.match(name)
-        if service_name and len(name.split(CConstants.TOPIC_SEP)) == 3:
-            return True
-        else:
-            return False
+        return bool(CNAME_VALIDATOR.match(name) and
+                    len(name.split(CConstants.TOPIC_SEP)) is 3)
 
     @staticmethod
     def getHostname(canonical_name):
@@ -50,16 +41,16 @@ class ClaraUtils():
 
     @staticmethod
     def getContainerCanonicalName(canonical_name):
-        match = CANONICAL_NAME_VALIDATOR.match(canonical_name)
+        match = CNAME_VALIDATOR.match(canonical_name)
         return match.group(1) + CConstants.TOPIC_SEP + match.group(4)
 
     @staticmethod
     def getContainerName(canonical_name):
-        return CANONICAL_NAME_VALIDATOR.match(canonical_name).group(4)
+        return CNAME_VALIDATOR.match(canonical_name).group(4)
 
     @staticmethod
     def getEngineName(canonical_name):
-        return CANONICAL_NAME_VALIDATOR.match(canonical_name).group(5)
+        return CNAME_VALIDATOR.match(canonical_name).group(5)
 
     @staticmethod
     def formDpeName(host, lang):
@@ -71,4 +62,4 @@ class ClaraUtils():
 
     @staticmethod
     def formServiceName(container_name, service_engine):
-        return container_name + CConstants.TOPIC_SEP + service_engine    
+        return container_name + CConstants.TOPIC_SEP + service_engine

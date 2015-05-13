@@ -106,7 +106,7 @@ class TestClaraUtils(unittest.TestCase):
         for case in DPE_VALID_CASES:
             test_case = ClaraUtils.isDpeName(case)
             regex_validation = re.compile("^([^:_ ]+_(java|python|cpp))")
-            self.assertIsNot(regex_validation.match(case), None)
+            self.assertIsNotNone(regex_validation.match(case))
             
     def test_getContainerName(self):        
         for case in NAME_VALID_CASES:
