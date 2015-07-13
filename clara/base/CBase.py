@@ -1,7 +1,27 @@
-from core.xMsg import xMsg
-from core.xMsgConstants import xMsgConstants
-from core.xMsgUtil import xMsgUtil
-from net.xMsgAddress import xMsgAddress
+'''
+ Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for educational, research, and not-for-profit purposes,
+ without fee and without a signed licensing agreement.
+
+ Author Vardan Gyurjyan
+ Department of Experimental Nuclear Physics, Jefferson Lab.
+
+ IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+ INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+ THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+ SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+'''
+from xmsg.core.xMsg import xMsg
+from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgUtil import xMsgUtil
+from xmsg.net.xMsgAddress import xMsgAddress
 
 __author__ = 'gurjyan'
 
@@ -11,13 +31,12 @@ class CBase(xMsg):
     Base class for service as well as for orchestrator classes
     Clara service name convention - dpe_host:container:engine_name
     """
-    name = xMsgConstants.UNDEFINED
-    node_connection = xMsgConstants.UNDEFINED
-    call_back = xMsgConstants.UNDEFINED
+    name = str(xMsgConstants.UNDEFINED)
+    node_connection = str(xMsgConstants.UNDEFINED)
+    call_back = str(xMsgConstants.UNDEFINED)
 
-    def __init__(self, name, feHost=xMsgConstants.LOCALHOST):
-        xMsg.__init__(self, feHost)
-        self.name = name
+    def __init__(self, name, feHost="localhost"):
+        xMsg.__init__(self, name, feHost)
 
         # Create a socket connections to the xMsg node
         address = xMsgAddress()
@@ -147,26 +166,19 @@ class CBase(xMsg):
          Note that character * can be used for any/all container and
          engine names. * is not permitted for dpe_host specification
 
-        :param service_name: service canonical name
+        :param service_name: service canonical name (xMsgTopic)
         :return: set of xMsgRegistrationData objects
         """
-        if xMsgUtil.get_domain(service_name) is xMsgConstants.ANY:
+        if service_name.get_domain() is xMsgConstants.ANY:
             raise Exception("Host name of the DPE must be specified")
         else:
-            if xMsgUtil.get_domain(service_name) == xMsgUtil.get_local_ip():
-                return self.findLocalSubscriber(self.name,
-                                                xMsgUtil.get_domain(service_name),
-                                                xMsgUtil.get_subject(service_name),
-                                                xMsgUtil.get_type(service_name))
+            if service_name.get_domain() == xMsgUtil.get_local_ip():
+                return self.find_local_subscriber(service_name)
+
             else:
-                return self.findSubscriber(self.name,
-                                           xMsgUtil.get_domain(service_name),
-                                           xMsgUtil.get_subject(service_name),
-                                           xMsgUtil.get_type(service_name),
-                                           xMsgUtil.get_domain(service_name))
+                return self.find_subscriber(service_name)
 
     def receive(self, topic, call_back, is_sync=True):
-
         """
         This method simply calls xMsg subscribe method
         passing the reference to user provided call_back method.
@@ -176,12 +188,7 @@ class CBase(xMsg):
         :param call_back: User provided call_back function.
         :param is_sync:
         """
-        self.subscribe(self.node_connection,
-                       xMsgUtil.get_domain(topic),
-                       xMsgUtil.get_subject(topic),
-                       xMsgUtil.get_type(topic),
-                       call_back,
-                       is_sync)
+        self.subscribe(self.node_connection, topic, call_back, is_sync)
 
     def receive_new(self, connection, topic, call_back, is_sync=True):
 
@@ -198,12 +205,7 @@ class CBase(xMsg):
         :param call_back: User provided call_back function.
         :param is_sync:
         """
-        self.subscribe(connection,
-                       xMsgUtil.get_domain(topic),
-                       xMsgUtil.get_subject(topic),
-                       xMsgUtil.get_type(topic),
-                       call_back,
-                       is_sync)
+        self.subscribe(connection, topic, call_back, is_sync)
 
     def send(self, topic, data):
         """
@@ -213,12 +215,7 @@ class CBase(xMsg):
                       the data will be sent as an input
         :param data: xMsgData object
         """
-        self.publish(self.node_connection,
-                     xMsgUtil.get_domain(topic),
-                     xMsgUtil.get_subject(topic),
-                     xMsgUtil.get_type(topic),
-                     self.name,
-                     data)
+        self.publish(self.node_connection, topic, self.name, data)
 
     def send_new(self, connection, topic, data):
         """
@@ -229,9 +226,4 @@ class CBase(xMsg):
                       the data will be sent as an input
         :param data: xMsgData object
         """
-        self.publish(connection,
-                     xMsgUtil.get_domain(topic),
-                     xMsgUtil.get_subject(topic),
-                     xMsgUtil.get_type(topic),
-                     self.name,
-                     data)
+        self.publish(connection, topic, self.name, data)
