@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 '''
  Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
  Permission to use, copy, modify, and distribute this software and its
@@ -19,8 +18,11 @@
  HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 '''
+from distutils.core import setup
+from distutils.command.clean import clean
+from distutils.command.install import install
 from setuptools.command.test import test as TestCommand
-from setuptools import setup, find_packages
+from setuptools import find_packages
 
 
 class PyTest(TestCommand):
@@ -35,19 +37,28 @@ class PyTest(TestCommand):
         pytest.main(self.test_args)
 
 
-setup(name='pClara',
-      version='1.0',
-      description='pClara',
-      author='Vardan Gyurgyan',
-      author_email='vardan@jlab.org',
-      url='https://claraweb.jlab.org',
-      test_suite="tests",
-      tests_require=['pytest', 'xmsg>=2.0'],
-      dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git@v2.0#egg=xmsg-2.0'],
-      cmdclass={'test': PyTest},
-      packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
-                                      "tests", "examples", "examples.*"]),
-      package_dir={"pClara": "clara"},
-      install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4']
-      )
+class claraInstall(install):
 
+    def run(self):
+        install.run(self)
+        c = clean(self.distribution)
+        c.all = True
+        c.finalize_options()
+        c.run()
+
+if __name__ == "__main__":
+    setup(name='pClara',
+          version='2.0',
+          description='pClara',
+          author='Ricardo Oyarzun',
+          author_email='royarzun@gmail.com',
+          url='https://claraweb.jlab.org',
+          test_suite="tests",
+          tests_require=['pytest', 'xmsg>=2.0', 'enum34>=1.0.4'],
+          dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git@v2.0#egg=xmsg-2.0'],
+          cmdclass={'test': PyTest},
+          packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
+                                          "tests", "examples", "examples.*"]),
+          package_dir={"pClara": "clara"},
+          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4']
+          )

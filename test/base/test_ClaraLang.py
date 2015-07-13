@@ -18,16 +18,17 @@
  HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 '''
-from enum import Enum
+import unittest
+
+from clara.base.ClaraLang import ClaraLang
 
 
-class ClaraLang(Enum):
-    JAVA = "java"
-    PYTHON = "python"
-    CPP = "cpp"
-    
-    def __init__(self, lang_value):
-        self.lang_value = lang_value
-        
-    def __str__(self):
-        return self.lang_value
+class TestClaraLang(unittest.TestCase):
+
+    def test_constructor(self):
+        self.assertEqual(str(ClaraLang.JAVA), "java")
+        self.assertEqual(str(ClaraLang.PYTHON), "python")
+        self.assertEqual(str(ClaraLang.CPP), "cpp")
+
+if __name__ == "__main__":
+    unittest.main()

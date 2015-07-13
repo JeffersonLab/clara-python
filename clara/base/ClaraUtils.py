@@ -1,19 +1,32 @@
 '''
-Created on 11-05-2015
+ Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for educational, research, and not-for-profit purposes,
+ without fee and without a signed licensing agreement.
 
-@author: royarzun
+ Author Vardan Gyurjyan
+ Department of Experimental Nuclear Physics, Jefferson Lab.
+
+ IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+ INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+ THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+ SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 '''
 import re
-from src.util.CConstants import CConstants
+
+from clara.base.CConstants import CConstants
 
 CNAME_PATTERN = "^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
 CNAME_VALIDATOR = re.compile(CNAME_PATTERN)
 
 
 class ClaraUtils():
-
-    def __init__(self, params):
-        pass
 
     @staticmethod
     def isDpeName(name):
@@ -54,7 +67,7 @@ class ClaraUtils():
 
     @staticmethod
     def formDpeName(host, lang):
-        return host + CConstants.LANG_SEP + lang
+        return host + CConstants.LANG_SEP + str(lang)
 
     @staticmethod
     def formContainerName(dpe_name, container_name):

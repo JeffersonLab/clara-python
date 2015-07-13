@@ -1,12 +1,28 @@
 '''
-Created on 12-05-2015
+ Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for educational, research, and not-for-profit purposes,
+ without fee and without a signed licensing agreement.
 
-@author: royarzun
+ Author Vardan Gyurjyan
+ Department of Experimental Nuclear Physics, Jefferson Lab.
+
+ IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+ INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+ THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+ HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+ SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 '''
 import unittest
 import re
-from src.base.ClaraUtils import ClaraUtils
-from src.base.ClaraLang import ClaraLang
+
+from clara.base.ClaraUtils import ClaraUtils
+from clara.base.ClaraLang import ClaraLang
 
 CONTAINER_VALID_CASES = ["10.2.58.17_java:master",
                          "10.2.58.17_java:best_container",
@@ -131,7 +147,7 @@ class TestClaraUtils(unittest.TestCase):
     
     def test_formServiceName(self):
         test_case = ClaraUtils.formServiceName("192.168.0.1_java:some_container",
-                                                 "some_engine")
+                                               "some_engine")
         self.assertEqual(ClaraUtils.isServiceName(test_case), True)
         self.assertEqual(test_case, "192.168.0.1_java:some_container:some_engine")
 
