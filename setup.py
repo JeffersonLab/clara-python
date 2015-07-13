@@ -50,3 +50,4 @@ setup(name='pClara',
       package_dir={"pClara": "clara"},
       install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4']
       )
+
