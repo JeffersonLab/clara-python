@@ -70,7 +70,7 @@ if __name__ == "__main__":
           author_email='royarzun@gmail.com',
           url='https://claraweb.jlab.org',
           test_suite="tests",
-          tests_require=['pytest', 'xmsg>=2.0', 'enum34>=1.0.4'],
+          tests_require=['pytest', 'xmsg', 'enum34>=1.0.4'],
           dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git'],
           cmdclass={
               'test': claraTest,
@@ -79,5 +79,5 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"pClara": "clara"},
-          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4', 'xmsg>=2.0']
+          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4', 'xmsg']
           )
