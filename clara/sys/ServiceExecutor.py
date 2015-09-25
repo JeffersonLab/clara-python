@@ -1,15 +1,36 @@
-from core.xMsgConstants import xMsgConstants
-from core.xMsgUtil import xMsgUtil
-from data import xMsgData_pb2
-from src.base.ServiceBase import ServiceBase
-from src.util.CUtility import CUtility
+#
+# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for educational, research, and not-for-profit purposes,
+# without fee and without a signed licensing agreement.
+#
+# Author Ricardo Oyarzun
+# Department of Experimental Nuclear Physics, Jefferson Lab.
+#
+# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
+# OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+
+from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgUtil import xMsgUtil
+from xmsg.data import xMsgData_pb2
+
+from clara.base.ServiceBase import ServiceBase
+from clara.util.CUtility import CUtility
 
 __author__ = 'gurjyan'
 
 
-class ServiceExecutor(object, ServiceBase):
-    """
-    Service multi-processing class.
+class ServiceExecutor(ServiceBase):
+    """Service multi-processing class.
     Objects of this class will be stored in the Container's object pool.
     """
 
@@ -37,16 +58,16 @@ class ServiceExecutor(object, ServiceBase):
     out_links = []
 
     def __init__(self, engine_class, container, engine_class_name):
-        """
-                Service executor constructor.
-                Does registration request to the local Registrar service.
+        """Service executor constructor. Does registration request to the local
+        Registrar service.
 
-                :param engine_class: the name of the python class containing
-                                               service engine class
-                :param container: the name of the service container
-                :param engine_class_name: the name of the service engine python class
-                                        within the engine_class (container of classes)
-                """
+        Params:
+            engine_class (String): the name of the python class containing
+                service engine class
+            container (String): the name of the service container
+            engine_class_name (String): the name of the service engine python
+                class within the engine_class (container of classes)
+        """
         # defines this service canonical name
         service_name = CUtility.form_canonical_name(xMsgUtil.get_local_ip(),
                                                     container,
@@ -63,8 +84,9 @@ class ServiceExecutor(object, ServiceBase):
          to be executed, by examining transient data "action" field.
          Call execute engine by passing transient data object and composition
 
-        :param in_data_list: list of already deserialized protocol-buffer data objects
-                             de-serialization done at the Broker of this service.
+        Params:
+            in_data_list (String): list of already deserialized protocol-buffer
+                data objects de-serialization done at the Broker of this service.
         """
 
         in_data_list = args
@@ -101,7 +123,8 @@ class ServiceExecutor(object, ServiceBase):
                 self.in_links[tr_object.composition] = \
                     self.parse_in_linked(self.name, tr_object.composition)
 
-                self.out_links = self.parse_out_linked(self.name, tr_object.composition)
+                self.out_links = self.parse_out_linked(self.name,
+                                                       tr_object.composition)
 
         # execute action request
         if tr_object.action == xMsgData_pb2.Data.EXECUTE:
@@ -114,13 +137,12 @@ class ServiceExecutor(object, ServiceBase):
             self.engine_object.configure(tr_object)
 
     def _exec_engine(self, transient_data):
-        """
-        Checks to see if inputs should be logically "AND"-ed
-        if so, it waits and records all received input.
-        If all inputs are present (recorded) dynamically
-        loads and executes "execute" method of the engine
+        """ Checks to see if inputs should be logically "AND"-ed if so, it waits
+        and records all received input. If all inputs are present (recorded)
+        dynamically loads and executes "execute" method of the engine
 
-        :param transient_data: list of deserialized input transient data object
+        Params:
+            transient_data: list of deserialized input transient data object
         """
 
         # reset exception parameters

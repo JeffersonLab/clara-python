@@ -1,13 +1,35 @@
-from copy import deepcopy
-import threading
-import sys
-from core.xMsgConstants import xMsgConstants
-from core.xMsgUtil import xMsgUtil
-from data import xMsgData_pb2
-from src.base.ServiceBase import ServiceBase
-from src.sys.ServiceExecutor import ServiceExecutor
+#!/usr/bin/env python
+#
+# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Permission to use, copy, modify, and distribute this software and its
+# documentation for educational, research, and not-for-profit purposes,
+# without fee and without a signed licensing agreement.
+#
+# Author Vardan Gyurjyan
+# Department of Experimental Nuclear Physics, Jefferson Lab.
+#
+# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
+# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
+# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
+# OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
+# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
+# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
 
-from src.util.CUtility import CUtility
+import sys
+import threading
+from copy import deepcopy
+from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgUtil import xMsgUtil
+from xmsg.data import xMsgData_pb2
+
+from clara.base.ServiceBase import ServiceBase
+from clara.sys.ServiceExecutor import ServiceExecutor
+from clara.util.CUtility import CUtility
 
 
 __author__ = 'gurjyan'
@@ -18,31 +40,30 @@ class Service(ServiceBase):
     Service container/broker class. This creates ServiceMP object pool.
     Handles subscriptions and callbacks.
     Calls service (service executor) object's run method in a separate thread.
+
+    Attributes:
+        engine_class (String): the name of the python class containing
+            service engine class
+        container (String): the name of service container, for logical
+            grouping of services.
+        engine_class_name (String): the name of the service engine python class
+            within the engine_container_class
+        p_size (Int): Service object pool size, i.e. number of parallel services
     """
 
     def __init__(self, engine_class, container, engine_class_name, p_size):
-        """
-                Service constructor.
-                Does registration request to the local Registrar service.
-
-                :param engine_class: the name of the python class containing
-                                               service engine class
-                :param container: the name of service container, for logical grouping of services.
-                :param engine_class_name: the name of the service engine python class
-                                        within the engine_container_class
-                :param p_size: Service object pool size, i.e. number of parallel services
-                """
-
         # local copy of the previous composition request,
         # obtained from previously received transient data
         self.p_composition = xMsgConstants.UNDEFINED
 
         # the dynamic (updated for every request) repository/map
-        # of input-linked service names that are required to be logically AND-ed
+        # of input-linked service names that are required to be logically
+        # AND-ed
         self.dyn_in_name_list = dict()
 
         # the dynamic ( updated for every request) repository/map
-        # of input-linked service data that are required to be logically AND-ed
+        # of input-linked service data that are required to be logically
+        # AND-ed
         self.dyn_in_data_list = dict()
 
         # local map of input-linked services for every
@@ -73,12 +94,16 @@ class Service(ServiceBase):
         ServiceBase.__init__(self, service_name)
 
         # Create service executor objects and fill the pool
-        for i in range(ServiceBase.object_pool_size):
-            instance = ServiceExecutor(self.engine_class, self.container, self.engine_class_name)
+        for _ in range(ServiceBase.object_pool_size):
+            instance = ServiceExecutor(self.engine_class,
+                                       self.container,
+                                       self.engine_class_name)
+
             ServiceBase.available_object_pool.put(instance)
 
         # Dynamically loads service engine class
-        engine_class = self._for_name(self.engine_class, self.engine_class_name)
+        engine_class = self._for_name(self.engine_class,
+                                      self.engine_class_name)
         self.engine_object = engine_class()
 
         # Get description defined in the service engine
@@ -99,11 +124,10 @@ class Service(ServiceBase):
         xMsgUtil.keep_alive()
 
     def call_back(self, tr_data):
-        """
-        Service callback.
-        This calls engine passing received data to it
+        """ Service callback. This calls engine passing received data to it
 
-        :param tr_data:
+        Params:
+            tr_data
         """
         self.start_service(tr_data)
 
@@ -112,18 +136,18 @@ class Service(ServiceBase):
         composition = tr_object.composition
 
         # check to see if this is a configure request
-        if tr_object.action == xMsgData_pb2.Data.CONFIGURE:
+        if tr_object.action == xMsgData_pb2.xMsgData.CONFIGURE:
 
             # configure all engines in all service objects and return
             # Note: the successful configuration assumes that all
             #       objects are in the available pool.
-            for i in range(ServiceBase.available_object_pool.qsize()):
+            for _ in range(ServiceBase.available_object_pool.qsize()):
                 ins = ServiceBase.available_object_pool.get()
                 ins.run(tr_object)
                 ServiceBase.used_object_pool.put(ins)
 
             # return all objects to the pool of available objects
-            for i in range(ServiceBase.used_object_pool.qsize()):
+            for _ in range(ServiceBase.used_object_pool.qsize()):
                 ins = ServiceBase.used_object_pool.get()
                 ServiceBase.available_object_pool.put(ins)
             return
@@ -178,8 +202,8 @@ class Service(ServiceBase):
                 elif tr_object.sender not in self.dyn_in_name_list.get(composition):
                     self.dyn_in_name_list.get(composition).append(tr_object.sender)
                     self.dyn_in_data_list.get(composition).append(tr_object)
-                    print "got the request from sender = " + tr_object.sender + " " +\
-                          str(len(self.dyn_in_data_list.get(composition)))
+                    print "got the request from sender = %s %s" % (tr_object.sender,
+                                                                   str(len(self.dyn_in_data_list.get(composition))))
 
                 # check to see if all inputs for a logical AND are already sent data
                 if len(self.dyn_in_name_list.get(composition)) == len(self.in_links.get(composition)):
@@ -212,6 +236,7 @@ class Service(ServiceBase):
             t.start()
 
 
+@classmethod
 def main(engine_class, container, engine, object_pool_size):
     Service(engine_class, container, engine, object_pool_size)
 
