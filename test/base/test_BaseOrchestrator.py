@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 #
 # Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
 #
-# Author Vardan Gyurjyan
+# Author Ricardo Oyarzun
 # Department of Experimental Nuclear Physics, Jefferson Lab.
 #
 # IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -20,26 +19,24 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from xmsg.core.xMsgUtil import xMsgUtil
+import unittest
 
-__author__ = 'gurjyan'
+from clara.base.BaseOrchestrator import BaseOrchestrator
 
 
-class CUtility(object):
+class TestBaseOrchestrator(unittest.TestCase):
 
-    def __init__(self):
-        pass
+    def setUp(self):
+        self.orchestrator = BaseOrchestrator("129.57.114.94")
 
-    @staticmethod
-    def form_canonical_name(host, container, engine_name):
-
-        """
-        Constructs and returns CLARA specified canonical name.
-        For e.g. service name convention, i.e. host:container:engine
-
-        :param host: DPE host IP address
-        :param container: Clara service container name
-        :param engine_name: Clara service engine name
-        :return: canonical name of the Clara service
-        """
-        return xMsgUtil.host_to_ip(host) + ":" + str(container) + ":" + str(engine_name)
+    def test_constructor_creates_object_and_sets_proper_name(self):
+        self.assertRegexpMatches(self.orchestrator.base.myname,
+                                 "^orchestrator[\d]{1,4}:localhost$")
+        self.assertIsInstance(self.orchestrator, BaseOrchestrator)
+    
+    def test_build_data(self):
+        topic_data = "2:3:4"
+        self.assertEqual(topic_data, self.orchestrator._build_data(1,2,3,4))
+        
+    def test_deploy_container_does_correctly_generic_send(self):
+        self.orchestrator.deploy_container("129.57.114.94_python:thecontainer")

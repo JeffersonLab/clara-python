@@ -55,14 +55,13 @@ DPE_VALID_CASES = ["10.2.58.17_java",
                    "10.2.58.17_python",
                    ]
 
-                     
 DPE_INVALID_CASES = ["10.2.58.17 _java",
                      "10.2.58.17_cppx",
                      "10.2.58.17-python",
                      "10.2.58.17_java8",
                      "10.2.58.17_ cpp",
                      "10.2.58.17 _ python",
-                     ]  
+                     ]
 
 SERVICE_VALID_CASES = ["129.57.28.27_java:master:SimpleEngine",
                        "129.57.28.27_cpp:container1:IntegrationEngine",
@@ -80,76 +79,76 @@ NAME_VALID_CASES = ["dpe_java:c:s",
                     "dpe_java:c",
                     ]
 
+
 class TestClaraUtils(unittest.TestCase):
 
-    def test_isDpe_pos(self):
+    def test_is_dpe_pos(self):
         for case in DPE_VALID_CASES:
-            test_case = ClaraUtils.isDpeName(case)
-            self.assertEqual(test_case, True)
+            test_case = ClaraUtils.is_dpe_name(case)
+            self.assertTrue(test_case)
 
-    def test_isDpe_neg(self):
+    def test_is_dpe_neg(self):
         for case in DPE_INVALID_CASES:
-            test_case = ClaraUtils.isDpeName(case)
-            print case
-            self.assertEqual(test_case, False)
+            test_case = ClaraUtils.is_dpe_name(case)
+            self.assertFalse(test_case)
 
-    def test_isContainer_pos(self):
+    def test_is_container_pos(self):
         for case in CONTAINER_VALID_CASES:
-            test_case = ClaraUtils.isContainerName(case)
-            self.assertEqual(test_case, True)
+            test_case = ClaraUtils.is_container_name(case)
+            self.assertTrue(test_case)
 
-    def test_isContainer_neg(self):
+    def test_is_container_neg(self):
         for case in CONTAINER_INVALID_CASES:
-            test_case = ClaraUtils.isContainerName(case)
-            self.assertEqual(test_case, False)
+            test_case = ClaraUtils.is_container_name(case)
+            self.assertFalse(test_case)
 
-    def test_isServiceName_pos(self):
+    def test_is_service_name_pos(self):
         for case in SERVICE_VALID_CASES:
-            test_case = ClaraUtils.isServiceName(case)
-            self.assertEqual(test_case, True)
+            test_case = ClaraUtils.is_service_name(case)
+            self.assertTrue(test_case)
 
-    def test_isServiceName_neg(self):
+    def test_is_service_name_neg(self):
         for case in SERVICE_INVALID_CASES:
-            test_case = ClaraUtils.isServiceName(case)
-            self.assertEqual(test_case, False)
-    
+            test_case = ClaraUtils.is_service_name(case)
+            self.assertFalse(test_case)
+
     def test_get_hostname(self):
         for case in SERVICE_VALID_CASES:
-            test_case = ClaraUtils.getHostname(case)
+            test_case = ClaraUtils.get_hostname(case)
             self.assertEqual(test_case, "129.57.28.27")
-    
-    def test_isDpeName(self):
+
+    def test_is_dpe_name(self):
         for case in DPE_VALID_CASES:
-            test_case = ClaraUtils.isDpeName(case)
             regex_validation = re.compile("^([^:_ ]+_(java|python|cpp))")
+            self.assertTrue(ClaraUtils.is_dpe_name(case))
             self.assertIsNotNone(regex_validation.match(case))
-            
-    def test_getContainerName(self):        
+
+    def test_get_container_name(self):
         for case in NAME_VALID_CASES:
-            test_case = ClaraUtils.getContainerName(case)
+            test_case = ClaraUtils.get_container_name(case)
             self.assertEqual(test_case, "c")
-    
-    def test_getContainerCanonicalName(self):
+
+    def test_get_container_canonical_name(self):
         for case in NAME_VALID_CASES:
-            test_case = ClaraUtils.getContainerCanonicalName(case)            
+            test_case = ClaraUtils.get_container_canonical_name(case)
             self.assertEqual(test_case, "dpe_java:c")
-            
-    def test_formDpeName(self):
-        test_case = ClaraUtils.formDpeName("192.168.0.1", ClaraLang.JAVA)
-        print test_case
-        self.assertEqual(ClaraUtils.isDpeName(test_case), True)
+
+    def test_form_dpe_name(self):
+        test_case = ClaraUtils.form_dpe_name("192.168.0.1", ClaraLang.JAVA)
+        self.assertTrue(ClaraUtils.is_dpe_name(test_case))
         self.assertEqual(test_case, "192.168.0.1_java")
-    
+
     def test_form_container_name(self):
-        test_case = ClaraUtils.formDpeName("192.168.0.1", ClaraLang.JAVA)
-        self.assertEqual(ClaraUtils.isDpeName(test_case), True)
+        test_case = ClaraUtils.form_dpe_name("192.168.0.1", ClaraLang.JAVA)
+        self.assertTrue(ClaraUtils.is_dpe_name(test_case))
         self.assertEqual(test_case, "192.168.0.1_java")
-    
-    def test_formServiceName(self):
-        test_case = ClaraUtils.formServiceName("192.168.0.1_java:some_container",
+
+    def test_form_service_name(self):
+        test_case = ClaraUtils.form_service_name("192.168.0.1_java:some_container",
                                                "some_engine")
-        self.assertEqual(ClaraUtils.isServiceName(test_case), True)
-        self.assertEqual(test_case, "192.168.0.1_java:some_container:some_engine")
+        self.assertTrue(ClaraUtils.is_service_name(test_case))
+        self.assertEqual(test_case,
+                         "192.168.0.1_java:some_container:some_engine")
 
 if __name__ == "__main__":
     unittest.main()

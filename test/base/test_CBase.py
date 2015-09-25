@@ -1,11 +1,10 @@
-#!/usr/bin/env python
 #
 # Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
 #
-# Author Vardan Gyurjyan
+# Author Ricardo Oyarzun
 # Department of Experimental Nuclear Physics, Jefferson Lab.
 #
 # IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -20,26 +19,15 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from xmsg.core.xMsgUtil import xMsgUtil
-
-__author__ = 'gurjyan'
+import unittest
 
 
-class CUtility(object):
+class TestCBase(unittest.TestCase):
 
-    def __init__(self):
+
+    def test_constructor(self):
         pass
 
-    @staticmethod
-    def form_canonical_name(host, container, engine_name):
 
-        """
-        Constructs and returns CLARA specified canonical name.
-        For e.g. service name convention, i.e. host:container:engine
-
-        :param host: DPE host IP address
-        :param container: Clara service container name
-        :param engine_name: Clara service engine name
-        :return: canonical name of the Clara service
-        """
-        return xMsgUtil.host_to_ip(host) + ":" + str(container) + ":" + str(engine_name)
+if __name__ == "__main__":
+    unittest.main()
