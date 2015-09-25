@@ -71,7 +71,7 @@ if __name__ == "__main__":
           url='https://claraweb.jlab.org',
           test_suite="tests",
           tests_require=['pytest', 'xmsg>=2.0', 'enum34>=1.0.4'],
-          dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git@v2.0-RC#egg=xmsg-2.0'],
+          dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git'],
           cmdclass={
               'test': claraTest,
               'clean': claraClean,
