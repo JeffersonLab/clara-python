@@ -19,7 +19,7 @@
 # HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
-import json
+import simplejson as json
 import argparse
 from datetime import datetime
 from xmsg.core.xMsg import xMsg
@@ -42,7 +42,7 @@ class StatsPublisher(xMsg):
         super(StatsPublisher, self).__init__("dpe",
                                              "localhost",
                                              "localhost")
-        self.connection = self.connect(xMsgAddress("localhost"))
+        self.connection = self.get_new_connection(xMsgAddress("localhost"))
 
 
 class Dpe:
@@ -117,7 +117,7 @@ class Dpe:
 
         dpe_json_data = {}
         dpe_json_data[d_key] = {}
-        dpe_json_data[d_key]["host"] = self.host
+        dpe_json_data[d_key]["hostname"] = self.host
         dpe_json_data[d_key]["n_cores"] = 8
         dpe_json_data[d_key]["memory_size"] = "64M"
         dpe_json_data[d_key]["language"] = "java"
@@ -145,7 +145,7 @@ class Dpe:
         container_json_data[c_key]["services"].append(service_json_data)
         dpe_json_data[d_key]["containers"].append(container_json_data)
 
-        return dpe_json_data
+        return json.dumps(dpe_json_data, sort_keys=True) 
 
     def get_runtime_data_json(self, variance=1):
         """ Gets the DPE runtime data in JSON format
