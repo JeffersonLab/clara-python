@@ -79,5 +79,5 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"pClara": "clara"},
-          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4', 'xmsg']
+          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4', 'argparse>=1.3.0', 'simplejson>=3.8.0', 'xmsg']
           )

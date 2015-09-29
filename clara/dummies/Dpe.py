@@ -19,6 +19,7 @@
 # HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
+
 import simplejson as json
 import argparse
 from datetime import datetime
@@ -58,11 +59,11 @@ class Dpe:
         return "%s:%s" % (self.host, suffix)
 
     def send_registration_data(self):
-        print "Publishing Registration Data..."
+        xMsgUtil.log("dpe@%s : Publishing Registration Data..." % self.host)
         self.__send_message(self.get_registration_data_json())
 
     def send_runtime_data(self):
-        print "Publishing Runtime Data..."
+        xMsgUtil.log("dpe@%s : Publishing Runtime Data..." % self.host)
         self.__send_message(self.make_runtime_message())
 
     def __send_message(self, message):
@@ -145,7 +146,7 @@ class Dpe:
         container_json_data[c_key]["services"].append(service_json_data)
         dpe_json_data[d_key]["containers"].append(container_json_data)
 
-        return json.dumps(dpe_json_data, sort_keys=True) 
+        return json.dumps(dpe_json_data, sort_keys=True)
 
     def get_runtime_data_json(self, variance=1):
         """ Gets the DPE runtime data in JSON format
@@ -189,7 +190,7 @@ class Dpe:
         container_json_data[c_key]["services"].append(service_json_data)
         dpe_json_data[d_key]["containers"].append(container_json_data)
 
-        return dpe_json_data
+        return json.dumps(dpe_json_data, sort_keys=True)
 
 
 def main():
