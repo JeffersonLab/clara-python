@@ -32,8 +32,7 @@ from xmsg.net.xMsgAddress import xMsgAddress
 
 
 parser = argparse.ArgumentParser(description='Dummy DPE')
-parser.add_argument('host', type=str,
-                    help='ip of the dpe host')
+parser.add_argument('host', type=str, help='ip of the dpe host')
 args = parser.parse_args()
 
 
@@ -60,49 +59,19 @@ class Dpe:
 
     def send_registration_data(self):
         xMsgUtil.log("dpe@%s : Publishing Registration Data..." % self.host)
-        self.__send_message(self.get_registration_data_json())
+        self.__send_message("registration_topic", self.get_registration_data_json())
 
     def send_runtime_data(self):
         xMsgUtil.log("dpe@%s : Publishing Runtime Data..." % self.host)
-        self.__send_message(self.make_runtime_message())
+        self.__send_message("runtime_topic", self.get_runtime_data_json())
 
-    def __send_message(self, message):
+    def __send_message(self, topic, message):
         t_data = xMsgData_pb2.xMsgData()
         t_data.STRING = bytes(message)
-        t_message = xMsgMessage(xMsgTopic.wrap("registration_topic"),
+        t_message = xMsgMessage(xMsgTopic.wrap(topic),
                                 t_data.SerializeToString())
         self.stats_publisher.publish(self.stats_publisher.connection,
                                      t_message)
-
-    def make_registration_message(self):
-        """Gets the DPE registration data wrapped in xMsgMessage
-        envelope
-
-        Returns:
-            xMsgMessage: message with DPE instant information
-        """
-        return self.__generate_message(self.get_registration_data_json())
-
-    def make_runtime_message(self):
-        """Gets the DPE runtime data wrapped in xMsgMessage
-        envelope
-
-        Method takes an snapshot of the current state of the DPE, and returns
-        an xMsgMessage object.
-
-        Returns:
-            xMsgMessage: message with DPE instant information
-        """
-        return self.__generate_message(self.get_runtime_data_json())
-
-    def __generate_message(self, json_data):
-        data = xMsgData_pb2.xMsgData()
-        data.STRING = json.dumps(json_data)
-        msg = xMsgMessage.create_with_xmsg_data("registration_topic", data)
-        meta_data = xMsgMeta_pb2.xMsgMeta()
-        meta_data.dataType = "string"
-        msg.set_metadata(meta_data)
-        return msg
 
     def get_registration_data_json(self):
         """ Gets the DPE registration data in JSON format
@@ -158,11 +127,12 @@ class Dpe:
         d_key = "DPERuntime"
         c_key = "ContainerRuntime"
         s_key = "ServiceRuntime"
+        fecha = datetime.now()
 
         dpe_json_data = {}
         dpe_json_data[d_key] = {}
         dpe_json_data[d_key]["host"] = self.host
-        dpe_json_data[d_key]["snapshot_time"] = 112455111903
+        dpe_json_data[d_key]["snapshot_time"] = str(fecha)
         dpe_json_data[d_key]["cpu_usage"] = 760
         dpe_json_data[d_key]["memory_usage"] = 63
         dpe_json_data[d_key]["load"] = 0.9
@@ -202,6 +172,7 @@ def main():
     try:
         while True:
             dpe.send_registration_data()
+            dpe.send_runtime_data()
             xMsgUtil.sleep(5)
 
     except KeyboardInterrupt:
