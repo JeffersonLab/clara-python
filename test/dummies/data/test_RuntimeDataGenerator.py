@@ -19,6 +19,7 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
+import simplejson as json
 import unittest
 from clara.dummies.data.RuntimeDataGenerator import RuntimeDataGenerator
 
@@ -31,12 +32,12 @@ class TestRuntimeDataGenerator(unittest.TestCase):
 
     def test_create_with_two_containers(self):
         r_data = RuntimeDataGenerator("1.1.1.1", 2, 0)
-        self.assertEqual(len(r_data.get_data()['DPERuntime']['containers']), 2)
+        self.assertEqual(len(json.loads(r_data.get_data())['DPERuntime']['containers']), 2)
 
     def test_create_with_two_containers_with_two_services(self):
         r_data = RuntimeDataGenerator("1.1.1.1", 2, 2)
-        self.assertEqual(len(r_data.get_data()['DPERuntime']['containers']), 2)
-        for container in r_data.get_data()['DPERuntime']['containers']:
+        self.assertEqual(len(json.loads(r_data.get_data())['DPERuntime']['containers']), 2)
+        for container in json.loads(r_data.get_data())['DPERuntime']['containers']:
             self.assertEqual(len(container['ContainerRuntime']['services']), 2)
 
     def test_get_data_called_twice_modifies_stored_data(self):

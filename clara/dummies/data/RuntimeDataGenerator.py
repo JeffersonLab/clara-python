@@ -73,8 +73,7 @@ service_name = "cont_name:S1"
 
 class RuntimeDataGenerator(object):
 
-    def __init__(self, name, n_containers, n_services, variance=False):
-        self.variance = variance
+    def __init__(self, name, n_containers, n_services):
         self.n_containers = n_containers
         self.n_services = n_services
         self.data = self._initialize_data_objects(name)
@@ -134,9 +133,11 @@ class RuntimeDataGenerator(object):
         mod_data[D_KEY]['mem_usage'] = self.dpe_mem_usage_random()
         mod_data[D_KEY]['load'] = self.dpe_laod_random()
 
-        for container in mod_data[D_KEY][CC_KEY]:
+        for c_index, container in enumerate(mod_data[D_KEY][CC_KEY]):
+            container[C_KEY]['name'] = "container_%d" % c_index
             container[C_KEY]['n_requests'] += self.cont_request_increase()
-            for service in container[C_KEY][SS_KEY]:
+            for s_index, service in enumerate(container[C_KEY][SS_KEY]):
+                service[S_KEY]['name'] = "service_%d" % s_index
                 service[S_KEY]['n_requests'] += self.service_request_increase()
                 service[S_KEY]['n_failures'] += self.service_failures_increase()
                 service[S_KEY]['shm_reads'] += self.service_shm_increase()
@@ -146,4 +147,4 @@ class RuntimeDataGenerator(object):
                 service[S_KEY]['exec_time'] += self.service_exec_time_increase()
 
         self.data = mod_data
-        return json.loads(json.dumps(mod_data))
+        return json.dumps(mod_data)

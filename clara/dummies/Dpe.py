@@ -27,13 +27,9 @@ from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgTopic import xMsgTopic
 from xmsg.core.xMsgMessage import xMsgMessage
-from xmsg.data import xMsgData_pb2, xMsgMeta_pb2
+from xmsg.data import xMsgData_pb2
 from xmsg.net.xMsgAddress import xMsgAddress
-
-
-parser = argparse.ArgumentParser(description='Dummy DPE')
-parser.add_argument('host', type=str, help='ip of the dpe host')
-args = parser.parse_args()
+from clara.dummies.data.RuntimeDataGenerator import RuntimeDataGenerator
 
 
 class StatsPublisher(xMsg):
@@ -46,13 +42,14 @@ class StatsPublisher(xMsg):
 
 
 class Dpe:
-    '''
-    Dummy Dpe just sending monitoring information.
-    '''
+    '''Dummy Dpe just sending monitoring information.'''
 
-    def __init__(self, host):
+    def __init__(self, host, n_containers, n_services):
         self.stats_publisher = StatsPublisher()
         self.host = host
+        self.run_data_generator = RuntimeDataGenerator("regData",
+                                                       n_containers,
+                                                       n_services)
 
     def __make_name(self, suffix):
         return "%s:%s" % (self.host, suffix)
@@ -117,57 +114,12 @@ class Dpe:
 
         return json.dumps(dpe_json_data, sort_keys=True)
 
-    def get_runtime_data_json(self, variance=1):
-        """ Gets the DPE runtime data in JSON format
-
-        Returns:
-            JSON string
-        """
-        # JSON keys
-        d_key = "DPERuntime"
-        c_key = "ContainerRuntime"
-        s_key = "ServiceRuntime"
-        fecha = datetime.now()
-
-        dpe_json_data = {}
-        dpe_json_data[d_key] = {}
-        dpe_json_data[d_key]["host"] = self.host
-        dpe_json_data[d_key]["snapshot_time"] = str(fecha)
-        dpe_json_data[d_key]["cpu_usage"] = 760
-        dpe_json_data[d_key]["memory_usage"] = 63
-        dpe_json_data[d_key]["load"] = 0.9
-        dpe_json_data[d_key]["containers"] = []
-
-        container_json_data = {}
-        container_json_data[c_key] = {}
-        container_json_data[c_key]["name"] = self.__make_name("cont_name")
-        container_json_data[c_key]["snapshot_time"] = 11245590398
-        container_json_data[c_key]["n_requests"] = 1000
-        container_json_data[c_key]["services"] = []
-
-        service_json_data = {}
-        service_json_data[s_key] = {}
-        service_json_data[s_key]["name"] = self.__make_name("cont_name:S1")
-        service_json_data[s_key]["snapshot_time"] = 1954869020
-        service_json_data[s_key]["n_requests"] = 1000
-        service_json_data[s_key]["n_failures"] = 10
-        service_json_data[s_key]["shm_reads"] = 1000
-        service_json_data[s_key]["shm_writes"] = 1000
-        service_json_data[s_key]["bytes_recv"] = 0
-        service_json_data[s_key]["bytes_sent"] = 0
-        service_json_data[s_key]["exec_time"] = 134235243543
-
-        container_json_data[c_key]["services"].append(service_json_data)
-        dpe_json_data[d_key]["containers"].append(container_json_data)
-
-        return json.dumps(dpe_json_data, sort_keys=True)
+    def get_runtime_data_json(self):
+        return self.run_data_generator.get_data()
 
 
 def main():
-    if args.host:
-        dpe = Dpe(args.host)
-    else:
-        dpe = Dpe("localhost")
+    dpe = Dpe(args.host, args.n_containers, args.n_services)
 
     try:
         while True:
@@ -180,4 +132,9 @@ def main():
         return
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Dummy DPE')
+    parser.add_argument('host', type=str, help='ip of the dpe host')
+    parser.add_argument('n_containers', type=int, help='n containers in DPE')
+    parser.add_argument('n_services', type=int, help='n services in container')
+    args = parser.parse_args()
     main()
