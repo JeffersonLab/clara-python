@@ -74,11 +74,12 @@ service_name = "cont_name:S1"
 class RuntimeDataGenerator(object):
 
     def __init__(self, name, n_containers, n_services):
+        self.name = name
         self.n_containers = n_containers
         self.n_services = n_services
-        self.data = self._initialize_data_objects(name)
+        self.data = self._initialize_data_objects()
 
-    def _initialize_data_objects(self, name):
+    def _initialize_data_objects(self):
         dpe_data = json.loads(json.dumps(initial_dpe))
         containers = [json.loads(json.dumps(initial_container))
                       for _ in range(self.n_containers)]
@@ -134,10 +135,12 @@ class RuntimeDataGenerator(object):
         mod_data[D_KEY]['load'] = self.dpe_laod_random()
 
         for c_index, container in enumerate(mod_data[D_KEY][CC_KEY]):
-            container[C_KEY]['name'] = "container_%d" % c_index
+            c_name = "%s:container_%d" % (self.name, c_index)
+            container[C_KEY]['name'] = c_name
             container[C_KEY]['n_requests'] += self.cont_request_increase()
             for s_index, service in enumerate(container[C_KEY][SS_KEY]):
-                service[S_KEY]['name'] = "service_%d" % s_index
+                s_name = "%s:service_%d" % (c_name, s_index)
+                service[S_KEY]['name'] = s_name
                 service[S_KEY]['n_requests'] += self.service_request_increase()
                 service[S_KEY]['n_failures'] += self.service_failures_increase()
                 service[S_KEY]['shm_reads'] += self.service_shm_increase()
