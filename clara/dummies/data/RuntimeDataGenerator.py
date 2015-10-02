@@ -130,6 +130,7 @@ class RuntimeDataGenerator(object):
     def get_data(self):
         self._set_time()
         mod_data = self.data
+        mod_data[D_KEY]['host'] = str(self.name)
         mod_data[D_KEY]['cpu_usage'] = self.dpe_cpu_usage_random()
         mod_data[D_KEY]['mem_usage'] = self.dpe_mem_usage_random()
         mod_data[D_KEY]['load'] = self.dpe_laod_random()
