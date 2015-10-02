@@ -33,8 +33,8 @@ from clara.dummies.data.RegistrationDataGenerator import RegistrationDataGenerat
 
 class StatsPublisher(xMsg):
 
-    def __init__(self):
-        super(StatsPublisher, self).__init__("dpe", "localhost",
+    def __init__(self, host):
+        super(StatsPublisher, self).__init__(host, "localhost",
                                              "localhost")
         self.connection = self.get_new_connection(xMsgAddress("localhost"))
 
@@ -43,12 +43,12 @@ class Dpe:
     '''Dummy Dpe just sending monitoring information.'''
 
     def __init__(self, host, n_containers, n_services):
-        self.stats_publisher = StatsPublisher()
+        self.stats_publisher = StatsPublisher(host)
         self.host = host
-        self.reg_data_generator = RegistrationDataGenerator("regData",
+        self.reg_data_generator = RegistrationDataGenerator(self.host,
                                                             n_containers,
                                                             n_services)
-        self.run_data_generator = RuntimeDataGenerator("runData",
+        self.run_data_generator = RuntimeDataGenerator(self.host,
                                                        n_containers,
                                                        n_services)
 
