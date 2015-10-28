@@ -74,7 +74,7 @@ service_name = "cont_name:S1"
 class RuntimeDataGenerator(object):
 
     def __init__(self, name, n_containers, n_services):
-        self.name = name
+        self.name = name + "_java"
         self.n_containers = n_containers
         self.n_services = n_services
         self.data = self._initialize_data_objects()
@@ -120,7 +120,7 @@ class RuntimeDataGenerator(object):
         return 5000
 
     def _set_time(self):
-        now = str(datetime.now())
+        now = str(datetime.utcnow())
         self.data[D_KEY][ST_KEY] = now
         for container in self.data[D_KEY][CC_KEY]:
             container[C_KEY][ST_KEY] = now
