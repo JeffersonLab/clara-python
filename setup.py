@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
@@ -70,8 +70,8 @@ if __name__ == "__main__":
           author_email='royarzun@gmail.com',
           url='https://claraweb.jlab.org',
           test_suite="tests",
-          tests_require=['pytest', 'xmsg', 'enum34>=1.0.4'],
-          dependency_links=['git+https://git.earthdata.nasa.gov/scm/naiads/xmsg-python.git'],
+          tests_require=['pytest', 'xmsg>=2.3'],
+          dependency_links=['git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3#egg=xmsg-2.3'],
           cmdclass={
               'test': claraTest,
               'clean': claraClean,
@@ -79,5 +79,5 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"pClara": "clara"},
-          install_requires=['pyzmq>=14.5.0', 'protobuf>=2.6', 'enum34>=1.0.4', 'argparse>=1.3.0', 'simplejson>=3.8.0', 'xmsg']
+          install_requires=['xmsg>=2.3', 'simplejson>=3.8.0']
           )
