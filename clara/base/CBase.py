@@ -23,11 +23,9 @@ from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgTopic import xMsgTopic
-from xmsg.net.xMsgAddress import xMsgAddress
+from xmsg.net.xMsgAddress import RegAddress, ProxyAddress
 
 from clara.util.CUtility import CUtility
-
-__author__ = 'gurjyan'
 
 
 class CBase(xMsg):
@@ -39,18 +37,12 @@ class CBase(xMsg):
     node_connection = str(xMsgConstants.UNDEFINED)
     call_back = str(xMsgConstants.UNDEFINED)
 
-    def __init__(self, name, local_address="localhost", frontend_address="localhost"):
-        super(CBase, self).__init__(name, local_address, frontend_address)
+    def __init__(self, name, proxy_address=ProxyAddress(),
+                 reg_address=RegAddress()):
+        super(CBase, self).__init__(name, proxy_address, reg_address)
 
         # Create a socket connections to the xMsg node
-        address = xMsgAddress()
-        self.node_connection = self.connect(address)
-
-    def find_containers(self, dpe_name):
-        result = list()
-        if dpe_name in xMsgUtil.get_local_ips():
-            topic = xMsgTopic.build(dpe_name)
-            tmpl = self.find_subscriber(topic)
+        self.node_connection = self.connect(proxy_address)
 
     @staticmethod
     def parse_out_linked(service_name, composition):
@@ -171,6 +163,9 @@ class CBase(xMsg):
 
         return False
 
+    def register(self, description=str(xMsgConstants.UNDEFINED)):
+        self.register_as_subscriber(self.name, description)
+
     def find_service(self, service_name):
         """Sends a request to the xMsg registration service,
 
@@ -195,44 +190,29 @@ class CBase(xMsg):
             else:
                 return self.find_subscriber(service_name)
 
-    def generic_receive(self, topic, call_back):
+    def listen(self, topic, callback):
         """This method simply calls xMsg subscribe method passing the reference to
         user provided call_back method.
 
         Args:
-            topic (xMsgTopic): Service canonical name that this method will
-                subscribe or listen
-            call_back (xMsgCallBack): User provided call_back function.
+            topic (xMsgTopic): Topic of subscription
+            call_back (xMsgCallBack): User provided call_back object
         """
-        self.subscribe(self.node_connection, topic, call_back)
+        self.subscribe(topic, self.node_connection, callback)
 
-    def receive_new(self, connection, topic, call_back, is_sync=True):
-        """This method simply calls xMsg subscribe method passing the reference
-        to user provided call_back method. The only difference is that this
-        method requires a connection socket different than the default socket
-        connection to the local dpe proxy.
-
-        Args:
-            connection object(xMsgConnection):
-            topic (xMsgTopic): Service canonical name that this method will
-                subscribe or listen
-            call_back (xMsgCallBack): User provided call_back function.
-            is_sync (bool):
-        """
-        self.subscribe(connection, topic, call_back, is_sync)
-
-    def generic_send(self, msg):
+    def send(self, msg):
         """Sends xMsgMessage object to an xMsg actor
 
         Args:
-            msg (xMsgMessage): xMsg transient message object 
+            msg (xMsgMessage): xMsg transient message object
         """
         self.publish(self.node_connection, msg)
-        
-    def generic_sync_send(self, msg):
-        """Sends xMsgMessage object to an xMsg actor
+
+    def sync_send(self, msg):
+        """Sends xMsgMessage object to an xMsg actor synchronously
 
         Args:
-            msg (xMsgMessage): xMsg transient message object 
+            msg (xMsgMessage): xMsg transient message object
         """
         self.sync_publish(self.node_connection, msg, 30)
+
