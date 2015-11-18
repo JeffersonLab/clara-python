@@ -21,12 +21,13 @@
 #
 
 import argparse
+
 from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgTopic import xMsgTopic
 from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.data import xMsgData_pb2
-from xmsg.net.xMsgAddress import xMsgAddress
+
 from clara.dummies.data.RuntimeDataGenerator import RuntimeDataGenerator
 from clara.dummies.data.RegistrationDataGenerator import RegistrationDataGenerator
 
@@ -34,9 +35,8 @@ from clara.dummies.data.RegistrationDataGenerator import RegistrationDataGenerat
 class StatsPublisher(xMsg):
 
     def __init__(self, host):
-        super(StatsPublisher, self).__init__(host, "localhost",
-                                             "localhost")
-        self.connection = self.get_new_connection(xMsgAddress("localhost"))
+        super(StatsPublisher, self).__init__(host)
+        self.connection = self.connect()
 
 
 class Dpe:
