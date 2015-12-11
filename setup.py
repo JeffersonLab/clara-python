@@ -79,5 +79,6 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"pClara": "clara"},
-          install_requires=['xmsg>=2.3', 'simplejson>=3.8.0']
+          install_requires=['xmsg>=2.3', 'simplejson>=3.8.0'],
+          scripts=['bin/unix/p_dpe']
           )

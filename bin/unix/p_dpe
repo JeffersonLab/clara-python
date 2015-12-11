@@ -1,19 +1,21 @@
-#!/bin/csh -f
+#!/usr/bin/env bash
 
-# author gurjyan
-# date 1.7.15
+# author royarzun
+# date 12.11.15
 
-setenv PYTHONPATH $PCLARA_HOME\:$PCLARA_HOME/src/sys\:$PCLARA_HOME/src/base\:$PCLARA_HOME/src/util\:$PCLARA_HOME/examples\:$PCLARA_HOME/examples/engines\:$PCLARA_HOME/example/etc\:$PXMSG_HOME\:$PXMSG_HOME/core\:$PXMSG_HOME/sys\:$PXMSG_HOME/sys/regdis\:$PXMSG_HOME/data\:$PXMSG_HOME/net
-
-
-cd "$PCLARA_HOME/src/sys"
-
-if ( $1 == "-h" || $1 == "-help" ) then
+if [ "$1" = "-h" -o "$1" = "-help" ]
+then
     echo ""
-    echo "Starts CLARA dpe (python binding)"
-    echo "-------------------------------- "
-    echo "synopsis: p_dpe"
+    echo " Starts Clara DPE (python binding) "
+    echo "-----------------------------------"
+    echo " synopsis: p_dpe"
     echo ""
 else
-    python Dpe.py
-endif
+    if ! $(python -c 'from clara.sys.Dpe import main' &> /dev/null);
+    then
+        echo "Please check that Clara and its dependencies are installed in your system or virtual environment";
+    else
+        python -c 'from clara.sys.Dpe import main; main()'
+    fi
+
+fi
