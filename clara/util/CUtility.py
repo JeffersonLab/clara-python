@@ -44,7 +44,7 @@ class CUtility(object):
                              str(container), str(engine_name))
 
     @staticmethod
-    def remove_first(self, input_string, first_character):
+    def remove_first(input_string, first_character):
         if input_string.startswith(first_character):
             return input_string[1:]
         else:
