@@ -87,3 +87,13 @@ class ClaraUtils:
 
         else:
             return False
+
+    @staticmethod
+    def build_data(*args):
+        topic = [str(arg) for _, arg in enumerate(args)]
+        return "?".join(topic)
+
+    @staticmethod
+    def build_topic(*args):
+        topic = [str(arg) for _, arg in enumerate(args)]
+        return ":".join(topic)
