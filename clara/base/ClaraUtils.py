@@ -22,7 +22,7 @@
 import re
 from xmsg.core.xMsgUtil import xMsgUtil
 
-from clara.base.CConstants import CConstants
+from clara.util.CConstants import CConstants
 
 
 CNAME_PATTERN = "^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
