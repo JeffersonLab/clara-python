@@ -20,6 +20,7 @@
 #
 
 import re
+import psutil
 from xmsg.core.xMsgUtil import xMsgUtil
 
 from clara.util.CConstants import CConstants
@@ -82,11 +83,7 @@ class ClaraUtils:
 
     @staticmethod
     def is_host_local(hostname):
-        if str(hostname) in xMsgUtil.get_local_ips():
-            return True
-
-        else:
-            return False
+        return str(hostname) in xMsgUtil.get_local_ips()
 
     @staticmethod
     def build_data(*args):
@@ -97,3 +94,13 @@ class ClaraUtils:
     def build_topic(*args):
         topic = [str(arg) for _, arg in enumerate(args)]
         return ":".join(topic)
+
+    @staticmethod
+    def get_cpu_usage():
+        return psutil.cpu_percent(interval=None)
+
+    @staticmethod
+    def get_mem_usage():
+        mem_usage = psutil.virtual_memory()
+        difference = mem_usage.total - mem_usage.available
+        return difference / float(mem_usage.total) * 100
