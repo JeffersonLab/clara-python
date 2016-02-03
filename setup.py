@@ -50,7 +50,9 @@ class claraClean(Command):
         pass
 
     def run(self):
-        os.system('rm -vrf ./build ./dist ./*.pyc ./*.tgz ./*.egg-info')
+        os.system('rm -vrf ./.cache ./.eggs ./build ./dist')
+        os.system('rm -vrf ./*.tgz ./*.egg-info')
+        os.system('find . -name "*.pyc" -exec rm -vrf {} \;')
 
 
 class claraInstall(install):
@@ -63,22 +65,25 @@ class claraInstall(install):
         c.run()
 
 if __name__ == "__main__":
-    setup(name='clara-python',
+    setup(name='clara',
           version='2.0',
           description='Clara Framework for python',
           author='Ricardo Oyarzun',
-          author_email='royarzun@gmail.com',
+          author_email='oyarzun@jlab.org',
           url='https://claraweb.jlab.org',
+          dependency_links=[
+              'git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3#egg=xmsg-2.3'],
+          install_requires=['xmsg==2.3',
+                            'simplejson>=3.8.0'],
           test_suite="tests",
-          tests_require=['pytest', 'xmsg>=2.3'],
-          dependency_links=['git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3#egg=xmsg-2.3'],
+          tests_require=['pytest',
+                         'xmsg==2.3'],
           cmdclass={
               'test': claraTest,
               'clean': claraClean,
           },
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
-          package_dir={"pClara": "clara"},
-          install_requires=['xmsg>=2.3', 'simplejson>=3.8.0'],
+          package_dir={"clara": "clara"},
           scripts=['bin/unix/p_dpe']
           )
