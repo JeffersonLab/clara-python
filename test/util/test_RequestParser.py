@@ -45,5 +45,11 @@ class TestRequestParser(unittest.TestCase):
         self.assertEqual(third_string, "cdr")
         self.assertEqual(fourth_string, "abc")
 
+    def test_one_argument_request(self):
+        msg = "STOP_DPE"
+        request = RequestParser(msg)
+        first_string = request.next_string()
+        self.assertEqual(first_string, msg)
+
 if __name__ == "__main__":
     unittest.main()

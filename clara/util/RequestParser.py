@@ -18,7 +18,6 @@
 # HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
-from xmsg.data.xMsgData_pb2 import xMsgData
 
 
 class RequestParser(object):
@@ -33,38 +32,19 @@ class RequestParser(object):
         self.tokens = data.split("?")
 
     @classmethod
-    def build_from_data(cls, data):
-        """
-        Args:
-            data (xMsgData): proto buffer data object
-
-        Returns:
-            RequestParser object
-        """
-        if data.STRING:
-            return cls(data.STRING)
-
-        else:
-            raise Exception("Empty data...")
-
-    @classmethod
     def build_from_message(cls, msg):
         """
         Args:
-            msg (xMsgMessage): proto buffer data object
+            msg (xMsgMessage): xMsgMessage object
 
         Returns:
             RequestParser object
         """
         mimetype = msg.get_metadata().dataType
 
-        if mimetype == "binary/native":
-            try:
-                data = xMsgData.ParseFromString(msg.get_data)
-                return cls(data)
+        if mimetype == "text/string":
+            return cls(msg.get_data())
 
-            except Exception as e:
-                print e
         else:
             raise Exception("Invalid mime-type = " + mimetype)
 
