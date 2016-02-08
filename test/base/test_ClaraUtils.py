@@ -24,6 +24,7 @@ import re
 
 from clara.base.ClaraUtils import ClaraUtils
 from clara.base.ClaraLang import ClaraLang
+from xmsg.core.xMsgConstants import xMsgConstants
 
 CONTAINER_VALID_CASES = ["10.2.58.17_java:master",
                          "10.2.58.17_java:best_container",
@@ -160,6 +161,19 @@ class TestClaraUtils(unittest.TestCase):
         test_case = ClaraUtils.get_mem_usage()
         self.assertIsInstance(test_case, float)
         self.assertGreater(test_case, 0.0)
+
+    def test_compose_canonical_name(self):
+        test1 = "192.168.0.1_java:some_container:some_engine"
+        test_case = ClaraUtils.decompose_canonical_name(test1)
+        expected1 = ["192.168.0.1", int(xMsgConstants.DEFAULT_PORT),
+                     "java", "some_container", "some_engine"]
+        self.assertEqual(test_case, expected1)
+
+        test2 = "192.168.0.1%2222_java:some_container:some_engine"
+        test_case = ClaraUtils.decompose_canonical_name(test2)
+        expected2 = ["192.168.0.1", 2222,
+                     "java", "some_container", "some_engine"]
+        self.assertEqual(test_case, expected2)
 
 if __name__ == "__main__":
     unittest.main()

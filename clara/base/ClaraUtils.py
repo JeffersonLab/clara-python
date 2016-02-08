@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
@@ -22,6 +22,7 @@
 import re
 import psutil
 from xmsg.core.xMsgUtil import xMsgUtil
+from xmsg.core.xMsgConstants import xMsgConstants
 
 from clara.util.CConstants import CConstants
 
@@ -104,3 +105,13 @@ class ClaraUtils:
         mem_usage = psutil.virtual_memory()
         difference = mem_usage.total - mem_usage.available
         return difference / float(mem_usage.total) * 100
+
+    @staticmethod
+    def decompose_canonical_name(canonical_name):
+        port = int(xMsgConstants.DEFAULT_PORT)
+        decomposed = canonical_name.split(":")
+        dpe, language = decomposed[0].split("_")
+        if "%" in dpe:
+            dpe, port = dpe.split("%")
+            port = int(port)
+        return [dpe, port, language] + decomposed[1:]
