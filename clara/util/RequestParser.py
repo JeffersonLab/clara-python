@@ -50,14 +50,14 @@ class RequestParser(object):
 
     def next_string(self):
         try:
-            return self.tokens.pop()
+            return self.tokens.pop(0)
 
         except IndexError:
             raise Exception("Invalid request: " + self.cmd_data)
 
     def next_integer(self):
         try:
-            return int(self.tokens.pop())
+            return int(self.tokens.pop(0))
 
         except IndexError:
             raise Exception("Invalid request: " + self.cmd_data)

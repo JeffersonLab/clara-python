@@ -31,19 +31,19 @@ class TestRequestParser(unittest.TestCase):
 
     def test_get_strings(self):
         first_string = self.request.next_string()
-        second_integer = self.request.next_integer()
-        third_string = self.request.next_string()
+        second_string = self.request.next_string()
+        third_integer = self.request.next_integer()
         fourth_string = self.request.next_string()
 
         self.assertIsInstance(first_string, basestring)
-        self.assertIsInstance(second_integer, int)
-        self.assertIsInstance(third_string, basestring)
+        self.assertIsInstance(second_string, basestring)
+        self.assertIsInstance(third_integer, int)
         self.assertIsInstance(fourth_string, basestring)
 
-        self.assertEqual(first_string, "some description")
-        self.assertEqual(second_integer, 33)
-        self.assertEqual(third_string, "cdr")
-        self.assertEqual(fourth_string, "abc")
+        self.assertEqual(first_string, "abc")
+        self.assertEqual(second_string, "cdr")
+        self.assertEqual(third_integer, 33)
+        self.assertEqual(fourth_string, "some description")
 
     def test_one_argument_request(self):
         msg = "STOP_DPE"
