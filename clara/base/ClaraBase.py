@@ -36,7 +36,6 @@ class ClaraBase(xMsg):
     node_connection = str(xMsgConstants.UNDEFINED)
     clara_home = str(xMsgConstants.UNDEFINED)
 
-
     def __init__(self, name, proxy_host, frontend_host, proxy_port, frontend_port):
         proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
         fe_address = RegAddress(host=frontend_host, port=frontend_port)

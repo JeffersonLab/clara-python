@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
@@ -26,10 +26,117 @@ from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
 
 from clara.base.ClaraBase import ClaraBase
+from clara.base.ClaraLang import ClaraLang
 from clara.base.ClaraUtils import ClaraUtils
+from clara.name.DpeName import DpeName
 from clara.sys.Container import Container
 from clara.util.CConstants import CConstants
 from clara.util.RequestParser import RequestParser
+
+
+class Dpe(ClaraBase):
+
+    my_containers = {}
+    subscription_handler = None
+
+    def __init__(self, local_address, frontend_address,
+                 proxy_port=int(xMsgConstants.DEFAULT_PORT),
+                 frontend_port=int(xMsgConstants.REGISTRAR_PORT)):
+        dpe_name = DpeName(xMsgUtil.host_to_ip(local_address),
+                           proxy_port, ClaraLang.PYTHON)
+
+        super(Dpe, self).__init__(ClaraUtils.build_topic(CConstants.DPE,
+                                                         dpe_name.canonical_name()),
+                                  local_address,
+                                  frontend_address,
+                                  proxy_port,
+                                  frontend_port)
+        self.dpe_name = dpe_name
+        self.print_logo()
+
+        try:
+            self.subscription_handler = self.listen(self.myname,
+                                                    self.node_connection,
+                                                    DpeCallBack(self))
+            xMsgUtil.keep_alive()
+
+        except KeyboardInterrupt:
+            self.exit()
+            return
+
+    def exit(self):
+        xMsgUtil.log("Gracefully quitting the dpe...")
+        for container in self.my_containers:
+            container.stop()
+            container.destroy()
+        self.unsubscribe(self.subscription_handler)
+
+    def print_logo(self):
+        print "================================================"
+        print "                 CLARA DPE"
+        print "================================================"
+        print " Name             = " + self.myname
+        print " Date             = " + xMsgUtil.current_time()
+        print " Version          = 2.x"
+        print " Lang             = Python 2.7.11"
+        print ""
+        print " Proxy Host       = %s" % self.default_proxy_address.host
+        print " Proxy Port       = %d" % self.default_proxy_address.pub_port
+        print ""
+        print " Frontend Host    = %s" % self.default_registrar_address.host
+        print " Frontend Post    = %d" % self.default_registrar_address.port
+        print ""
+        print "================================================"
+        print ""
+
+    def start_container(self, parser):
+        container_name = parser.next_string()
+        if container_name in self.my_containers:
+            xMsgUtil.log("Warning: Container " + str(container_name) +
+                         " already exists. No new container is created")
+        else:
+            name = ClaraUtils.form_container_name(self.myname, container_name)
+            container = Container(name, self.default_proxy_address,
+                                  self.default_registrar_address)
+            self.my_containers[container_name] = container
+
+    def stop_container(self, parser):
+        container_name = parser.next_string()
+        if container_name in self.my_containers.keys():
+            container = self.my_containers.pop(container_name)
+            container.exit()
+
+    def start_service(self, parser):
+        container_name = parser.next_string()
+        engine_name = parser.next_string()
+        engine_class = parser.next_string()
+        pool_size = parser.next_integer()
+        description = parser.next_string()
+        initial_state = parser.next_string()
+
+        if container_name in self.my_containers:
+            self.my_containers[container_name].add_service(engine_name,
+                                                           engine_class,
+                                                           pool_size,
+                                                           description,
+                                                           initial_state)
+        else:
+            raise Exception("Could not stop service %s: missing container " % engine_name)
+
+    def stop_service(self, parser):
+        container_name = parser.next_string()
+        engine_name = parser.next_string()
+        service_name = ClaraUtils.form_service_name(container_name,
+                                                    engine_name)
+        if container_name in self.my_containers.keys():
+            try:
+                self.my_containers[container_name].remove_service(service_name)
+
+            except Exception as e:
+                raise Exception("Could not stop service %s: %s "
+                                % (service_name, e))
+        else:
+            raise Exception("Could not stop service %s: missing container " % service_name)
 
 
 class DpeCallBack(xMsgCallBack):
@@ -42,52 +149,22 @@ class DpeCallBack(xMsgCallBack):
         try:
             parser = RequestParser.build_from_message(msg)
             cmd = parser.next_string()
+            xMsgUtil.log("DPE received: " + cmd)
 
-            if cmd == CConstants.START_DPE:
-                pass
-
-            elif cmd == CConstants.STOP_DPE:
-                pass
-
-            elif cmd == CConstants.DPE_PING:
-                # Nothing yet
-                pass
-
-            elif cmd == CConstants.DPE_UP:
-                # Nothing yet
-                pass
-
-            elif cmd == CConstants.DPE_DOWN:
-                # Nothing yet
-                pass
+            if cmd == CConstants.STOP_DPE:
+                self.dpe.exit()
 
             elif cmd == CConstants.START_CONTAINER:
-                xMsgUtil.log("DPE received: " + CConstants.START_CONTAINER)
-                self.dpe.run_container(parser.next_string())
+                self.dpe.run_container(parser)
 
             elif cmd == CConstants.STOP_CONTAINER:
-                xMsgUtil.log("DPE received: " + CConstants.STOP_CONTAINER)
-                self.dpe.stop_container(parser.next_string())
-
-            elif cmd == CConstants.CONTAINER_UP:
-                # Nothing yet
-                pass
-
-            elif cmd == CConstants.CONTAINER_DOWN:
-                # Nothing yet
-                pass
+                self.dpe.stop_container(parser)
 
             elif cmd == CConstants.START_SERVICE:
-                # Nothing yet
-                pass
+                self.dpe.start_service(parser)
 
-            elif cmd == CConstants.START_SERVICE:
-                # Nothing yet
-                pass
-
-            else:
-                print cmd
-                xMsgUtil.log("DPE received: Invalid request...")
+            elif cmd == CConstants.STOP_SERVICE:
+                self.dpe.stop_service(parser)
 
         except Exception as e:
             raise e
@@ -96,94 +173,22 @@ class DpeCallBack(xMsgCallBack):
             return msg
 
 
-class Dpe(ClaraBase):
-
-    fe_host = str(xMsgConstants.UNDEFINED)
-    sub_handler = str(xMsgConstants.UNDEFINED)
-    my_containers = {}
-
-    def __init__(self, dpe_port, poolsize,
-                 registration_host, registration_port,
-                 description, cloud_host, cloud_port):
-        super(Dpe, self).__init__(ClaraUtils.build_topic(CConstants.DPE,
-                                                         "localhost",
-                                                         dpe_port),
-                                  cloud_host,
-                                  registration_host)
-        self.print_logo()
-
-        try:
-            self.sub_handler = self.listen(self.myname,
-                                           self.node_connection,
-                                           DpeCallBack(self))
-            xMsgUtil.keep_alive()
-
-        except KeyboardInterrupt:
-            xMsgUtil.log("Gracefully quitting the dpe...")
-            for container in self.my_containers:
-                container.stop()
-                container.destroy()
-
-            self.unsubscribe(self.sub_handler)
-            return
-
-    def print_logo(self):
-        print "========================================="
-        print "                 CLARA DPE               "
-        print "========================================="
-        print " Name             = " + self.myname
-        print " Date             = " + xMsgUtil.current_time()
-        print " Version          = 3.x"
-        print "========================================="
-        print ""
-
-    def run_container(self, container_name):
-        if container_name in self.my_containers:
-            xMsgUtil.log("Warning: Container " + str(container_name) +
-                         "already exists. No new container is created")
-        else:
-            name = ClaraUtils.build_topic(self.myname, container_name)
-            container = Container(name, "localhost", "localhost")
-            self.my_containers[container_name] = container
-
-    def stop_container(self, container_name):
-        if container_name in self.my_containers.keys():
-            container = self.my_containers.pop(container_name)
-            container.stop()
-
-
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--dpe_port", help="Dpe port", type=int,
-                        default=int(xMsgConstants.DEFAULT_PORT))
-    parser.add_argument("--poolsize", help="Subscription poolsize", type=int,
-                        default=2)
-    parser.add_argument("--description", help="Description text", type=str,
-                        default="Some description...")
-    parser.add_argument("--registration_host", help="Registration host",
+    parser.add_argument("--fe_host", help="Frontend address", type=str,
                         default="localhost")
-    parser.add_argument("--registration_port", help="Registration port",
-                        type=int, default=int(xMsgConstants.REGISTRAR_PORT))
-    parser.add_argument("--cloud_proxy_host", help="Cloud proxy host",
-                        default="localhost")
-    parser.add_argument("--cloud_proxy_port", help="Cloud proxy port",
-                        type=int, default=int(xMsgConstants.DEFAULT_PORT))
+    parser.add_argument("--fe_port", help="Frontend port", type=int,
+                        default=8888)
+    parser.add_argument("--dpe_port", help="Local dpe address", type=int,
+                        default=7771)
+
     args = parser.parse_args()
+    frontend_address = args.fe_host
+    frontend_port = args.fe_port
+    local_port = args.dpe_port
 
-    dpe_port = args.dpe_port
-    poolsize = args.poolsize
-
-    description = args.description
-
-    registrar_host = args.registration_host
-    registrar_port = args.registration_port
-
-    cloud_proxy_host = args.cloud_proxy_host
-    cloud_proxy_port = args.cloud_proxy_port
-
-    Dpe(dpe_port, poolsize, registrar_host, registrar_port, description,
-        cloud_proxy_host, cloud_proxy_port)
+    Dpe("localhost", frontend_address, local_port, frontend_port)
 
 
 if __name__ == "__main__":
