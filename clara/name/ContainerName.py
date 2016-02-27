@@ -19,32 +19,29 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from xmsg.core.xMsgConstants import xMsgConstants
-from clara.base.ClaraAddress import ClaraAddress
+from clara.base.DpeName import DpeName
 from clara.base.ClaraName import ClaraName
+from clara.util.CConstants import CConstants
 
 
-class DpeName(ClaraName):
+class ContainerName(ClaraName):
 
-    def __init__(self, host, port, language="python"):
-        self.__dpe_host = host
-        self.__dpe_port = port
-        self.__dpe_language = language
-        self.__dpe_address = ClaraAddress(host, port)
-
-        if port != int(xMsgConstants.DEFAULT_PORT):
-            self.__name = "%s%%d%s%s" % (host, port, "_", language)
+    def __init__(self, dpe, name):
+        if not isinstance(dpe, DpeName):
+            raise TypeError("dpe argument must be of type DpeName")
         else:
-            self.__name = "%s_%s" % (host, language)
+            self.__canonical_name = str(dpe) + CConstants.TOPIC_SEP + str(name)
+            self.__name = name
+            self.__dpe = dpe
+
+    def __str__(self):
+        return self.canonical_name()
 
     def canonical_name(self):
-        return self.__name
+        return self.__canonical_name
 
     def name(self):
         return self.__name
 
-    def language(self):
-        return self.__dpe_language
-
-    def address(self):
-        return self.__dpe_address
+    def get_dpe_name(self):
+        return self.__dpe

@@ -21,6 +21,7 @@
 
 from clara.base.ClaraName import ClaraName
 from clara.base.ContainerName import ContainerName
+from clara.util.CConstants import CConstants
 
 
 class ServiceName(ClaraName):
@@ -28,12 +29,20 @@ class ServiceName(ClaraName):
     def __init__(self, container, engine):
         if not isinstance(container, ContainerName):
             raise TypeError("container argument must be of type ContainerName")
+
         else:
-            self.__name = container.canonical_name() + ":" + str(engine)
+            self.__name = str(container) + CConstants.TOPIC_SEP + str(engine)
             self.__engine = engine
+            self.__container = container
+
+    def __str__(self):
+        return self.__name
 
     def canonical_name(self):
         return self.__name
 
     def name(self):
         return self.__engine
+
+    def get_container_name(self):
+        return self.__container

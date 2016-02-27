@@ -33,4 +33,3 @@ class ClaraName:
     @abstractmethod
     def name(self):
         pass
-
