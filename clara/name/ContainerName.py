@@ -19,8 +19,8 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from clara.base.DpeName import DpeName
 from clara.base.ClaraName import ClaraName
+from clara.name.DpeName import DpeName
 from clara.util.CConstants import CConstants
 
 

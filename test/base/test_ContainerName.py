@@ -20,8 +20,8 @@
 #
 
 import unittest
-from clara.base.DpeName import DpeName
-from clara.base.ContainerName import ContainerName
+from clara.name.DpeName import DpeName
+from clara.name.ContainerName import ContainerName
 
 
 class TestContainerName(unittest.TestCase):

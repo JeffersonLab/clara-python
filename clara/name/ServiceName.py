@@ -20,7 +20,7 @@
 #
 
 from clara.base.ClaraName import ClaraName
-from clara.base.ContainerName import ContainerName
+from clara.name.ContainerName import ContainerName
 from clara.util.CConstants import CConstants
 
 

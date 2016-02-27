@@ -20,8 +20,9 @@
 #
 
 import unittest
-from clara.base.DpeName import DpeName
+from clara.name.DpeName import DpeName
 from clara.base.ClaraAddress import ClaraAddress
+from clara.base.ClaraLang import ClaraLang
 
 
 class TestDpeName(unittest.TestCase):
@@ -31,7 +32,7 @@ class TestDpeName(unittest.TestCase):
         self.assertIsInstance(dpe, DpeName)
         self.assertEqual(dpe.canonical_name(), "192.1.1.1_python")
         self.assertEqual(dpe.name(), dpe.canonical_name())
-        self.assertEqual("python", dpe.language())
+        self.assertEqual(str(ClaraLang.PYTHON), dpe.language())
         self.assertIsInstance(dpe.address(), ClaraAddress)
 
 if __name__ == "__main__":
