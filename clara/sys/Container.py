@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
@@ -19,65 +20,48 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgUtil import xMsgUtil
 
 from clara.base.ClaraBase import ClaraBase
-from clara.util.CConstants import CConstants
-from clara.util.RequestParser import RequestParser
-from xmsg.core.xMsgConstants import xMsgConstants
-
-
-class ContainerCallBack(xMsgCallBack):
-
-    def __init__(self, container):
-        super(ContainerCallBack, self).__init__()
-        self.container = container
-
-    def callback(self, msg):
-        parser = RequestParser.build_from_message(msg)
-        cmd = parser.next_string()
-
-        if cmd == CConstants.DEPLOY_SERVICE:
-            xMsgUtil.log("Container received: " + CConstants.DEPLOY_SERVICE)
-
-        elif cmd == CConstants.REMOVE_CONTAINER:
-            xMsgUtil.log("Container received: " + CConstants.REMOVE_CONTAINER)
-
-        elif cmd == CConstants.REMOVE_SERVICE:
-            xMsgUtil.log("Container received: " + CConstants.REMOVE_SERVICE)
-
-        else:
-            xMsgUtil.log("Container: Invalid request...")
+from clara.sys.Service import Service
 
 
 class Container(ClaraBase):
     my_services = {}
-    subscription_handler = str(xMsgConstants.UNDEFINED)
 
     def __init__(self, name, local_address, frontend_address):
         super(Container, self).__init__(name,
-                                        local_address,
-                                        frontend_address)
+                                        local_address.host,
+                                        frontend_address.host,
+                                        local_address.pub_port,
+                                        frontend_address.port)
 
-        self.my_services = set()
         xMsgUtil.log("Container started: " + self.myname)
 
-        self.subscription_handler = self.listen(self.myname,
-                                                self.node_connection,
-                                                ContainerCallBack(self))
+    def exit(self):
+        self.remove_services()
+        xMsgUtil.log("Container stopped: " + self.myname)
 
-    def add_service(self, engine_name, engine_class_path, service_pool_size,
+    def add_service(self, engine_name, engine_class, service_pool_size,
                     initial_state):
-        # TODO: Service constructor
-        pass
+        service_name = self.myname + ":" + engine_name
+
+        if service_name in self.my_services.keys():
+            xMsgUtil.log("Warning: Service " + str(service_name) +
+                         " already exists. No new service is deployed")
+        else:
+            service = Service(service_name, engine_class, engine_name,
+                              service_pool_size, self.default_registrar_address,
+                              initial_state, self.default_proxy_address)
+
+            self.my_services[engine_name] = service
+            xMsgUtil.log("Service deployed: " + engine_name)
 
     def remove_service(self, service_name):
-        if service_name in self.my_services:
-            service = self.my_services.remove(service_name)
+        if service_name in self.my_services.keys():
+            service = self.my_services.pop(service_name)
             service.exit()
 
-    def stop(self):
-        self.stop_listening(self.subscription_handler)
-        self.subscription_handler = None
-        xMsgUtil.log("Container stopped: " + self.myname)
+    def remove_services(self):
+        for service_key in self.my_services.keys():
+            self.my_services[service_key].exit()
