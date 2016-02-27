@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
@@ -22,13 +23,8 @@
 import os
 from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgConstants import xMsgConstants
-from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgTopic import xMsgTopic
-from xmsg.net.xMsgAddress import RegAddress, ProxyAddress
-
-from clara.base.ClaraUtils import ClaraUtils
-from clara.base.error.ClaraException import ClaraException
-from clara.util.CConstants import CConstants
+from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
 
 class ClaraBase(xMsg):
@@ -36,17 +32,17 @@ class ClaraBase(xMsg):
 
     Clara service name convention - dpe-host_lang:container:engine_name
     """
+    sub_handler = str(xMsgConstants.UNDEFINED)
     node_connection = str(xMsgConstants.UNDEFINED)
     clara_home = str(xMsgConstants.UNDEFINED)
-    frontend = str(xMsgConstants.UNDEFINED)
 
-    def __init__(self, name, frontend, proxy_address, reg_address="localhost"):
-        super(ClaraBase, self).__init__(name,
-                                        ProxyAddress(proxy_address),
-                                        RegAddress(reg_address))
+
+    def __init__(self, name, proxy_host, frontend_host, proxy_port, frontend_port):
+        proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
+        fe_address = RegAddress(host=frontend_host, port=frontend_port)
+        super(ClaraBase, self).__init__(name, proxy_address, fe_address)
 
         # Create a socket connections to the xMsg node
-        self.frontend = frontend
         self.clara_home = os.environ.get('PCLARA_HOME')
         self.node_connection = self.connect()
 
@@ -61,6 +57,11 @@ class ClaraBase(xMsg):
         return self.subscribe(topic, connection, callback)
 
     def stop_listening(self, handle):
+        """Stops listening to a subscription defined by the handler
+
+        handle (xMsgSubscription): subscription handler object
+
+        """
         self.unsubscribe(handle)
 
     def send(self, msg):
@@ -76,59 +77,16 @@ class ClaraBase(xMsg):
 
         Args:
             msg (xMsgMessage): xMsg transient message object
+            timeout (int): response message timeout in seconds
         """
         self.sync_publish(self.node_connection, msg, timeout)
 
-    def serialize(self, data, message, datatypes):
-        """Builds a message by serializing passed data
-        """
-        pass
+    def register(self, topic, description=None):
+        self.register_as_subscriber(self.default_registrar_address, topic,
+                                    description)
 
-    def de_serialize(self, message, datatypes):
-        pass
+    def remove_registration(self, topic):
+        self.remove_as_subscriber(topic)
 
-    def register(self, topic, description):
-        pass
-
-    def __deploy(self, clara_component, timeout):
-        if ClaraUtils.is_container_name(clara_component):
-            args = [CConstants.START_CONTAINER] + \
-                ClaraUtils.decompose_canonical_name(clara_component)
-            data = ClaraUtils.build_data(args)
-
-        elif ClaraUtils.is_service_name(clara_component):
-            args = [CConstants.START_SERVICE] + \
-                ClaraUtils.decompose_canonical_name(clara_component)
-            data = ClaraUtils.build_data(args)
-
-        else:
-            raise ClaraException("Unknown or undefined component type.")
-
-        msg = self.__create_request(clara_component, data)
-        return msg
-
-    def __send(self, clara_component, msg, timeout=0):
-        if timeout > 0:
-            return self.sync_send(msg, timeout)
-        else:
-            self.send(msg)
-
-    def __exit(self, clara_component, timeout):
-        topic = ClaraUtils.build_topic(CConstants.DPE,
-                                       ClaraUtils.get_dpe_name(clara_component))
-        if ClaraUtils.is_dpe_name(clara_component):
-            data = CConstants.STOP_DPE
-        elif ClaraUtils.is_container_name(clara_component):
-            data = ClaraUtils.build_data(CConstants.STOP_SERVICE,
-                                         ClaraUtils.get_container_name(clara_component),
-                                         ClaraUtils.get_engine_name(clara_component))
-            msg = self.__create_request(topic, data)
-            return msg
-
-    def report_FE(self, command):
-        topic = xMsgTopic.wrap(CConstants.DPE + " " + self.myname)
-
-    def __create_request(self, topic, data):
-        msg = xMsgMessage()
-        msg.set_topic(topic)
-        msg.set_data(str(data), str(xMsgConstants.STRING))
+    def discover(self, topic):
+        return self.find_subscriber(topic)

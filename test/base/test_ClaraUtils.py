@@ -139,6 +139,9 @@ class TestClaraUtils(unittest.TestCase):
         test_case = ClaraUtils.form_dpe_name("192.168.0.1", ClaraLang.JAVA)
         self.assertTrue(ClaraUtils.is_dpe_name(test_case))
         self.assertEqual(test_case, "192.168.0.1_java")
+        test_case = ClaraUtils.form_dpe_name("192.168.0.1", ClaraLang.JAVA, 8181)
+        self.assertTrue(ClaraUtils.is_dpe_name(test_case))
+        self.assertEqual(test_case, "192.168.0.1%8181_java")
 
     def test_form_container_name(self):
         test_case = ClaraUtils.form_dpe_name("192.168.0.1", ClaraLang.JAVA)

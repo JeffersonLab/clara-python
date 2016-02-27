@@ -1,3 +1,4 @@
+# coding=utf-8
 #
 # Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
@@ -71,8 +72,11 @@ class ClaraUtils:
         return CNAME_VALIDATOR.match(canonical_name).group(5)
 
     @staticmethod
-    def form_dpe_name(host, lang):
-        return host + CConstants.LANG_SEP + str(lang)
+    def form_dpe_name(host, lang, dpe_port=None):
+        if dpe_port and dpe_port != 7771:
+            return host + "%" + str(dpe_port) + CConstants.LANG_SEP + str(lang)
+        else:
+            return host + CConstants.LANG_SEP + str(lang)
 
     @staticmethod
     def form_container_name(dpe_name, container_name):

@@ -72,12 +72,12 @@ if __name__ == "__main__":
           author_email='oyarzun@jlab.org',
           url='https://claraweb.jlab.org',
           dependency_links=[
-              'git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@master#egg=xmsg-2.3'],
-          install_requires=['xmsg==2.3',
+              'git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3.1#egg=xmsg-2.3.1'],
+          install_requires=['xmsg==2.3.1',
                             'simplejson>=3.8.0'],
           test_suite="tests",
           tests_require=['pytest',
-                         'xmsg==2.3'],
+                         'xmsg==2.3.1'],
           cmdclass={
               'test': claraTest,
               'clean': claraClean,
