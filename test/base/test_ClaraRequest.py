@@ -20,11 +20,12 @@
 #
 
 import unittest
-from clara.base.ClaraRequest import DeployContainerRequest, DeployServiceRequest
-from clara.base.ContainerName import ContainerName
-from clara.base.ServiceName import ServiceName
-from clara.base.DpeName import DpeName
 from clara.base.ClaraBase import ClaraBase
+from clara.base.ClaraRequest import DeployContainerRequest, DeployServiceRequest
+from clara.name.ContainerName import ContainerName
+from clara.name.ServiceName import ServiceName
+from clara.name.DpeName import DpeName
+
 
 
 class TestClaraRequest(unittest.TestCase):
