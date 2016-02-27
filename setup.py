@@ -28,7 +28,7 @@ from setuptools.command.test import test as TestCommand
 from setuptools import find_packages
 
 
-class claraTest(TestCommand):
+class ClaraTest(TestCommand):
 
     def finalize_options(self):
         TestCommand.finalize_options(self)
@@ -40,7 +40,7 @@ class claraTest(TestCommand):
         pytest.main(self.test_args)
 
 
-class claraClean(Command):
+class ClaraClean(Command):
     user_options = []
 
     def initialize_options(self):
@@ -53,9 +53,10 @@ class claraClean(Command):
         os.system('rm -vrf ./.cache ./.eggs ./build ./dist')
         os.system('rm -vrf ./*.tgz ./*.egg-info')
         os.system('find . -name "*.pyc" -exec rm -vrf {} \;')
+        os.system('find . -name "__pycache__" -exec rm -rf {} \;')
 
 
-class claraInstall(install):
+class ClaraInstall(install):
 
     def run(self):
         install.run(self)
@@ -63,6 +64,7 @@ class claraInstall(install):
         c.all = True
         c.finalize_options()
         c.run()
+
 
 if __name__ == "__main__":
     setup(name='clara',
@@ -79,8 +81,8 @@ if __name__ == "__main__":
           tests_require=['pytest',
                          'xmsg==2.3.1'],
           cmdclass={
-              'test': claraTest,
-              'clean': claraClean,
+              'test': ClaraTest,
+              'clean': ClaraClean,
           },
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
