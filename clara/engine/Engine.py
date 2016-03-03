@@ -1,10 +1,10 @@
 #
-# Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
+# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
 #
-# Author Ricardo  Oyarzun
+# Author Ricardo Oyarzun
 # Department of Experimental Nuclear Physics, Jefferson Lab.
 #
 # IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -18,6 +18,7 @@
 # HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
+
 from abc import ABCMeta, abstractmethod
 
 
