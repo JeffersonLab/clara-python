@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
 # documentation for educational, research, and not-for-profit purposes,
 # without fee and without a signed licensing agreement.
@@ -22,85 +22,110 @@
 import random
 from xmsg.core.xMsgExceptions import MalformedCanonicalName
 from xmsg.core.xMsgMessage import xMsgMessage
-from xmsg.core.xMsgTopic import xMsgTopic
+from xmsg.core.xMsgConstants import xMsgConstants
 
+from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
-from clara.base.CConstants import CConstants
-from clara.base.CBase import CBase
+from clara.util.CConstants import CConstants
 
 
 class BaseOrchestrator(object):
+    base = CConstants.UNDEFINED
+    name = CConstants.UNDEFINED
 
-    def __init__(self, fe_host="localhost"):
-        self.base = self.__get_clara_base(fe_host)
+    def __init__(self, fe_host="localhost", pool_size=2):
+        self.fe_host = fe_host
+        self.pool_size = pool_size
+        self.name = BaseOrchestrator.generate_name()
+        self.base = self.__get_clara_base()
 
-    def _build_data(self, *data_array):
-        topic = ""
-        for index, data in enumerate(data_array[0:]):
-            if index != 1:
-                topic = topic + str(CConstants.TOPIC_SEP) + str(data)
+    @staticmethod
+    def generate_name():
+        return "orchestrator_%d" % (random.randint(0, 1000))
 
-            else:
-                topic = str(data)
+    def __get_clara_base(self):
+        localhost = ClaraUtils.localhost()
+        return ClaraBase(self.name, localhost, localhost,
+                         int(xMsgConstants.DEFAULT_PORT),
+                         int(xMsgConstants.DEFAULT_PORT))
 
-        return topic
-    
-    def _build_message(self):
-        pass
-
-    def _generate_name(self):
-        return "orchestrator%s:localhost" % str(random.randint(0, 1000))
-
-    def __get_clara_base(self, fe_host):
-        return CBase(self._generate_name(), fe_host)
+    def __create_request(self, topic, data):
+        msg = xMsgMessage(topic)
+        msg.set_data(data, "text/string")
+        return msg
 
     def exit_dpe(self, dpe_name):
         if not ClaraUtils.is_dpe_name(dpe_name):
-            raise MalformedCanonicalName("Malformed DPE name: %s"
-                                         % str(dpe_name))
-        host = ClaraUtils.get_hostname(dpe_name)
-        topic = self.__build_topic(str(CConstants.DPE), dpe_name)
-        data = str(CConstants.DPE_EXIT)
+            raise MalformedCanonicalName("Malformed DPE name: %s" % dpe_name)
+        topic = ClaraUtils.build_topic(CConstants.DPE, dpe_name)
+        self.base.send(xMsgMessage(topic, CConstants.DPE_EXIT))
 
-        msg = xMsgMessage.create_with_serialized_data(topic, data)
-        self.base.send(msg)
-
-    def deploy_container(self, container_name):
+    def deploy_container(self, container_name, pool_size=2, description=None):
         if not ClaraUtils.is_container_name(container_name):
             raise ValueError("Bad Container name")
 
-        host = ClaraUtils.get_hostname(container_name)
         dpe = ClaraUtils.get_dpe_name(container_name)
         name = ClaraUtils.get_container_name(container_name)
-        
-        topic = xMsgTopic.wrap(str(CConstants.DPE)+dpe)
-        data = self._build_data(str(CConstants.START_CONTAINER)+name)
-        
-        msg = xMsgMessage(topic, data)
-        
-        try:
-            self.base.generic_send(msg)
 
-        except Exception as e:
-            raise Exception("Orchestrator could not send the request: %s" % e)
+        topic = ClaraUtils.build_topic(CConstants.DPE, dpe)
+        data = ClaraUtils.build_data(CConstants.START_CONTAINER,
+                                     name, pool_size, description)
+
+        self.base.send(self.__create_request(topic, data))
 
     def deploy_container_sync(self):
         pass
 
-    def remove_container(self):
+    def exit_container(self, container_name):
+        if not ClaraUtils.is_container_name(container_name):
+            raise ValueError("Bad Container name")
+
+        dpe = ClaraUtils.get_dpe_name(container_name)
+        name = ClaraUtils.get_container_name(container_name)
+
+        topic = ClaraUtils.build_topic(CConstants.DPE, dpe)
+        data = ClaraUtils.build_data(CConstants.STOP_CONTAINER, name)
+
+        self.base.send(self.__create_request(topic, data))
+
+    def exit_container_sync(self):
         pass
 
-    def remove_container_sync(self):
-        pass
+    def deploy_service(self, service_name, class_path, pool_size=1,
+                       description=None, initial_state=CConstants.UNDEFINED):
+        if not ClaraUtils.is_service_name(service_name):
+            raise ValueError("Bad Service name")
 
-    def deploy_service(self):
-        pass
+        dpe = ClaraUtils.get_dpe_name(service_name)
+        container_name = ClaraUtils.get_container_name(service_name)
+        engine_name = ClaraUtils.get_engine_name(service_name)
+
+        topic = ClaraUtils.build_topic(CConstants.DPE, dpe)
+        data = ClaraUtils.build_data(CConstants.START_SERVICE,
+                                     container_name,
+                                     engine_name,
+                                     class_path,
+                                     pool_size,
+                                     description,
+                                     initial_state)
+
+        self.base.send(self.__create_request(topic, data))
 
     def deploy_service_sync(self):
         pass
 
-    def remove_service(self):
-        pass
+    def remove_service(self, service_name):
+        if not ClaraUtils.is_service_name(service_name):
+            raise ValueError("Bad Service name")
+        dpe_name = ClaraUtils.get_dpe_name(service_name)
+        container_name = ClaraUtils.get_container_name(service_name)
+        engine_name = ClaraUtils.get_engine_name(service_name)
+
+        topic = ClaraUtils.build_topic(CConstants.DPE, dpe_name)
+        data = ClaraUtils.build_data(CConstants.STOP_SERVICE,
+                                     container_name,
+                                     engine_name)
+        self.base.send(self.__create_request(topic, data))
 
     def remove_service_sync(self):
         pass

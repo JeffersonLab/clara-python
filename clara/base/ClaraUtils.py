@@ -35,6 +35,10 @@ CNAME_VALIDATOR = re.compile(CNAME_PATTERN)
 class ClaraUtils:
 
     @staticmethod
+    def localhost():
+        return xMsgUtil.host_to_ip("localhost")
+
+    @staticmethod
     def is_dpe_name(name):
         return bool(CNAME_VALIDATOR.match(name) and
                     len(name.split(CConstants.TOPIC_SEP)) is 1)
