@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 #
 # Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
 # Permission to use, copy, modify, and distribute this software and its
@@ -31,6 +32,7 @@ from clara.base.ClaraUtils import ClaraUtils
 from clara.name.DpeName import DpeName
 from clara.sys.Container import Container
 from clara.util.CConstants import CConstants
+from clara.util.ClaraLogger import ClaraLogger
 from clara.util.RequestParser import RequestParser
 
 
@@ -45,17 +47,18 @@ class Dpe(ClaraBase):
         dpe_name = DpeName(xMsgUtil.host_to_ip(local_address),
                            proxy_port, ClaraLang.PYTHON)
 
-        super(Dpe, self).__init__(ClaraUtils.build_topic(CConstants.DPE,
-                                                         dpe_name.canonical_name()),
+        super(Dpe, self).__init__(dpe_name.canonical_name(),
                                   local_address,
                                   frontend_address,
                                   proxy_port,
                                   frontend_port)
         self.dpe_name = dpe_name
+        self.logger = ClaraLogger(repr(self))
         self.print_logo()
 
         try:
-            self.subscription_handler = self.listen(self.myname,
+            topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
+            self.subscription_handler = self.listen(topic,
                                                     self.node_connection,
                                                     DpeCallBack(self))
             xMsgUtil.keep_alive()
@@ -64,8 +67,11 @@ class Dpe(ClaraBase):
             self.exit()
             return
 
+    def __repr__(self):
+        return str("Dpe:%s" % self.myname)
+
     def exit(self):
-        xMsgUtil.log("Gracefully quitting the dpe...")
+        self.logger.log_info("Gracefully quitting the dpe...")
         for container in self.my_containers:
             container.stop()
             container.destroy()
@@ -92,8 +98,8 @@ class Dpe(ClaraBase):
     def start_container(self, parser):
         container_name = parser.next_string()
         if container_name in self.my_containers:
-            xMsgUtil.log("Warning: Container " + str(container_name) +
-                         " already exists. No new container is created")
+            self.logger.log_warning("Container " + str(container_name) +
+                                    " already exists. No new container is created")
         else:
             name = ClaraUtils.form_container_name(self.myname, container_name)
             container = Container(name, self.default_proxy_address,
@@ -149,13 +155,13 @@ class DpeCallBack(xMsgCallBack):
         try:
             parser = RequestParser.build_from_message(msg)
             cmd = parser.next_string()
-            xMsgUtil.log("DPE received: " + cmd)
+            self.dpe.logger.log_info("DPE received: " + cmd)
 
             if cmd == CConstants.STOP_DPE:
                 self.dpe.exit()
 
             elif cmd == CConstants.START_CONTAINER:
-                self.dpe.run_container(parser)
+                self.dpe.start_container(parser)
 
             elif cmd == CConstants.STOP_CONTAINER:
                 self.dpe.stop_container(parser)

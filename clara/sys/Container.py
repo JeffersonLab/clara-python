@@ -20,10 +20,10 @@
 # SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #
 
-from xmsg.core.xMsgUtil import xMsgUtil
-
 from clara.base.ClaraBase import ClaraBase
+from clara.name.ServiceName import ServiceName
 from clara.sys.Service import Service
+from clara.util.ClaraLogger import ClaraLogger
 
 
 class Container(ClaraBase):
@@ -35,33 +35,38 @@ class Container(ClaraBase):
                                         frontend_address.host,
                                         local_address.pub_port,
                                         frontend_address.port)
+        self.logger = ClaraLogger(repr(self))
+        self.logger.log_info("started: " + self.myname)
 
-        xMsgUtil.log("Container started: " + self.myname)
+    def __repr__(self):
+        return str("Container:%s" % self.myname)
 
     def exit(self):
-        self.remove_services()
-        xMsgUtil.log("Container stopped: " + self.myname)
+        self.__remove_services()
+        self.logger.log_info("stopped: " + self.myname)
 
     def add_service(self, engine_name, engine_class, service_pool_size,
                     initial_state):
-        service_name = self.myname + ":" + engine_name
+        service_name = ServiceName(self.myname, engine_name)
 
-        if service_name in self.my_services.keys():
-            xMsgUtil.log("Warning: Service " + str(service_name) +
-                         " already exists. No new service is deployed")
+        if service_name.name in self.my_services.keys():
+            self.logger.log_warning("Service %s already exists. No new"
+                                    "service is deployed" % str(service_name))
+
         else:
-            service = Service(service_name, engine_class, engine_name,
+            service = Service(service_name.canonical_name(),
+                              engine_class, engine_name,
                               service_pool_size, self.default_registrar_address,
                               initial_state, self.default_proxy_address)
 
             self.my_services[engine_name] = service
-            xMsgUtil.log("Service deployed: " + engine_name)
+            self.logger.log_info("service deployed: " + engine_name)
 
     def remove_service(self, service_name):
         if service_name in self.my_services.keys():
             service = self.my_services.pop(service_name)
             service.exit()
 
-    def remove_services(self):
+    def __remove_services(self):
         for service_key in self.my_services.keys():
             self.my_services[service_key].exit()
