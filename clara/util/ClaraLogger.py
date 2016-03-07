@@ -58,6 +58,11 @@ class ClaraLogger(object):
         """
         self.log(self.__error(), msg)
 
+    def log_exception(self, msg):
+        """Log exception messages
+        """
+        self.log("EXCEPTION", msg)
+
     def log_info(self, msg):
         """Log info messages
         """
