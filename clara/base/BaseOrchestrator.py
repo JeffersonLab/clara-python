@@ -1,23 +1,4 @@
-#
-# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for educational, research, and not-for-profit purposes,
-# without fee and without a signed licensing agreement.
-#
-# Author Ricardo Oyarzun
-# Department of Experimental Nuclear Physics, Jefferson Lab.
-#
-# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#
+# coding=utf-8
 
 import random
 from xmsg.core.xMsgExceptions import MalformedCanonicalName
@@ -60,7 +41,7 @@ class BaseOrchestrator(object):
         topic = ClaraUtils.build_topic(CConstants.DPE, dpe_name)
         self.base.send(xMsgMessage(topic, CConstants.DPE_EXIT))
 
-    def deploy_container(self, container_name, pool_size=2, description=None):
+    def deploy_container(self, container_name, pool_size=2, description="Undefined"):
         if not ClaraUtils.is_container_name(container_name):
             raise ValueError("Bad Container name")
 
