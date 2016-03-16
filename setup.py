@@ -1,29 +1,9 @@
 #!/usr/bin/env python
-#
-# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for educational, research, and not-for-profit purposes,
-# without fee and without a signed licensing agreement.
-#
-# Author Vardan Gyurjyan
-# Department of Experimental Nuclear Physics, Jefferson Lab.
-#
-# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#
+# coding=utf-8
+
 import os
 
 from distutils.core import setup, Command
-from distutils.command.clean import clean
-from distutils.command.install import install
 from setuptools.command.test import test as TestCommand
 from setuptools import find_packages
 
@@ -55,16 +35,11 @@ class ClaraClean(Command):
         os.system('find . -name "*.pyc" -exec rm -vrf {} \;')
         os.system('find . -name "__pycache__" -exec rm -rf {} \;')
 
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme_file:
+    README = readme_file.read()
 
-class ClaraInstall(install):
-
-    def run(self):
-        install.run(self)
-        c = clean(self.distribution)
-        c.all = True
-        c.finalize_options()
-        c.run()
-
+with open(os.path.join(os.path.dirname(__file__), 'LICENSE')) as license_file:
+    LICENSE = license_file.read()
 
 if __name__ == "__main__":
     setup(name='clara',
@@ -73,6 +48,8 @@ if __name__ == "__main__":
           author='Ricardo Oyarzun',
           author_email='oyarzun@jlab.org',
           url='https://claraweb.jlab.org',
+          license=LICENSE,
+          long_description=README,
           dependency_links=[
               'git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3.1#egg=xmsg-2.3.1'],
           install_requires=['xmsg==2.3.1',
