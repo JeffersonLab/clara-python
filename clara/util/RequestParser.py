@@ -23,11 +23,11 @@ class RequestParser(object):
             RequestParser object
         """
 
-        if msg.get_metadata().dataType == "text/string":
-            return cls(msg.get_data())
+        if msg.mimetype == "text/string":
+            return cls(msg.data)
 
         else:
-            raise Exception("Invalid mimetype: " + msg.get_metadata().dataType)
+            raise Exception("Invalid mimetype: " + msg.mimetype)
 
     def next_string(self):
         """Returns the following string from the Request
