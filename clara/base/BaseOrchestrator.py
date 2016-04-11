@@ -28,11 +28,13 @@ class BaseOrchestrator(object):
         localhost = ClaraUtils.localhost()
         return ClaraBase(self.name, localhost, localhost,
                          int(xMsgConstants.DEFAULT_PORT),
-                         int(xMsgConstants.DEFAULT_PORT))
+                         int(xMsgConstants.REGISTRAR_PORT))
 
-    def __create_request(self, topic, data):
-        msg = xMsgMessage(topic)
-        msg.set_data(data, "text/string")
+    @staticmethod
+    def __create_request(topic, data):
+        msg = xMsgMessage(topic=topic)
+        msg.data = data
+        msg.mimetype = "text/string"
         return msg
 
     def exit_dpe(self, dpe_name):
@@ -73,12 +75,13 @@ class BaseOrchestrator(object):
         pass
 
     def deploy_service(self, service_name, class_path, pool_size=1,
-                       description=None, initial_state=CConstants.UNDEFINED):
+                       description=CConstants.UNDEFINED,
+                       initial_state=CConstants.UNDEFINED):
         if not ClaraUtils.is_service_name(service_name):
             raise ValueError("Bad Service name")
 
         dpe = ClaraUtils.get_dpe_name(service_name)
-        container_name = ClaraUtils.get_container_name(service_name)
+        container_name = ClaraUtils.get_container_canonical_name(service_name)
         engine_name = ClaraUtils.get_engine_name(service_name)
 
         topic = ClaraUtils.build_topic(CConstants.DPE, dpe)
@@ -106,13 +109,17 @@ class BaseOrchestrator(object):
         data = ClaraUtils.build_data(CConstants.STOP_SERVICE,
                                      container_name,
                                      engine_name)
+
         self.base.send(self.__create_request(topic, data))
 
     def remove_service_sync(self):
         pass
 
-    def configure_service(self):
-        pass
+    def configure_service(self, service_name):
+        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
+        data = ClaraUtils.build_data(CConstants.UNDEFINED)
+
+        self.base.send(self.__create_request(topic, data))
 
     def configure_service_sync(self):
         pass
