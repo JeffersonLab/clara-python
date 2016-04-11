@@ -1,24 +1,4 @@
 # coding=utf-8
-#
-# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for educational, research, and not-for-profit purposes,
-# without fee and without a signed licensing agreement.
-#
-# Author Ricardo Oyarzun
-# Department of Experimental Nuclear Physics, Jefferson Lab.
-#
-# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#
 
 import re
 import psutil
@@ -28,7 +8,7 @@ from xmsg.core.xMsgConstants import xMsgConstants
 from clara.util.CConstants import CConstants
 
 
-CNAME_PATTERN = "^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
+CNAME_PATTERN = "^([^:_% ]+(%([\\d]+))?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
 CNAME_VALIDATOR = re.compile(CNAME_PATTERN)
 
 
@@ -60,20 +40,25 @@ class ClaraUtils:
 
     @staticmethod
     def get_dpe_name(canonical_name):
-        return canonical_name.split(CConstants.TOPIC_SEP)[0]
+        return CNAME_VALIDATOR.match(canonical_name).group(1)
+
+    @staticmethod
+    def get_dpe_port(canonical_name):
+        port = CNAME_VALIDATOR.match(canonical_name).group(3)
+        return port if port else 7771
 
     @staticmethod
     def get_container_canonical_name(canonical_name):
         match = CNAME_VALIDATOR.match(canonical_name)
-        return match.group(1) + CConstants.TOPIC_SEP + match.group(4)
+        return match.group(1) + CConstants.TOPIC_SEP + match.group(6)
 
     @staticmethod
     def get_container_name(canonical_name):
-        return CNAME_VALIDATOR.match(canonical_name).group(4)
+        return CNAME_VALIDATOR.match(canonical_name).group(6)
 
     @staticmethod
     def get_engine_name(canonical_name):
-        return CNAME_VALIDATOR.match(canonical_name).group(5)
+        return CNAME_VALIDATOR.match(canonical_name).group(8)
 
     @staticmethod
     def form_dpe_name(host, lang, dpe_port=None):
