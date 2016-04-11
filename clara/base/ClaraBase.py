@@ -1,24 +1,4 @@
 # coding=utf-8
-#
-# Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for educational, research, and not-for-profit purposes,
-# without fee and without a signed licensing agreement.
-#
-# Author Ricardo Oyarzun
-# Department of Experimental Nuclear Physics, Jefferson Lab.
-#
-# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#
 
 import os
 from xmsg.core.xMsg import xMsg
@@ -33,8 +13,8 @@ class ClaraBase(xMsg):
     Clara service name convention - dpe-host_lang:container:engine_name
     """
     sub_handler = str(xMsgConstants.UNDEFINED)
-    node_connection = str(xMsgConstants.UNDEFINED)
     clara_home = str(xMsgConstants.UNDEFINED)
+    _node_connection = str(xMsgConstants.UNDEFINED)
 
     def __init__(self, name, proxy_host, frontend_host, proxy_port, frontend_port):
         proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
@@ -43,17 +23,17 @@ class ClaraBase(xMsg):
 
         # Create a socket connections to the xMsg node
         self.clara_home = os.environ.get('PCLARA_HOME')
-        self.node_connection = self.connect()
+        self._node_connection = self.connect()
 
-    def listen(self, topic, connection, callback):
-        """This method simply calls xMsg subscribe method passing the reference to
-        user provided callback method.
+    def listen(self, topic, callback):
+        """This method simply calls xMsg subscribe method passing the reference
+        to user provided callback method.
 
         Args:
             topic (xMsgTopic): Topic of subscription
             callback (xMsgCallBack): User provided callc_back object
         """
-        return self.subscribe(topic, connection, callback)
+        return self.subscribe(topic, self._node_connection, callback)
 
     def stop_listening(self, handle):
         """Stops listening to a subscription defined by the handler
@@ -69,7 +49,7 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
-        self.publish(self.node_connection, msg)
+        self.publish(self._node_connection, msg)
 
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
@@ -78,7 +58,7 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): xMsg transient message object
             timeout (int): response message timeout in seconds
         """
-        self.sync_publish(self.node_connection, msg, timeout)
+        self.sync_publish(self._node_connection, msg, timeout)
 
     def register(self, topic, description=None):
         self.register_as_subscriber(self.default_registrar_address, topic,
