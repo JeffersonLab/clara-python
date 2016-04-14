@@ -50,13 +50,9 @@ if __name__ == "__main__":
           url='https://claraweb.jlab.org',
           license=LICENSE,
           long_description=README,
-          dependency_links=[
-              'git+ssh://git@git.earthdata.nasa.gov:7999/naiads/xmsg-python.git@v2.3.1#egg=xmsg-2.3.1'],
-          install_requires=['xmsg==2.3.1',
-                            'simplejson>=3.8.0'],
+          install_requires=['xmsg'],
           test_suite="tests",
-          tests_require=['pytest',
-                         'xmsg==2.3.1'],
+          tests_require=['pytest', 'xmsg'],
           cmdclass={
               'test': ClaraTest,
               'clean': ClaraClean,

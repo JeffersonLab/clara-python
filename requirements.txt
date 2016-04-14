@@ -1,0 +1,2 @@
+bitstring==3.1.4
+git+https://github.com/JeffersonLab/xmsg_python.git@v2.3.1#egg=xmsg
