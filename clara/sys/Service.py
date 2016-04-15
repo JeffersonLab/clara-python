@@ -5,6 +5,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
+from clara.sys.ServiceEngine import ServiceEngine
 from clara.util.ClaraLogger import ClaraLogger
 from clara.util.CConstants import CConstants
 from clara.util.RequestParser import RequestParser
@@ -24,6 +25,7 @@ class Service(ClaraBase):
             services
     """
     subscription_handler = None
+    engine_pool = []
 
     def __init__(self, name, engine_class, engine_name, pool_size,
                  initial_state, local_address, frontend_address):
@@ -44,13 +46,17 @@ class Service(ClaraBase):
         self.pool_size = pool_size
         # Create service executor objects and fill the pool
         self.available_object_pool = dict()
-
-        self.engine_pool = []
-
         # Dynamically loads service engine class
         engine_class = self.__load_engine(self.engine_class, self.engine_name)
         self.engine_object = engine_class()
 
+        for engine_count in range(self.pool_size):
+            engine_name = "%s-%d" % (name.canonical_name(), engine_count)
+            self.engine_pool.append(ServiceEngine(engine_name,
+                                                  local_address,
+                                                  frontend_address,
+                                                  self.engine_object,
+                                                  'blah'))
         self.logger.log_info("deploying service...")
 
         # Get description defined in the service engine
@@ -79,22 +85,19 @@ class Service(ClaraBase):
                         self.logger.log_exception(e.message)
                     finally:
                         engine.release()
-
-                return
+            return
 
     def execute(self, msg):
-        pass
-
-    def __load_engine(self, module_name, engine_name):
-        loaded_module = __import__(module_name, fromlist=[engine_name])
-        try:
-            self.service_object = getattr(loaded_module, engine_name)
-
-        except ImportError as e:
-            self.logger.log_exception(str(e))
-            raise e
-
-        return self.service_object
+        while True:
+            for engine in self.engine_pool:
+                if engine.try_acquire():
+                    try:
+                        engine.execute(msg)
+                    except Exception as e:
+                        self.logger.log_exception(e.message)
+                    finally:
+                        engine.release()
+            return
 
     def setup(self, msg):
         setup = RequestParser.build_from_message(msg)
@@ -116,6 +119,17 @@ class Service(ClaraBase):
         self.stop_listening(self.subscription_handler)
         self.logger.log_info("service stopped")
 
+    def __load_engine(self, module_name, engine_name):
+        loaded_module = __import__(module_name, fromlist=[engine_name])
+        try:
+            self.service_object = getattr(loaded_module, engine_name)
+
+        except ImportError as e:
+            self.logger.log_exception(str(e))
+            raise e
+
+        return self.service_object
+
 
 class _ServiceCallBack(xMsgCallBack):
 
@@ -127,12 +141,15 @@ class _ServiceCallBack(xMsgCallBack):
             metadata = xMsgMeta()
             metadata.MergeFrom(msg.metadata)
             if metadata.action == 0:
+                self.service.logger.log_info("received : SETUP")
                 self.service.setup(msg)
 
             elif metadata.action == xMsgMeta.CONFIGURE:
+                self.service.logger.log_info("received : CONFIGURE")
                 self.service.configure(msg)
 
             else:
+                self.service.logger.log_info("received : EXECUTE")
                 self.service.execute(msg)
 
         except Exception as e:
