@@ -185,6 +185,9 @@ class PrimitiveSerializer(ClaraSerializer):
 
 class NativeSerializer(ClaraSerializer):
 
+    def __init__(self):
+        super(NativeSerializer, self).__init__()
+
     def read(self, data):
         s_data = xMsgData()
         s_data.ParseFromString(data)
@@ -197,6 +200,9 @@ class NativeSerializer(ClaraSerializer):
 
 
 class RawSerializer(ClaraSerializer):
+
+    def __init__(self):
+        super(RawSerializer, self).__init__()
 
     def read(self, byte_buffer):
         return byte_buffer

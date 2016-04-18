@@ -1,68 +1,66 @@
-#
-# Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for educational, research, and not-for-profit purposes,
-# without fee and without a signed licensing agreement.
-#
-# Author Ricardo  Oyarzun
-# Department of Experimental Nuclear Physics, Jefferson Lab.
-#
-# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-# THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-# OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-# HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-# SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#
-from xmsg.core.xMsgConstants import xMsgConstants
+# coding=utf-8
 
 
-class EngineData:
-
-    data = str(xMsgConstants.UNDEFINED)
-    metadata = str(xMsgConstants.UNDEFINED)
+class EngineData(object):
 
     def __init__(self, data, metadata):
-        self.data = data
-        self.metadata = metadata
+        self._data = data
+        self._metadata = metadata
 
-    def get_mimetype(self):
-        return self.metadata.mimeType
+    def __repr__(self):
+        return "EngineData: %s data" % self._metadata.dataType
+
+    @property
+    def mimetype(self):
+        return self._metadata.mimeType
+
+    def metadata(self):
+        return self._metadata
+
+    def get_data(self):
+        return self._data
 
     def set_data(self, metadata, data):
-        self.metadata = metadata
-        self.data = data
+        self._metadata = metadata
+        self._data = data
 
-    def get_description(self):
-        return self.metadata.description
+    @property
+    def description(self):
+        return self._metadata.description
 
-    def set_description(self, description):
-        self.metadata.description = description
+    @description.setter
+    def description(self, description):
+        self._metadata.description = description
 
-    def get_status(self):
-        return self.metadata.status
+    @property
+    def status(self):
+        return self._metadata.status
 
-    def get_engine_state(self):
-        return self.metadata.senderState
+    @status.setter
+    def status(self, status):
+        self._metadata.senderState = status
 
-    def set_engine_state(self, state):
-        self.metadata.senderState = state
+    @property
+    def state(self):
+        return self._metadata.senderState
 
-    def get_engine_name(self):
-        return self.metadata.sender
+    @state.setter
+    def state(self, state):
+        self._metadata.senderState = state
 
-    def get_communication_id(self):
-        return self.metadata.communicationId
+    def engine_name(self):
+        return self._metadata.author
 
-    def set_communication_id(self, communication_id):
-        self.metadata.communicationId = communication_id
+    @property
+    def communication_id(self):
+        return self._metadata.communicationId
+
+    @communication_id.setter
+    def communication_id(self, communication_id):
+        self._metadata.communicationId = communication_id
 
     def get_composition(self):
-        return self.metadata.composition
+        return self._metadata.composition
 
     def get_execution_time(self):
-        return self.metadata.executionTime
+        return self._metadata.executionTime
