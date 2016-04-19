@@ -180,8 +180,16 @@ class BaseOrchestrator(object):
 
         self.base.send(self._create_request(topic, data))
 
-    def execute_service(self):
-        pass
+    def execute_service(self, service_name, user_data):
+        """Sends request to Service to execute with given data
+
+        Args:
+            service_name (String): service name in canonical form
+            user_data (EngineData): engine data parameter for service exec
+        """
+        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
+        user_data.metadata.action = xMsgMeta.EXECUTE
+        self.base.send(self.base.serialize(topic, user_data, self.datatypes))
 
     def execute_composition(self):
         pass
