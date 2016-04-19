@@ -113,6 +113,6 @@ class ClaraUtils:
     @staticmethod
     def build_data_types(engine_data_type):
         engine_data_type_set = set()
-        for data_type in engine_data_type:
+        for data_type in [engine_data_type]:
             engine_data_type_set.add(data_type)
         return engine_data_type_set
