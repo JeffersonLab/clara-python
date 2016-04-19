@@ -1,10 +1,16 @@
 # coding=utf-8
 
 import os
+
 from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgTopic import xMsgTopic
+from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
+
+from clara.engine.EngineData import EngineData
+from clara.engine.EngineDataType import EngineDataType
 
 
 class ClaraBase(xMsg):
@@ -31,7 +37,7 @@ class ClaraBase(xMsg):
 
         Args:
             topic (xMsgTopic): Topic of subscription
-            callback (xMsgCallBack): User provided callc_back object
+            callback (xMsgCallBack): User provided callback object
         """
         return self.subscribe(topic, self._node_connection, callback)
 
@@ -69,3 +75,64 @@ class ClaraBase(xMsg):
 
     def discover(self, topic):
         return self.find_subscriber(topic)
+
+    def serialize(self, topic, engine_data, datatypes):
+        """Builds a message by serializing passed data object using
+        serialization routine defined in one of the data types objects
+
+        Args:
+             topic (xMsgTopic): the topic where data will be published
+             engine_data (EngineData): the data to be serialized
+             datatypes (set(<EngineDataType>)): the set of registered dataTypes
+
+        Returns:
+            xMsgMessage: Message with serialized data
+        """
+        metadata = engine_data.metadata
+        mimetype = metadata.dataType
+        for dt in datatypes:
+            if dt.mimetype == mimetype:
+                bb = dt.serializer.write(engine_data.get_data())
+                return xMsgMessage.create_with_serialized_data([str(topic),
+                                                                metadata.SerializeToString(),
+                                                                bb])
+        if mimetype == EngineDataType.STRING().mimetype:
+            bb = EngineDataType.STRING().serializer.write(engine_data.get_data())
+
+            return xMsgMessage.create_with_serialized_data([str(topic),
+                                                            metadata.SerializeToString(),
+                                                            bb])
+
+    def de_serialize(self, msg, datatypes):
+        """ De serializes data of the message, represented as bytes into an
+        object of az type defined using the mimetype/datatype of the metadata
+
+        Args:
+            msg (xMsgMessage): message to be deserialized
+            datatypes (set(<EngineDataType>): datatype set of permitted
+                serializations
+        """
+        metadata = xMsgMeta()
+        metadata.MergeFrom(msg.metadata)
+
+        for dt in datatypes:
+            if dt.mimetype == metadata.dataType:
+                try:
+                    user_data = dt.serializer.read(msg.data)
+                    engine_data = EngineData()
+                    engine_data.metadata = metadata
+                    engine_data.set_data(metadata.dataType, user_data)
+                    return engine_data
+
+                except Exception as e:
+                    raise e("Clara-Error: Could not serialize...")
+        raise Exception("Clara-Error: Unsopported mimetype = %s" % metadata.dataType)
+
+    def build_system_error_data(self, msg, severity, description):
+        out_data = EngineData()
+        out_data.set_data(EngineDataType.STRING(), msg)
+        out_data.description = description
+        out_data.status = xMsgMeta.ERROR
+        out_data.severity = severity
+
+        return out_data
