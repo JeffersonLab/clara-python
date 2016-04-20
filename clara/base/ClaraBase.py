@@ -10,7 +10,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
 from clara.engine.EngineData import EngineData
-from clara.engine.EngineDataType import EngineDataType
+from clara.engine.EngineDataType import EngineDataType, Mimetype
 
 
 class ClaraBase(xMsg):
@@ -93,15 +93,13 @@ class ClaraBase(xMsg):
         for dt in datatypes:
             if dt.mimetype == mimetype:
                 bb = dt.serializer.write(engine_data.get_data())
-                return xMsgMessage.create_with_serialized_data([str(topic),
-                                                                metadata.SerializeToString(),
-                                                                bb])
-        if mimetype == EngineDataType.STRING().mimetype:
-            bb = EngineDataType.STRING().serializer.write(engine_data.get_data())
+                s_data = [str(topic), metadata.SerializeToString(), bb]
+                return xMsgMessage.create_with_serialized_data(s_data)
 
-            return xMsgMessage.create_with_serialized_data([str(topic),
-                                                            metadata.SerializeToString(),
-                                                            bb])
+        if mimetype == Mimetype.STRING:
+            bb = EngineDataType.STRING().serializer.write(engine_data.get_data())
+            s_data = [str(topic), metadata.SerializeToString(), bb]
+            return xMsgMessage.create_with_serialized_data(s_data)
 
     def de_serialize(self, msg, datatypes):
         """ De serializes data of the message, represented as bytes into an

@@ -56,7 +56,7 @@ class Service(ClaraBase):
                                                   local_address,
                                                   frontend_address,
                                                   self.engine_object,
-                                                  'blah'))
+                                                  self.initial_state))
         self.logger.log_info("deploying service...")
 
         # Get description defined in the service engine
@@ -78,31 +78,30 @@ class Service(ClaraBase):
     def configure(self, msg):
         while True:
             for engine in self.engine_pool:
-                if engine.try_acquire():
+                if engine.try_acquire_semaphore():
                     try:
                         engine.configure(msg)
                     except Exception as e:
                         self.logger.log_exception(e.message)
                     finally:
-                        engine.release()
+                        engine.release_semaphore()
             return
 
     def execute(self, msg):
         while True:
             for engine in self.engine_pool:
-                if engine.try_acquire():
+                if engine.try_acquire_semaphore():
                     try:
                         engine.execute(msg)
                     except Exception as e:
                         self.logger.log_exception(e.message)
                     finally:
-                        engine.release()
+                        engine.release_semaphore()
             return
 
     def setup(self, msg):
         setup = RequestParser.build_from_message(msg)
         report = setup.next_string()
-        value = setup.next_integer()
 
         if report == CConstants.SERVICE_REPORT_DONE:
             # TODO: Implement ServiceSysConfig
@@ -140,17 +139,17 @@ class _ServiceCallBack(xMsgCallBack):
         try:
             metadata = xMsgMeta()
             metadata.MergeFrom(msg.metadata)
-            if metadata.action == 0:
-                self.service.logger.log_info("received : SETUP")
-                self.service.setup(msg)
+            if metadata.action == xMsgMeta.EXECUTE:
+                self.service.logger.log_info("received : EXECUTE")
+                self.service.execute(msg)
 
             elif metadata.action == xMsgMeta.CONFIGURE:
                 self.service.logger.log_info("received : CONFIGURE")
                 self.service.configure(msg)
 
             else:
-                self.service.logger.log_info("received : EXECUTE")
-                self.service.execute(msg)
+                self.service.logger.log_info("received : SETUP")
+                self.service.setup(msg)
 
         except Exception as e:
             self.service.logger.log_exception(str(e))
