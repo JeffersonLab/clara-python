@@ -119,15 +119,13 @@ class Service(ClaraBase):
         self.logger.log_info("service stopped")
 
     def __load_engine(self, module_name, engine_name):
-        loaded_module = __import__(module_name, fromlist=[engine_name])
         try:
-            self.service_object = getattr(loaded_module, engine_name)
+            loaded_module = __import__(module_name, fromlist=[engine_name])
+            return getattr(loaded_module, engine_name)
 
         except ImportError as e:
             self.logger.log_exception(str(e))
             raise e
-
-        return self.service_object
 
 
 class _ServiceCallBack(xMsgCallBack):
