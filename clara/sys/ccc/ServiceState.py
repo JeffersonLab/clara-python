@@ -18,7 +18,10 @@ class ServiceState(object):
         return hash(self.__key())
 
     def __eq__(self, other):
-        return repr(self) == repr(other)
+        if not isinstance(other, ServiceState):
+            return False
+        return (self.name == other.name and
+                self.state == other.state)
 
     @property
     def name(self):
