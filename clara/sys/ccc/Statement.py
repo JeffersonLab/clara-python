@@ -24,9 +24,10 @@ class Statement(object):
     def __eq__(self, other):
         if not isinstance(other, Statement):
             return False
-        assert self.get_input_links() == other.get_input_links()
-        assert self.get_output_links() == other.get_output_links()
-        assert self.get_log_and_inputs() == other.get_log_and_inputs()
+        cmp1 = str(self.get_input_links()) == str(other.get_input_links())
+        cmp2 = str(self.get_output_links()) == str(other.get_output_links())
+        cmp3 = str(self.get_log_and_inputs()) == str(other.get_log_and_inputs())
+        return cmp1 and cmp2 and cmp3
 
     def __hash__(self):
         return hash((self._service_name, self._statement_string,
