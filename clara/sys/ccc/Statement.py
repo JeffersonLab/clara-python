@@ -28,6 +28,11 @@ class Statement(object):
         assert self.get_output_links() == other.get_output_links()
         assert self.get_log_and_inputs() == other.get_log_and_inputs()
 
+    def __hash__(self):
+        return hash((self._service_name, self._statement_string,
+                     str(self._input_links), str(self._output_links),
+                     str(self._log_and_inputs)))
+
     @property
     def service_name(self):
         return self._service_name
