@@ -42,7 +42,6 @@ class CCompiler(object):
                 j = i + 1
                 while j < len(ppi):
                     scs2 = ppi[j]
-                    print scs2
                     if (not scs2.startswith("}") and
                             not scs2.startswith("if(") and
                             not scs2.startswith("}if(") and
