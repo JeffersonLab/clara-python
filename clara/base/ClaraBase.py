@@ -9,6 +9,7 @@ from xmsg.core.xMsgTopic import xMsgTopic
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
+from clara.base.error.ClaraException import ClaraException
 from clara.engine.EngineData import EngineData
 from clara.engine.EngineDataType import EngineDataType, Mimetype
 
@@ -123,8 +124,10 @@ class ClaraBase(xMsg):
                     return engine_data
 
                 except Exception as e:
-                    raise e("Clara-Error: Could not serialize...")
-        raise Exception("Clara-Error: Unsopported mimetype = %s" % metadata.dataType)
+                    raise ClaraException("Clara-Error: Could not serialize." +
+                                         e.message)
+        raise ClaraException("Clara-Error: Unsopported mimetype = %s"
+                             % metadata.dataType)
 
     def build_system_error_data(self, msg, severity, description):
         out_data = EngineData()
