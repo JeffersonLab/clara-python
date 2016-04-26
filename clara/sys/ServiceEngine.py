@@ -6,6 +6,9 @@ from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgTopic import xMsgTopic
 
 from clara.base.ClaraBase import ClaraBase
+from clara.engine.EngineData import EngineData
+from clara.engine.EngineDataType import Mimetype
+from clara.engine.EngineStatus import EngineStatus
 from clara.sys.ccc.CCompiler import CCompiler
 from clara.sys.ccc.ServiceState import ServiceState
 
@@ -27,10 +30,37 @@ class ServiceEngine(ClaraBase):
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
 
-    def _execute_engine(self, in_data):
+    def configure(self, msg):
+        input_data = EngineData()
+        out_data = None
+        try:
+            input_data = self._get_engine_data(msg)
+            out_data = self._configure_engine(input_data)
+        except Exception as e:
+            print e
+            out_data = self.build_system_error_data("unhandled exception",
+                                                    -4, e.message)
+        finally:
+            print out_data
+        reply_to = self._get_reply_to(msg)
+        if reply_to:
+            msg_out = self._put_engine_data(out_data, reply_to)
+            self.send(msg_out)
+        else:
+            self._report_problem(out_data)
+
+    def _configure_engine(self, engine_input_data):
+        output_data = self._engine_object.configure(engine_input_data)
+        if not output_data:
+            output_data = EngineData()
+        if output_data.get_data():
+            output_data.set_data(Mimetype.STRING, "done")
+        return output_data
+
+    def _execute_engine(self, engine_input_data):
         # TODO: Start time function
         # start_clock = ?
-        out_data = self._engine_object.execute(in_data)
+        out_data = self._engine_object.execute(engine_input_data)
         # TODO: Stop time function
         # stop_clock = ?
         if not out_data:
@@ -46,16 +76,8 @@ class ServiceEngine(ClaraBase):
         return reply_to
 
     def _get_engine_data(self, msg):
-        # metadata = xMsgMeta.FromString(msg.metadata)
-        # if metadata.dataType == CConstants.SHARED_MEMORY_KEY:
-        #     sender = metadata.sender
-        #     id = metadata.communicationId
-        # TODO: Shared Memory return
-        #     pass
-        # else:
-        #     return self.de_serialize(msg,
-        #                              self.__engine_object.get_input_data_types())
-        return self.de_serialize(msg, self._engine_object.get_input_data_types())
+        return self.de_serialize(msg,
+                                 self._engine_object.get_input_data_types())
 
     def _get_links(self, engine_input_data, engine_output_data):
         owner_ss = ServiceState(engine_output_data.engine_name(),
@@ -81,10 +103,12 @@ class ServiceEngine(ClaraBase):
             self._compiler.compile(current_composition)
             self._prev_composition = current_composition
 
+    def _put_engine_data(self, data, receiver):
+        topic = xMsgTopic.wrap(receiver)
+        return self.serialize(topic, data,
+                              self._engine_object.get_output_datatypes())
+
     def _report_problem(self, engine_data):
-        from clara.engine.EngineData import EngineData
-        from clara.engine.EngineStatus import EngineStatus
-        engine_data = EngineData()
         status = engine_data.status
         if status == EngineStatus.ERROR:
             self._report(xMsgConstants.ERROR, engine_data)
@@ -96,10 +120,7 @@ class ServiceEngine(ClaraBase):
         msg = self.serialize(topic,
                              engine_data,
                              self._engine_object.get_output_datatypes())
-        # send aca
-
-    def configure(self, msg):
-        pass
+        self.send_frontend(msg)
 
     def execute(self, msg):
         out_data = None
