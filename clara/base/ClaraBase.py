@@ -23,7 +23,8 @@ class ClaraBase(xMsg):
     clara_home = str(xMsgConstants.UNDEFINED)
     _node_connection = str(xMsgConstants.UNDEFINED)
 
-    def __init__(self, name, proxy_host, frontend_host, proxy_port, frontend_port):
+    def __init__(self, name, proxy_host, frontend_host, proxy_port,
+                 frontend_port):
         proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
         fe_address = RegAddress(host=frontend_host, port=frontend_port)
         super(ClaraBase, self).__init__(name, proxy_address, fe_address)
@@ -56,6 +57,10 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
+        self.publish(self._node_connection, msg)
+
+    def send_frontend(self, msg):
+        # TODO: Placeholder for now, needs to refactor frontend connections
         self.publish(self._node_connection, msg)
 
     def sync_send(self, msg, timeout):
