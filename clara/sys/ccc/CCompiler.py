@@ -2,6 +2,8 @@
 
 import re
 
+from ordered_set import OrderedSet
+
 from clara.base.error.ClaraException import ClaraException
 from clara.sys.ccc.Instruction import Instruction
 from clara.sys.ccc.Statement import Statement
@@ -16,7 +18,7 @@ class CCompiler(object):
                     "routing statement"
 
     def __init__(self, service_name):
-        self._instructions = set()
+        self._instructions = OrderedSet()
         self._service_name = service_name
 
     @staticmethod
@@ -63,6 +65,7 @@ class CCompiler(object):
 
         if not bool(self._instructions):
             raise ClaraException("Composition is irrelevant for a service.")
+        print self._instructions
 
     @staticmethod
     def _pre_process(code_string):
@@ -167,7 +170,6 @@ class CCompiler(object):
 
     def get_links(self, owner_ss, input_ss):
         outputs = set()
-
         in_condition = False
         condition_chosen = False
 
@@ -176,7 +178,8 @@ class CCompiler(object):
                 in_condition = False
 
                 for statement in instruction.unconditional_statements:
-                    outputs.update(statement.get_output_links())
+                    output = statement.get_output_links()
+                    outputs.update(output)
                 continue
 
             if instruction.if_condition:
@@ -186,7 +189,8 @@ class CCompiler(object):
                 if instruction.if_condition.is_true(owner_ss, input_ss):
                     condition_chosen = True
                     for statement in instruction.if_statements:
-                        outputs.update(statement.get_output_links())
+                        output = statement.get_output_links()
+                        outputs.update(output)
                 continue
 
             if in_condition and not condition_chosen:
@@ -195,13 +199,14 @@ class CCompiler(object):
                                                             input_ss):
                         condition_chosen = True
                         for statement in instruction.elseif_statements:
-                            outputs.update(statement.get_output_links())
+                            output = statement.get_output_links()
+                            outputs.update(output)
                     continue
 
                 if instruction.else_statements:
                     condition_chosen = True
 
                     for statement in instruction.else_statements:
-                        outputs.update(statement.get_output_links())
-
+                        output = statement.get_output_links()
+                        outputs.update(output)
         return outputs

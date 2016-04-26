@@ -54,8 +54,8 @@ class Condition(object):
                                 if len(condition) != 2:
                                     raise ClaraException(self._CONDITION_ERROR)
 
-                                stt = ServiceState(condition[0], condition[1])
-                                self.and_not_states.add(stt)
+                                self.and_not_states.add(ServiceState(condition[0],
+                                                                     condition[1]))
 
                             elif ac.find("==") != -1:
                                 condition = ac.next()
@@ -64,8 +64,8 @@ class Condition(object):
                                 if len(condition) != 2:
                                     raise ClaraException(self._CONDITION_ERROR)
 
-                                stt = ServiceState(condition[0], condition[1])
-                                self.and_states.add(stt)
+                                self.and_states.add(ServiceState(condition[0],
+                                                                 condition[1]))
 
                             else:
                                 raise ClaraException(self._CONDITION_ERROR)
@@ -132,7 +132,6 @@ class Condition(object):
                         raise ClaraException(self._CONDITION_ERROR)
                     self.or_states.add(ServiceState(condition[0],
                                                     condition[1]))
-
                 else:
                     raise ClaraException(self._CONDITION_ERROR)
             else:

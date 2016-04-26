@@ -24,10 +24,7 @@ class Instruction(object):
                 self.elseif_statements == other.elseif_statements and
                 self.unconditional_statements == other.unconditional_statements)
 
-    @property
-    def condition(self):
-        return self.if_condition
-
-    @condition.setter
-    def condition(self, if_condition):
-        self.if_condition = if_condition
+    def __hash__(self):
+        return hash((self._service_name,
+                     str(self.if_statements), str(self.else_statements),
+                     str(self.elseif_statements), str(self.else_statements)))
