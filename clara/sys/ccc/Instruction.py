@@ -13,8 +13,6 @@ class Instruction(object):
         self.unconditional_statements = set()
 
     def __eq__(self, other):
-        if self == other:
-            return True
         if not isinstance(other, Instruction):
             return False
 

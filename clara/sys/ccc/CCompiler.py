@@ -53,6 +53,7 @@ class CCompiler(object):
                             self._parse_conditional_statement(scs2,
                                                               instruction)
                     else:
+                        i = j - 1
                         break
                     j += 1
 
@@ -65,7 +66,6 @@ class CCompiler(object):
 
         if not bool(self._instructions):
             raise ClaraException("Composition is irrelevant for a service.")
-        print self._instructions
 
     @staticmethod
     def _pre_process(code_string):
@@ -82,23 +82,20 @@ class CCompiler(object):
     def _parse_statement(self, statement_string):
         ti = Instruction(self._service_name)
         statement_string = CUtility.remove_first(statement_string, "}")
-        try:
-            pattern = re.compile(Regex.ROUTING_STATEMENT)
-            match = pattern.match(statement_string)
 
-            if match:
-                if not (self._service_name in statement_string):
-                    return False
-                ts = Statement(statement_string, self._service_name)
-                ti.unconditional_statements.add(ts)
-                self._instructions.add(ti)
+        pattern = re.compile(Regex.ROUTING_STATEMENT)
+        match = pattern.match(statement_string)
 
-                return True
-            else:
-                raise ClaraException(self._SYNTAX_ERROR)
-        except Exception as e:
-            print e
-            raise e
+        if match:
+            if not (self._service_name in statement_string):
+                return False
+            ts = Statement(statement_string, self._service_name)
+            ti.unconditional_statements.add(ts)
+            self._instructions.add(ti)
+
+            return True
+        else:
+            raise ClaraException(self._SYNTAX_ERROR)
 
     def _parse_conditional_statement(self, statement_string, instruction):
         pattern = re.compile(Regex.ROUTING_STATEMENT)

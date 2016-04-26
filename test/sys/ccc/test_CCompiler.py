@@ -86,6 +86,53 @@ class TestCCompiler(unittest.TestCase):
         self.assertEqual(OrderedSet(["10.10.10.1_java:C:S4"]),
                          cc.get_links(owner_ss, input_ss))
 
+    def test_else_conditional(self):
+        cc = CCompiler("10.10.10.1_java:C:S1")
+        cc.compile(TestCCompiler.get_composition())
+        composition2 = "10.10.10.1_java:C:S1;" +\
+                       "if (10.10.10.1_java:C:S1 == \"FOO\") { " +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S2;" +\
+                       "} elseif (10.10.10.1_java:C:S1 == \"BAR\") { " +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S3;" +\
+                       "} elseif (10.10.10.1_java:C:S1 == \"FROZ\") { " +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S4;" +\
+                       "} else {" +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S5;" +\
+                       "}"
+        cc.compile(composition2)
+        owner_ss = ServiceState("10.10.10.1_java:C:S1", "\"FRAPP\"")
+        input_ss = ServiceState("WHATEVER", "DON'T CARE")
+        self.assertEqual(OrderedSet(["10.10.10.1_java:C:S5"]),
+                         cc.get_links(owner_ss, input_ss))
+
+    def test_conditional_multiple_statement(self):
+        cc = CCompiler("10.10.10.1_java:C:S1")
+        cc.compile(TestCCompiler.get_composition())
+        composition2 = "10.10.10.1_java:C:S1;" +\
+                       "if (10.10.10.1_java:C:S1 == \"FOO\") { " +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S2;" +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S7;" +\
+                       "  10.10.10.1_java:C:S1+10.10.10.1_java:C:S9;" +\
+                       "}"
+        cc.compile(composition2)
+        owner_ss = ServiceState("10.10.10.1_java:C:S1", "\"FOO\"")
+        input_ss = ServiceState("WHATEVER", "DON'T CARE")
+        self.assertEqual(OrderedSet(["10.10.10.1_java:C:S2",
+                                     "10.10.10.1_java:C:S7",
+                                     "10.10.10.1_java:C:S9"]),
+                         cc.get_links(owner_ss, input_ss))
+
+    def test_conditional_last_service_in_loop(self):
+        cc = CCompiler("10.10.10.1_java:C:S3")
+        cc.compile(TestCCompiler.get_composition())
+        composition2 = "10.10.10.1_java:C:S1+" +\
+                       "10.10.10.1_java:C:S3+" +\
+                       "10.10.10.1_java:C:S1;"
+        cc.compile(composition2)
+        owner_ss = ServiceState("10.10.10.1_java:C:S3", "Undefined")
+        input_ss = ServiceState("10.10.10.1_java:C:S3", "Undefined")
+        self.assertEqual(OrderedSet(["10.10.10.1_java:C:S1"]),
+                         cc.get_links(owner_ss, input_ss))
 
 if __name__ == "__main__":
     unittest.main()
