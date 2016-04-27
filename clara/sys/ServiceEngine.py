@@ -11,6 +11,7 @@ from clara.engine.EngineDataType import Mimetype
 from clara.engine.EngineStatus import EngineStatus
 from clara.sys.ccc.CCompiler import CCompiler
 from clara.sys.ccc.ServiceState import ServiceState
+from clara.util.ClaraLogger import ClaraLogger
 
 
 class ServiceEngine(ClaraBase):
@@ -29,6 +30,7 @@ class ServiceEngine(ClaraBase):
         self._sys_config = configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
+        self._logger = ClaraLogger(repr(self))
 
     def configure(self, msg):
         input_data = EngineData()
@@ -37,7 +39,7 @@ class ServiceEngine(ClaraBase):
             input_data = self._get_engine_data(msg)
             out_data = self._configure_engine(input_data)
         except Exception as e:
-            print e
+            self._logger.log_exception(e.message)
             out_data = self.build_system_error_data("unhandled exception",
                                                     -4, e.message)
         finally:
@@ -64,6 +66,7 @@ class ServiceEngine(ClaraBase):
         # TODO: Stop time function
         # stop_clock = ?
         if not out_data:
+            self._logger.log_exception("null engine result")
             raise Exception("null engine result")
 
         # TODO: Check if get data is null or none
@@ -129,6 +132,7 @@ class ServiceEngine(ClaraBase):
             out_data = self._execute_engine(in_data)
 
         except Exception as e:
+            self._logger.log_exception(e.message)
             out_data = self.build_system_error_data("unhandled exception",
                                                     -4, e.message)
         finally:
