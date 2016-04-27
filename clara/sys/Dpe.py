@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-import argparse
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
@@ -34,8 +33,8 @@ class Dpe(ClaraBase):
                                   proxy_port,
                                   frontend_port)
         self.dpe_name = dpe_name
-        self.logger = ClaraLogger(repr(self))
-        self.print_logo()
+        self._logger = ClaraLogger(repr(self))
+        self._print_logo()
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         try:
@@ -43,22 +42,23 @@ class Dpe(ClaraBase):
             xMsgUtil.keep_alive()
 
         except KeyboardInterrupt:
-            self.exit()
+            self._exit()
 
     def __repr__(self):
         return str("Dpe:%s" % self.myname)
 
-    def exit(self):
-        self.logger.log_info("Gracefully quitting the dpe...")
+    def _exit(self):
+        self._logger.log_info("Gracefully quitting the dpe...")
         for container in self.my_containers:
             container.exit()
             container.destroy()
         self.stop_listening(self.subscription_handler)
 
-    def print_logo(self):
-        print "================================================"
-        print "                 CLARA DPE"
-        print "================================================"
+    def _print_logo(self):
+        print "=" * 62
+        print " "*27 + "CLARA DPE"
+        print "=" * 62
+        print ""
         print " Name             = " + self.myname
         print " Date             = " + xMsgUtil.current_time()
         print " Version          = 2.x"
@@ -70,16 +70,16 @@ class Dpe(ClaraBase):
         print " Frontend Host    = %s" % self.default_registrar_address.host
         print " Frontend Post    = %d" % self.default_registrar_address.port
         print ""
-        print "================================================"
+        print "=" * 62
         print ""
 
     def start_container(self, parser):
         container_name = parser.next_string()
         try:
             if container_name in self.my_containers:
-                self.logger.log_warning("Container " + str(container_name) +
-                                        " already exists. No new container is"
-                                        " created")
+                self._logger.log_warning("Container " + str(container_name) +
+                                         " already exists. No new container is"
+                                         " created")
             else:
                 container = Container(ContainerName(self.dpe_name,
                                                     container_name),
@@ -87,7 +87,7 @@ class Dpe(ClaraBase):
                 self.my_containers[container_name] = container
 
         except Exception as e:
-            self.logger.log_exception(e.message)
+            self._logger.log_exception(e.message)
             raise e
 
     def stop_container(self, parser):
@@ -113,7 +113,7 @@ class Dpe(ClaraBase):
                                                                initial_state)
 
         except Exception as e:
-            self.logger.log_exception(e.message)
+            self._logger.log_exception(e.message)
             raise e
 
     def stop_service(self, parser):
@@ -138,30 +138,32 @@ class _DpeCallBack(xMsgCallBack):
 
     def __init__(self, dpe):
         super(_DpeCallBack, self).__init__()
-        self.dpe = dpe
+        self._dpe = dpe
+        self._logger = ClaraLogger("DPE:" + dpe.myname)
 
     def callback(self, msg):
         try:
             parser = RequestParser.build_from_message(msg)
             cmd = parser.next_string()
-            self.dpe.logger.log_info("received: %s" % cmd)
+            self._logger.log_info("received: %s" % cmd)
 
             if cmd == CConstants.STOP_DPE:
-                self.dpe.exit()
+                self._dpe.exit()
 
             elif cmd == CConstants.START_CONTAINER:
-                self.dpe.start_container(parser)
+                self._dpe.start_container(parser)
 
             elif cmd == CConstants.STOP_CONTAINER:
-                self.dpe.stop_container(parser)
+                self._dpe.stop_container(parser)
 
             elif cmd == CConstants.START_SERVICE:
-                self.dpe.start_service(parser)
+                self._dpe.start_service(parser)
 
             elif cmd == CConstants.STOP_SERVICE:
-                self.dpe.stop_service(parser)
+                self._dpe.stop_service(parser)
 
         except Exception as e:
+            self._logger.log_exception(e.message)
             raise e
 
         finally:
@@ -169,6 +171,8 @@ class _DpeCallBack(xMsgCallBack):
 
 
 def main():
+    import argparse
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--fe_host", help="Frontend address", type=str,

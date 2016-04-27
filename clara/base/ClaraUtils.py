@@ -9,11 +9,12 @@ from xmsg.core.xMsgConstants import xMsgConstants
 from clara.util.CConstants import CConstants
 
 
-CNAME_PATTERN = "^([^:_% ]+(%([\\d]+))?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$"
+CNAME_PATTERN = "^([^:_% ]+(%([\\d]+))?_(java|python|cpp))" \
+                "(:(\\w+)(:(\\w+))?)?$"
 CNAME_VALIDATOR = re.compile(CNAME_PATTERN)
 
 
-class ClaraUtils:
+class ClaraUtils(object):
 
     @staticmethod
     def localhost():

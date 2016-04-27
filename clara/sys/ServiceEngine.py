@@ -30,7 +30,7 @@ class ServiceEngine(ClaraBase):
         self._sys_config = configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
-        self._logger = ClaraLogger(repr(self))
+        self._logger = ClaraLogger("ServiceEngine: " + self.myname)
 
     def configure(self, msg):
         input_data = EngineData()

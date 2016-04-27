@@ -126,15 +126,15 @@ class Service(ClaraBase):
             return getattr(loaded_module, engine_name)
 
         except ImportError as e:
-            self._logger.log_exception(str(e))
+            self._logger.log_exception(e.message)
             raise e
 
 
 class _ServiceCallBack(xMsgCallBack):
 
     def __init__(self, service):
-        self.service = service
-        self._logger = ClaraLogger(repr(self))
+        self._service = service
+        self._logger = ClaraLogger("Service:" + service.myname)
 
     def callback(self, msg):
         try:
@@ -142,15 +142,15 @@ class _ServiceCallBack(xMsgCallBack):
             metadata.MergeFrom(msg.metadata)
             if metadata.action == xMsgMeta.EXECUTE:
                 self._logger.log_info("received : EXECUTE")
-                self.service.execute(msg)
+                self._service.execute(msg)
 
             elif metadata.action == xMsgMeta.CONFIGURE:
                 self._logger.log_info("received : CONFIGURE")
-                self.service.configure(msg)
+                self._service.configure(msg)
 
             else:
                 self._logger.log_info("received : SETUP")
-                self.service.setup(msg)
+                self._service.setup(msg)
 
         except Exception as e:
             self._logger.log_exception(str(e))
