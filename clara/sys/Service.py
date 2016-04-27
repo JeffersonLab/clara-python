@@ -24,8 +24,6 @@ class Service(ClaraBase):
         pool_size (int): Service object pool size, i.e. number of parallel
             services
     """
-    subscription_handler = None
-    engine_pool = []
 
     def __init__(self, name, engine_class, engine_name, pool_size,
                  initial_state, local_address, frontend_address):
@@ -35,41 +33,45 @@ class Service(ClaraBase):
                                       local_address.pub_port,
                                       frontend_address.port)
 
-        self.logger = ClaraLogger(repr(self))
+        self._logger = ClaraLogger(repr(self))
         # user provided engine class container class name
-        self.engine_class = engine_class
+        self._engine_class = engine_class
         # actual engine class name
-        self.engine_name = engine_name
+        self._engine_name = engine_name
         # initial state of the service
-        self.initial_state = initial_state
+        self._initial_state = initial_state
         # pool size
-        self.pool_size = pool_size
+        self._pool_size = pool_size
         # Create service executor objects and fill the pool
-        self.available_object_pool = dict()
+        self._available_object_pool = dict()
         # Dynamically loads service engine class
-        engine_class = self.__load_engine(self.engine_class, self.engine_name)
-        self.engine_object = engine_class()
+        engine_class = self.__load_engine(self._engine_class,
+                                          self._engine_name)
+        self._engine_object = engine_class()
 
-        for engine_count in range(self.pool_size):
+        self._engine_pool = []
+
+        for engine_count in range(self._pool_size):
             engine_name = "%s-%d" % (name.canonical_name(), engine_count)
-            self.engine_pool.append(ServiceEngine(engine_name,
-                                                  local_address,
-                                                  frontend_address,
-                                                  self.engine_object,
-                                                  self.initial_state))
-        self.logger.log_info("deploying service...")
+            self._engine_pool.append(ServiceEngine(engine_name,
+                                                   local_address,
+                                                   frontend_address,
+                                                   self._engine_object,
+                                                   self._initial_state))
+        self._logger.log_info("deploying service...")
 
         # Get description defined in the service engine
-        self.description = self.engine_object.get_description()
+        self.description = self._engine_object.get_description()
 
         try:
             # Subscribe messages addressed to this service container
             topic = ClaraUtils.build_topic(CConstants.SERVICE, self.myname)
-            self.subscription_handler = self.listen(topic, _ServiceCallBack(self))
-            self.logger.log_info("service deployed")
+            self.subscription_handler = self.listen(topic,
+                                                    _ServiceCallBack(self))
+            self._logger.log_info("service deployed")
 
         except Exception as e:
-            self.logger.log_exception(str(e))
+            self._logger.log_exception(str(e))
             raise e
 
     def __repr__(self):
@@ -77,24 +79,24 @@ class Service(ClaraBase):
 
     def configure(self, msg):
         while True:
-            for engine in self.engine_pool:
+            for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
                     try:
                         engine.configure(msg)
                     except Exception as e:
-                        self.logger.log_exception(e.message)
+                        self._logger.log_exception(e.message)
                     finally:
                         engine.release_semaphore()
             return
 
     def execute(self, msg):
         while True:
-            for engine in self.engine_pool:
+            for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
                     try:
                         engine.execute(msg)
                     except Exception as e:
-                        self.logger.log_exception(e.message)
+                        self._logger.log_exception(e.message)
                     finally:
                         engine.release_semaphore()
             return
@@ -112,11 +114,11 @@ class Service(ClaraBase):
             pass
 
         else:
-            self.logger.log_error("invalid report request: %s" % str(report))
+            self._logger.log_error("invalid report request: %s" % str(report))
 
     def exit(self):
         self.stop_listening(self.subscription_handler)
-        self.logger.log_info("service stopped")
+        self._logger.log_info("service stopped")
 
     def __load_engine(self, module_name, engine_name):
         try:
@@ -124,7 +126,7 @@ class Service(ClaraBase):
             return getattr(loaded_module, engine_name)
 
         except ImportError as e:
-            self.logger.log_exception(str(e))
+            self._logger.log_exception(str(e))
             raise e
 
 
@@ -132,22 +134,23 @@ class _ServiceCallBack(xMsgCallBack):
 
     def __init__(self, service):
         self.service = service
+        self._logger = ClaraLogger(repr(self))
 
     def callback(self, msg):
         try:
             metadata = xMsgMeta()
             metadata.MergeFrom(msg.metadata)
             if metadata.action == xMsgMeta.EXECUTE:
-                self.service.logger.log_info("received : EXECUTE")
+                self._logger.log_info("received : EXECUTE")
                 self.service.execute(msg)
 
             elif metadata.action == xMsgMeta.CONFIGURE:
-                self.service.logger.log_info("received : CONFIGURE")
+                self._logger.log_info("received : CONFIGURE")
                 self.service.configure(msg)
 
             else:
-                self.service.logger.log_info("received : SETUP")
+                self._logger.log_info("received : SETUP")
                 self.service.setup(msg)
 
         except Exception as e:
-            self.service.logger.log_exception(str(e))
+            self._logger.log_exception(str(e))
