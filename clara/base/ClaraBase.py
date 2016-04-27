@@ -129,14 +129,14 @@ class ClaraBase(xMsg):
                     return engine_data
 
                 except Exception as e:
-                    raise ClaraException("Clara-Error: Could not serialize." +
-                                         e.message)
+                    raise ClaraException("Clara-Error: Could not serialize. %s"
+                                         % e.message)
         raise ClaraException("Clara-Error: Unsopported mimetype = %s"
                              % metadata.dataType)
 
     def build_system_error_data(self, msg, severity, description):
         out_data = EngineData()
-        out_data.set_data(EngineDataType.STRING(), msg)
+        out_data.set_data(Mimetype.STRING, msg)
         out_data.description = description
         out_data.status = xMsgMeta.ERROR
         out_data.severity = severity

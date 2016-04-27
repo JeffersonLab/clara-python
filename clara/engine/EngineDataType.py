@@ -144,6 +144,8 @@ class PrimitiveSerializer(ClaraSerializer):
             return [d for d in data.FLOATA]
         elif self.__mimetype == Mimetype.ARRAY_STRING:
             return [d for d in data.STRINGA]
+        else:
+            raise ValueError("Received invalid mimetype %s" % self.__mimetype)
 
     def write(self, data):
         s_data = xMsgData()

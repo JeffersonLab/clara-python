@@ -16,13 +16,14 @@ from clara.util.CConstants import CConstants
 class BaseOrchestrator(object):
     base = CConstants.UNDEFINED
     name = CConstants.UNDEFINED
-    datatypes = set()
 
     def __init__(self, fe_host="localhost", pool_size=2):
         self.fe_host = fe_host
         self.pool_size = pool_size
         self.name = BaseOrchestrator._generate_name()
         self.base = self._get_clara_base()
+        self.datatypes = set()
+        self.subscription = dict()
 
     @staticmethod
     def _generate_name():
@@ -118,19 +119,19 @@ class BaseOrchestrator(object):
             assert isinstance(d_type, EngineDataType)
         self.datatypes.union(datatypes)
 
-    def configure_service(self, service_name):
+    def configure_service_data(self, service_name, config_data):
         """Sends configuration request to specified clara service
 
         Args:
             service_name (String): service name in canonical form
+            config_data (EngineData): configuration data
         """
         topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
-        data = ClaraUtils.build_data(CConstants.UNDEFINED)
 
-        metadata = xMsgMeta()
-        metadata.action = xMsgMeta.CONFIGURE
+        config_data.metadata.action = xMsgMeta.CONFIGURE
+        config_data.metadata.dataType = config_data.mimetype
 
-        self.base.send(self._create_request(topic, data, metadata))
+        self.base.send(self.base.serialize(topic, config_data, self.datatypes))
 
     def deploy_service(self, service_name, class_path, pool_size=1,
                        description=CConstants.UNDEFINED,

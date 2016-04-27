@@ -33,17 +33,20 @@ class ServiceEngine(ClaraBase):
         self._logger = ClaraLogger("ServiceEngine: " + self.myname)
 
     def configure(self, msg):
-        input_data = EngineData()
+        input_data = None
         out_data = None
+
         try:
             input_data = self._get_engine_data(msg)
             out_data = self._configure_engine(input_data)
+
         except Exception as e:
             self._logger.log_exception(e.message)
             out_data = self.build_system_error_data("unhandled exception",
                                                     -4, e.message)
         finally:
-            print out_data
+            self._update_metadata(input_data.metadata, out_data.metadata)
+
         reply_to = self._get_reply_to(msg)
         if reply_to:
             msg_out = self._put_engine_data(out_data, reply_to)
@@ -74,7 +77,7 @@ class ServiceEngine(ClaraBase):
 
     @staticmethod
     def _get_reply_to(message):
-        reply = message.get_metadata().replyTo
+        reply = message.metadata.replyTo
         reply_to = reply if reply else None
         return reply_to
 
@@ -109,7 +112,7 @@ class ServiceEngine(ClaraBase):
     def _put_engine_data(self, data, receiver):
         topic = xMsgTopic.wrap(receiver)
         return self.serialize(topic, data,
-                              self._engine_object.get_output_datatypes())
+                              self._engine_object.get_output_data_types())
 
     def _report_problem(self, engine_data):
         status = engine_data.status
@@ -122,7 +125,7 @@ class ServiceEngine(ClaraBase):
         topic = xMsgTopic.wrap(topic_prefix + ":" + self.myname)
         msg = self.serialize(topic,
                              engine_data,
-                             self._engine_object.get_output_datatypes())
+                             self._engine_object.get_output_data_types())
         self.send_frontend(msg)
 
     def execute(self, msg):
