@@ -52,7 +52,7 @@ if __name__ == "__main__":
           long_description=README,
           install_requires=['xmsg>=2.4.1'],
           test_suite="tests",
-          tests_require=['pytest', 'xmsg'],
+          tests_require=['pytest', 'xmsg>=2.4.1'],
           cmdclass={
               'test': ClaraTest,
               'clean': ClaraClean,

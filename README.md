@@ -1,15 +1,24 @@
 
-# Clara 2.0 for python
+# Clara for python
 
-### Installing Clara
+## Installing Clara
+
+### Requirements
+
+The clara framework needs xMsg v2.4.1 to run. xMsg is a lightweight, yet full
+featured publish/subscribe messaging system, presenting asynchronous publish/subscribe
+inter-process communication protocol: an API layer in Java, Python and C++. Please
+refer to https://github.com/JeffersonLab/xmsg_python for installation instructions
+
 
 To install clara-python in your system, run:
 
 ```sh
+$ pip install -r requirements.txt
 $ ./setup.py install
 ```
 
-### Quick Start
+## Quick Start
 
 Following are design conventions:
 
