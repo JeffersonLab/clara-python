@@ -10,7 +10,7 @@ class Engine1(Engine):
         super(Engine1, self).__init__()
 
     def configure(self, engine_data):
-        print "Engine1 received %s to instruction configure itself"
+        print "Engine1 received instruction configure itself"
 
     def execute(self, engine_data):
         print "Engine1 received <%s>" % engine_data.get_data()
@@ -54,10 +54,13 @@ class Engine2(Engine):
         super(Engine2, self).__init__()
 
     def configure(self, engine_data):
-        print "Engine2 received %s to instruction configure itself"
+        print "Engine2 received instruction configure itself"
 
     def execute(self, engine_data):
-        print "Engine2 received <%s>" % engine_data.get_data()
+        print "Engine2 : " + str(engine_data.get_data())
+        return_str = str(engine_data.get_data()) + ">>THIS WAS ADDED<<"
+        print "Engine2 returns : " + return_str
+        engine_data.set_data(Mimetype.STRING, return_str)
         return engine_data
 
     def execute_group(self, data_array):
