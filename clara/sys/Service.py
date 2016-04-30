@@ -45,15 +45,15 @@ class Service(ClaraBase):
         # Create service executor objects and fill the pool
         self._available_object_pool = dict()
         # Dynamically loads service engine class
-        engine_class = self.__load_engine(self._engine_class,
-                                          self._engine_name)
+        engine_class = self._load_engine(self._engine_class,
+                                         self._engine_name)
+        # Engine loaded for running in the ServiceEngine
         self._engine_object = engine_class()
 
         self._engine_pool = []
 
-        for engine_count in range(self._pool_size):
-            engine_name = "%s-%d" % (name.canonical_name(), engine_count)
-            self._engine_pool.append(ServiceEngine(engine_name,
+        for _ in range(self._pool_size):
+            self._engine_pool.append(ServiceEngine(name.canonical_name(),
                                                    local_address,
                                                    frontend_address,
                                                    self._engine_object,
@@ -77,12 +77,12 @@ class Service(ClaraBase):
     def __repr__(self):
         return str("Service:%s" % self.myname)
 
-    def configure(self, msg):
+    def configure(self, message):
         while True:
             for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
                     try:
-                        engine.configure(msg)
+                        engine.configure(message)
                     except Exception as e:
                         self._logger.log_exception(e.message)
                     finally:
@@ -120,7 +120,7 @@ class Service(ClaraBase):
         self.stop_listening(self.subscription_handler)
         self._logger.log_info("service stopped")
 
-    def __load_engine(self, module_name, engine_name):
+    def _load_engine(self, module_name, engine_name):
         try:
             loaded_module = __import__(module_name, fromlist=[engine_name])
             return getattr(loaded_module, engine_name)
@@ -138,13 +138,11 @@ class _ServiceCallBack(xMsgCallBack):
 
     def callback(self, msg):
         try:
-            metadata = xMsgMeta()
-            metadata.MergeFrom(msg.metadata)
-            if metadata.action == xMsgMeta.EXECUTE:
+            if msg.metadata.action == xMsgMeta.EXECUTE:
                 self._logger.log_info("received : EXECUTE")
                 self._service.execute(msg)
 
-            elif metadata.action == xMsgMeta.CONFIGURE:
+            elif msg.metadata.action == xMsgMeta.CONFIGURE:
                 self._logger.log_info("received : CONFIGURE")
                 self._service.configure(msg)
 
