@@ -9,7 +9,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
-from clara.engine.EngineDataType import EngineDataType
+from clara.engine.EngineDataType import EngineDataType, Mimetype
 from clara.util.CConstants import CConstants
 
 
@@ -43,7 +43,7 @@ class BaseOrchestrator(object):
         if metadata:
             msg.metadata = metadata
         else:
-            msg.mimetype = "text/string"
+            msg.mimetype = Mimetype.STRING
         return msg
 
     def exit_dpe(self, dpe_name):
@@ -54,6 +54,7 @@ class BaseOrchestrator(object):
         """
         if not ClaraUtils.is_dpe_name(dpe_name):
             raise MalformedCanonicalName("Malformed DPE name: %s" % dpe_name)
+
         topic = ClaraUtils.build_topic(CConstants.DPE, dpe_name)
         self.base.send(xMsgMessage(topic, CConstants.DPE_EXIT))
 
@@ -129,14 +130,29 @@ class BaseOrchestrator(object):
         topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
 
         config_data.metadata.action = xMsgMeta.CONFIGURE
-        config_data.metadata.dataType = config_data.mimetype
 
-        self.base.send(self.base.serialize(topic, config_data, self.datatypes))
+        msg = self.base.serialize(topic, config_data, self.datatypes)
+        self.base.send(msg)
+
+    def configure_service_report(self, service_name, report_type):
+        """Sends a report configuration request to specified clara service
+
+        Args:
+            service_name (String): service name in canonical form
+            report_type (ReportType): type
+        """
+        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
+
+        report_type.metadata.action = xMsgMeta.CONFIGURE
+
+        msg = self.base.serialize(topic, report_type, self.datatypes)
+        self.base.send(msg)
 
     def deploy_service(self, service_name, class_path, pool_size=1,
                        description=CConstants.UNDEFINED,
                        initial_state=CConstants.UNDEFINED):
         """Sends request to DPE to deploy given service
+
         Args:
             service_name (String): service name in canonical form
             class_path (String): class path to given service
@@ -192,8 +208,23 @@ class BaseOrchestrator(object):
         user_data.metadata.action = xMsgMeta.EXECUTE
         self.base.send(self.base.serialize(topic, user_data, self.datatypes))
 
-    def execute_composition(self):
-        pass
+    def execute_composition(self, composition, input_data):
+        """Sends request to Service to execute with given data
+
+        Args:
+            composition (String): service composition for execution
+            input_data (EngineData): input data parameter for service execution
+        """
+        topic = ClaraUtils.build_topic(CConstants.SERVICE,
+                                       composition.first_service())
+        meta = xMsgMeta()
+        meta.MergeFrom(input_data.metadata)
+        meta.action = xMsgMeta.EXECUTE
+        meta.composition = str(composition)
+        input_data.metadata = meta
+
+        message = self.base.serialize(topic, input_data, self.datatypes)
+        self.base.send(message)
 
     def start_reporting_done(self):
         pass

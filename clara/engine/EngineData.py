@@ -75,8 +75,13 @@ class EngineData(object):
     def severity(self, severity):
         self._metadata.severityId = severity
 
-    def get_composition(self):
+    @property
+    def composition(self):
         return self._metadata.composition
+
+    @composition.setter
+    def composition(self, composition):
+        self._metadata.composition = composition
 
     def get_execution_time(self):
         return self._metadata.executionTime

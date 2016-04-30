@@ -94,18 +94,21 @@ class ClaraBase(xMsg):
         Returns:
             xMsgMessage: Message with serialized data
         """
-        metadata = engine_data.metadata
-        mimetype = metadata.dataType
+        assert isinstance(engine_data, EngineData)
         for dt in datatypes:
-            if dt.mimetype == mimetype:
-                bb = dt.serializer.write(engine_data.get_data())
-                s_data = [str(topic), metadata.SerializeToString(), bb]
-                return xMsgMessage.create_with_serialized_data(s_data)
+            if dt.mimetype == engine_data.mimetype:
+                msg = xMsgMessage()
+                msg.topic = str(topic)
+                msg.metadata = engine_data.metadata
+                msg.data = dt.serializer.write(engine_data.get_data())
+                return msg
 
-        if mimetype == Mimetype.STRING:
-            bb = EngineDataType.STRING().serializer.write(engine_data.get_data())
-            s_data = [str(topic), metadata.SerializeToString(), bb]
-            return xMsgMessage.create_with_serialized_data(s_data)
+        if engine_data.mimetype == Mimetype.STRING:
+            msg = xMsgMessage()
+            msg.topic = str(topic)
+            msg.metadata = engine_data.metadata
+            msg.data = EngineDataType.STRING().serializer.write(engine_data.get_data())
+            return msg
 
     def de_serialize(self, msg, datatypes):
         """ De serializes data of the message, represented as bytes into an
@@ -115,24 +118,25 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): message to be deserialized
             datatypes (set(<EngineDataType>): datatype set of permitted
                 serializations
-        """
-        metadata = xMsgMeta()
-        metadata.MergeFrom(msg.metadata)
 
+        Returns:
+            EngineData:
+        """
+        assert isinstance(msg, xMsgMessage)
         for dt in datatypes:
-            if dt.mimetype == metadata.dataType:
+            if dt.mimetype == msg.metadata.dataType:
                 try:
                     user_data = dt.serializer.read(msg.data)
                     engine_data = EngineData()
-                    engine_data.metadata = metadata
-                    engine_data.set_data(metadata.dataType, user_data)
+                    engine_data.metadata = msg.metadata
+                    engine_data.set_data(msg.metadata.dataType, user_data)
                     return engine_data
 
                 except Exception as e:
                     raise ClaraException("Clara-Error: Could not serialize. %s"
                                          % e.message)
         raise ClaraException("Clara-Error: Unsopported mimetype = %s"
-                             % metadata.dataType)
+                             % msg.metadata.dataType)
 
     def build_system_error_data(self, msg, severity, description):
         out_data = EngineData()
