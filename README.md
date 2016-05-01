@@ -20,7 +20,16 @@ $ ./setup.py install
 
 ## Quick Start
 
-Following are design conventions:
+### Starting a DPE
+
+Every data processing environment contains proxy, shared memory map, as well as registration databases
+for both publishers and subscribers. DPE subscribes control requests, such as “create a container”. DPE can create multiple containers. Every container defines a map of locally deployed service objects. Each service object creates and manages object and thread pools for every service-engine object, ready to run within a service. The number of service-engine objects and the size of the thread pool is set by the user, that is recommended to be less or equal to the number of the processor cores.
+
+```sh
+$ p_dpe # or python clara/sys/Dpe.py
+```
+
+### Desing Conventions
 
 1. Service names are composed as -> dpe_host:container:engine
 2. names must be unique within entire cloud
