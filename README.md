@@ -3,7 +3,7 @@
 
 ## About the Clara framework
 
-The CLARA framework uses a service-oriented architecture (SOA) to enhance the efficiency, agility, and productivity of data processing activities. Services are the primary means through which data processing logic is implemented.
+The CLARA framework uses a service-oriented architecture ([SOA](https://en.wikipedia.org/wiki/Service-oriented_architecture "Service Oriented Architecture")) to enhance the efficiency, agility, and productivity of data processing activities. Services are the primary means through which data processing logic is implemented.
 
 Data processing applications, developed using the CLARA framework, consist of services, running in a context that is agnostic to the global data processing application logic. Services are loosely coupled and can participate in multiple algorithmic compositions. Legacy processes or applications can be presented as services and integrated into a data processing application. Services can be linked together and presented as one, complex, composite service. This framework provides a federation of services, so that service-based data processing applications can be united while maintaining their individual autonomy and self-governance.
 
@@ -13,7 +13,8 @@ It is important to mention that CLARA makes a clear separation between the servi
 
 ### Requirements
 
-The clara framework needs xMsg v2.4.1 to run. xMsg is a lightweight, yet full featured publish/subscribe messaging system, presenting asynchronous publish/subscribe inter-process communication protocol: an API layer in Java, Python and C++. Please refer to https://github.com/JeffersonLab/xmsg_python for installation instructions
+The clara framework needs xMsg v2.4.1 to run. [xMsg](https://github.com/JeffersonLab/xmsg_python "xMsg @ Github")
+ is a lightweight, yet full featured publish/subscribe messaging system, presenting asynchronous publish/subscribe inter-process communication protocol: an API layer in Java, Python and C++. Please refer to https://github.com/JeffersonLab/xmsg_python for installation instructions
 
 
 To install clara-python in your system, run:
@@ -41,7 +42,7 @@ $ p_dpe # or python clara/sys/Dpe.py
 4. finding a service request are also sync with timeout defined as xMsgConstants.FIND_REQUEST_TIMEOUT
 5. DPE registration database is duplicated in the Frontend database.
 
-http://claraweb.jlab.org
+### Contact
 
 For assistance contact the authors:
 
