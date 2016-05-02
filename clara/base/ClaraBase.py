@@ -126,15 +126,22 @@ class ClaraBase(xMsg):
         for dt in datatypes:
             if dt.mimetype == msg.metadata.dataType:
                 try:
-                    user_data = dt.serializer.read(msg.data)
                     engine_data = EngineData()
                     engine_data.metadata = msg.metadata
-                    engine_data.set_data(msg.metadata.dataType, user_data)
+                    engine_data.set_data(msg.metadata.dataType,
+                                         dt.serializer.read(msg.data))
                     return engine_data
 
                 except Exception as e:
                     raise ClaraException("Clara-Error: Could not serialize. %s"
                                          % e.message)
+        if msg.metadata.dataType == Mimetype.STRING:
+            engine_data = EngineData()
+            engine_data.metadata = msg.metadata
+            engine_data.set_data(Mimetype.STRING,
+                                 EngineDataType.STRING().serializer.read(msg.data))
+            return engine_data
+
         raise ClaraException("Clara-Error: Unsopported mimetype = %s"
                              % msg.metadata.dataType)
 
