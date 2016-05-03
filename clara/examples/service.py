@@ -13,7 +13,11 @@ class Engine1(Engine):
         print "Engine1 received instruction configure itself"
 
     def execute(self, engine_data):
-        print "Engine1 received <%s>" % engine_data.get_data()
+        print "Engine1 received : %s" % engine_data.get_data()
+        result = 1 + engine_data.get_data()
+        print "Engine1 returns %f" % result
+        engine_data.set_data(Mimetype.FLOAT, result)
+
         return engine_data
 
     def execute_group(self, data_array):
@@ -24,10 +28,10 @@ class Engine1(Engine):
         return data_array
 
     def get_input_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.STRING())
+        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
 
     def get_output_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.STRING())
+        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
 
     def get_states(self):
         pass
@@ -57,10 +61,10 @@ class Engine2(Engine):
         print "Engine2 received instruction configure itself"
 
     def execute(self, engine_data):
-        print "Engine2 : " + str(engine_data.get_data())
-        return_str = str(engine_data.get_data()) + ">>THIS WAS ADDED<<"
-        print "Engine2 returns : " + return_str
-        engine_data.set_data(Mimetype.STRING, return_str)
+        print "Engine2 received: " + str(engine_data.get_data())
+        returns = 2 + engine_data.get_data()
+        print "Engine2 returns : %f" % returns
+        engine_data.set_data(Mimetype.FLOAT, returns)
         return engine_data
 
     def execute_group(self, data_array):
@@ -71,10 +75,10 @@ class Engine2(Engine):
         return data_array
 
     def get_input_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.STRING())
+        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
 
     def get_output_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.STRING())
+        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
 
     def get_states(self):
         pass
