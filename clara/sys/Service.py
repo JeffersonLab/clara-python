@@ -45,23 +45,20 @@ class Service(ClaraBase):
         # Create service executor objects and fill the pool
         self._available_object_pool = dict()
         # Dynamically loads service engine class
-        engine_class = self._load_engine(self._engine_class,
-                                         self._engine_name)
-        # Engine loaded for running in the ServiceEngine
-        self._engine_object = engine_class()
-
+        self._engine_object = self._load_engine(self._engine_class,
+                                                self._engine_name)
         self._engine_pool = []
 
         for _ in range(self._pool_size):
             self._engine_pool.append(ServiceEngine(name.canonical_name(),
                                                    local_address,
                                                    frontend_address,
-                                                   self._engine_object,
+                                                   self._engine_object(),
                                                    self._initial_state))
         self._logger.log_info("deploying service...")
 
         # Get description defined in the service engine
-        self.description = self._engine_object.get_description()
+        self.description = self._engine_object().get_description()
 
         try:
             # Subscribe messages addressed to this service container
