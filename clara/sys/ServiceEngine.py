@@ -3,6 +3,7 @@
 from threading import Semaphore
 
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgTopic import xMsgTopic
 
 from clara.base.ClaraBase import ClaraBase
@@ -18,8 +19,6 @@ from clara.util.ClaraLogger import ClaraLogger
 
 class ServiceEngine(ClaraBase):
 
-    execution_time = 0
-
     def __init__(self, name, local_address, frontend_address, user_engine,
                  configuration):
         super(ServiceEngine, self).__init__(name,
@@ -33,6 +32,7 @@ class ServiceEngine(ClaraBase):
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
         self._logger = ClaraLogger("ServiceEngine: " + self.myname)
+        self.execution_time = 0
 
     def configure(self, message):
         """Sends configuration message to the Engine
@@ -152,10 +152,10 @@ class ServiceEngine(ClaraBase):
         finally:
             self._update_metadata(message.metadata, outgoing_data.metadata)
 
-        # reply_to = self._get_reply_to(message)
-        # if reply_to and reply_to != "undefined":
-        #    outgoing_message = self._put_engine_data(outgoing_data, reply_to)
-        #    self.send(outgoing_message)
+        reply_to = self._get_reply_to(message)
+        if reply_to and reply_to != "undefined":
+            outgoing_message = self._put_engine_data(outgoing_data, reply_to)
+            self.send(outgoing_message)
 
         self._report_problem(outgoing_data)
         self._send_response(outgoing_data, self._get_links(in_data,

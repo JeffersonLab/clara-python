@@ -45,20 +45,19 @@ class Service(ClaraBase):
         # Create service executor objects and fill the pool
         self._available_object_pool = dict()
         # Dynamically loads service engine class
-        self._engine_object = self._load_engine(self._engine_class,
-                                                self._engine_name)
+        self._engine = self._load_engine(self._engine_class, self._engine_name)
         self._engine_pool = []
-
+        engine_instance = self._engine()
         for _ in range(self._pool_size):
             self._engine_pool.append(ServiceEngine(name.canonical_name(),
                                                    local_address,
                                                    frontend_address,
-                                                   self._engine_object(),
+                                                   engine_instance,
                                                    self._initial_state))
         self._logger.log_info("deploying service...")
 
         # Get description defined in the service engine
-        self.description = self._engine_object().get_description()
+        self.description = engine_instance.get_description()
 
         try:
             # Subscribe messages addressed to this service container
@@ -84,7 +83,7 @@ class Service(ClaraBase):
                         self._logger.log_exception(e.message)
                     finally:
                         engine.release_semaphore()
-            return
+                    return
 
     def execute(self, msg):
         while True:
@@ -96,7 +95,7 @@ class Service(ClaraBase):
                         self._logger.log_exception(e.message)
                     finally:
                         engine.release_semaphore()
-            return
+                    return
 
     def setup(self, msg):
         setup = RequestParser.build_from_message(msg)
