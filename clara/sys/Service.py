@@ -5,6 +5,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
+from clara.sys.ServiceSysConfig import ServiceSysConfig
 from clara.sys.ServiceEngine import ServiceEngine
 from clara.util.ClaraLogger import ClaraLogger
 from clara.util.CConstants import CConstants
@@ -38,24 +39,23 @@ class Service(ClaraBase):
         self._engine_class = engine_class
         # actual engine class name
         self._engine_name = engine_name
-        # initial state of the service
-        self._initial_state = initial_state
         # pool size
         self._pool_size = pool_size
         # Create service executor objects and fill the pool
         self._available_object_pool = dict()
         # Dynamically loads service engine class
         self._engine = self._load_engine(self._engine_class, self._engine_name)
-        self._engine_pool = []
         engine_instance = self._engine()
+        self._service_sys_config = ServiceSysConfig(name.canonical_name,
+                                                    initial_state)
+        self._engine_pool = []
         for _ in range(self._pool_size):
             self._engine_pool.append(ServiceEngine(name.canonical_name(),
                                                    local_address,
                                                    frontend_address,
                                                    engine_instance,
-                                                   self._initial_state))
+                                                   self._service_sys_config))
         self._logger.log_info("deploying service...")
-
         # Get description defined in the service engine
         self.description = engine_instance.get_description()
 
@@ -97,17 +97,20 @@ class Service(ClaraBase):
                         engine.release_semaphore()
                     return
 
-    def setup(self, msg):
-        setup = RequestParser.build_from_message(msg)
+    def setup(self, message):
+        setup = RequestParser.build_from_message(message)
         report = setup.next_string()
+        value = setup.next_integer()
 
         if report == CConstants.SERVICE_REPORT_DONE:
-            # TODO: Implement ServiceSysConfig
-            pass
+            self._service_sys_config.done_request = True
+            self._service_sys_config.done_report_threshold = value
+            self._service_sys_config.reset_done_request_count()
 
         elif report == CConstants.SERVICE_REPORT_DATA:
-            # TODO: Implement ServiceSysConfig
-            pass
+            self._service_sys_config.data_request = True
+            self._service_sys_config.data_report_threshold = value
+            self._service_sys_config.reset_data_request_count()
 
         else:
             self._logger.log_error("invalid report request: %s" % str(report))

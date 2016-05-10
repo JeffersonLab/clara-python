@@ -20,7 +20,7 @@ from clara.util.ClaraLogger import ClaraLogger
 class ServiceEngine(ClaraBase):
 
     def __init__(self, name, local_address, frontend_address, user_engine,
-                 configuration):
+                 service_sys_configuration):
         super(ServiceEngine, self).__init__(name,
                                             local_address.host,
                                             frontend_address.host,
@@ -28,7 +28,7 @@ class ServiceEngine(ClaraBase):
                                             frontend_address.port)
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)
-        self._sys_config = configuration
+        self._sys_config = service_sys_configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
         self._logger = ClaraLogger(repr(self))
