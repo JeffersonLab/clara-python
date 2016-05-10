@@ -139,7 +139,7 @@ class _DpeCallBack(xMsgCallBack):
     def __init__(self, dpe):
         super(_DpeCallBack, self).__init__()
         self._dpe = dpe
-        self._logger = ClaraLogger("DPE:" + dpe.myname)
+        self._logger = ClaraLogger(repr(dpe))
 
     def callback(self, msg):
         try:

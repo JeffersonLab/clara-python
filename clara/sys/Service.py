@@ -130,7 +130,7 @@ class _ServiceCallBack(xMsgCallBack):
 
     def __init__(self, service):
         self._service = service
-        self._logger = ClaraLogger("Service:" + service.myname)
+        self._logger = ClaraLogger(repr(service))
 
     def callback(self, msg):
         try:
