@@ -55,14 +55,15 @@ class Dpe(ClaraBase):
         self.stop_listening(self.subscription_handler)
 
     def _print_logo(self):
-        print "=" * 62
-        print " "*27 + "CLARA DPE"
-        print "=" * 62
+        import platform
+        print "=" * 80
+        print " " * 35 + "CLARA DPE"
+        print "=" * 80
         print ""
         print " Name             = " + self.myname
         print " Date             = " + xMsgUtil.current_time()
-        print " Version          = 2.x"
-        print " Lang             = Python 2.7.11"
+        print " Version          = " + platform.python_version()
+        print " Lang             = Python"
         print ""
         print " Proxy Host       = %s" % self.default_proxy_address.host
         print " Proxy Port       = %d" % self.default_proxy_address.pub_port
@@ -70,7 +71,7 @@ class Dpe(ClaraBase):
         print " Frontend Host    = %s" % self.default_registrar_address.host
         print " Frontend Post    = %d" % self.default_registrar_address.port
         print ""
-        print "=" * 62
+        print "=" * 80
         print ""
 
     def start_container(self, parser):
