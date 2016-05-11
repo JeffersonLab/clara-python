@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from xmsg.core.xMsgCallBack import xMsgCallBack
+from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
@@ -115,6 +116,9 @@ class Service(ClaraBase):
         else:
             self._logger.log_error("invalid report request: %s" % str(report))
 
+        if Service._get_reply_to(message):
+            self._send_response(message, xMsgMeta.INFO, setup)
+
     def exit(self):
         self.stop_listening(self.subscription_handler)
         self._logger.log_info("service stopped")
@@ -127,6 +131,22 @@ class Service(ClaraBase):
         except ImportError as e:
             self._logger.log_exception(e.message)
             raise e
+
+    @staticmethod
+    def _build_request(topic, data):
+        metadata = xMsgMeta.dataType = "text/string"
+        return xMsgMessage(topic, metadata, data)
+
+    @staticmethod
+    def _get_reply_to(message):
+        reply = message.metadata.replyTo
+        reply_to = reply if reply and reply != "undefined" else None
+        return reply_to
+
+    def _send_response(self, message, status, data):
+        response_message = Service._build_request(message.topic, data)
+        response_message.metadata.status = status
+        self.send(response_message)
 
 
 class _ServiceCallBack(xMsgCallBack):

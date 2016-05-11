@@ -75,7 +75,7 @@ class ServiceEngine(ClaraBase):
     @staticmethod
     def _get_reply_to(message):
         reply = message.metadata.replyTo
-        reply_to = reply if reply else None
+        reply_to = reply if reply and reply != "undefined" else None
         return reply_to
 
     def _get_engine_data(self, message):
@@ -120,10 +120,27 @@ class ServiceEngine(ClaraBase):
 
     def _report(self, topic_prefix, engine_data):
         topic = xMsgTopic.wrap(topic_prefix + ":" + self.myname)
-        msg = self.serialize(topic,
-                             engine_data,
+        msg = self.serialize(topic, engine_data,
                              self._engine_object.get_output_data_types())
         self.send_frontend(msg)
+
+    def _report_data(self, data):
+        self._report(xMsgConstants.DATA, data)
+
+    def _report_done(self, data):
+        mimetype = data.mimetype
+        data_object = data.get_data()
+        data.set_data(Mimetype.STRING, xMsgConstants.DONE)
+        self._report(xMsgConstants.DONE, data)
+        data.set_data(mimetype, data_object)
+
+    def _send_reports(self, outgoing_data):
+        if self._sys_config.data_request:
+            self._report_data(outgoing_data)
+            self._sys_config.reset_data_request_count()
+        if self._sys_config.done_request:
+            self._report_done(outgoing_data)
+            self._sys_config.reset_done_request_count()
 
     def _send_response(self, outgoing_data, outgoing_links):
         for link in outgoing_links:
@@ -160,6 +177,7 @@ class ServiceEngine(ClaraBase):
             outgoing_message = self._put_engine_data(outgoing_data, reply_to)
             self.send(outgoing_message)
 
+        self._send_reports(outgoing_data)
         self._report_problem(outgoing_data)
         self._send_response(outgoing_data, self._get_links(in_data,
                                                            outgoing_data))
