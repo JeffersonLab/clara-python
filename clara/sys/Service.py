@@ -157,17 +157,17 @@ class _ServiceCallBack(xMsgCallBack):
 
     def callback(self, msg):
         try:
-            if msg.metadata.action == xMsgMeta.EXECUTE:
+            if not msg.metadata.action and msg.metadata.action != 0:
+                self._logger.log_info("received : SETUP")
+                self._service.setup(msg)
+
+            elif msg.metadata.action == xMsgMeta.EXECUTE:
                 self._logger.log_info("received : EXECUTE")
                 self._service.execute(msg)
 
             elif msg.metadata.action == xMsgMeta.CONFIGURE:
                 self._logger.log_info("received : CONFIGURE")
                 self._service.configure(msg)
-
-            else:
-                self._logger.log_info("received : SETUP")
-                self._service.setup(msg)
 
         except Exception as e:
             self._logger.log_exception(str(e))

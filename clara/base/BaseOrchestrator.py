@@ -11,6 +11,7 @@ from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
 from clara.engine.EngineDataType import EngineDataType, Mimetype
 from clara.util.CConstants import CConstants
+from clara.util.report.ReportType import ReportType
 
 
 class BaseOrchestrator(object):
@@ -120,7 +121,26 @@ class BaseOrchestrator(object):
             assert isinstance(d_type, EngineDataType)
         self.datatypes.union(datatypes)
 
-    def configure_service_data(self, service_name, config_data):
+    def configure_service_data_reporting_start(self, service_name,
+                                               event_count):
+        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
+        data = ClaraUtils.build_data(ReportType.DATA, str(event_count))
+        msg = self._create_request(topic, data)
+        self.base.send(msg)
+
+    def configure_service_data_reporting_stop(self, service_name):
+        pass
+
+    def configure_service_done_reporting_start(self, service_name,
+                                               event_count):
+        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
+        data = ClaraUtils.build_data(ReportType.DONE, str(event_count))
+        self.base.send(self._create_request(topic, data))
+
+    def configure_service_done_reporting_stop(self, service_name):
+        pass
+
+    def configure_service(self, service_name, config_data):
         """Sends configuration request to specified clara service
 
         Args:
@@ -132,20 +152,6 @@ class BaseOrchestrator(object):
         config_data.metadata.action = xMsgMeta.CONFIGURE
 
         msg = self.base.serialize(topic, config_data, self.datatypes)
-        self.base.send(msg)
-
-    def configure_service_report(self, service_name, report_type):
-        """Sends a report configuration request to specified clara service
-
-        Args:
-            service_name (String): service name in canonical form
-            report_type (ReportType): type
-        """
-        topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
-
-        report_type.metadata.action = xMsgMeta.CONFIGURE
-
-        msg = self.base.serialize(topic, report_type, self.datatypes)
         self.base.send(msg)
 
     def deploy_service(self, service_name, class_path, pool_size=1,
