@@ -13,25 +13,19 @@ class Engine1(Engine):
         print "Engine1 received instruction configure itself"
 
     def execute(self, engine_data):
-        print "Engine1 received : %s" % engine_data.get_data()
-        result = 1 + engine_data.get_data()
-        print "Engine1 returns %f" % result
-        engine_data.set_data(Mimetype.FLOAT, result)
-
+        # counter for execution
+        data = engine_data.get_data() + 1
+        engine_data.set_data(Mimetype.SINT32, data)
         return engine_data
 
     def execute_group(self, data_array):
-        print "Engine1 received multiple data"
-        for data in data_array:
-            print "Engine1 received <%s> from : %s" % (data.mimetype,
-                                                       data.metadata.sender)
-        return data_array
+        pass
 
     def get_input_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
+        return ClaraUtils.build_data_types(EngineDataType.SINT32())
 
     def get_output_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
+        return ClaraUtils.build_data_types(EngineDataType.SINT32())
 
     def get_states(self):
         pass
@@ -52,39 +46,42 @@ class Engine1(Engine):
         pass
 
 
-class Engine2(Engine):
+class FactorialEngine(Engine):
 
     def __init__(self):
-        super(Engine2, self).__init__()
+        super(FactorialEngine, self).__init__()
 
     def configure(self, engine_data):
-        print "Engine2 received instruction configure itself"
+        pass
+
+    @staticmethod
+    def _fact(n):
+        fact = 0
+        for i in range(n):
+            if i == 0:
+                fact = 1
+            else:
+                fact *= i
+        return fact
 
     def execute(self, engine_data):
-        print "Engine2 received: " + str(engine_data.get_data())
-        returns = 2 + engine_data.get_data()
-        print "Engine2 returns : %f" % returns
-        engine_data.set_data(Mimetype.FLOAT, returns)
+        FactorialEngine._fact(2000)
         return engine_data
 
     def execute_group(self, data_array):
-        print "Engine2 received multiple data"
-        for data in data_array:
-            print "Engine2 received <%s> from : %s" % (data.mimetype,
-                                                       data.metadata.sender)
-        return data_array
+        pass
 
     def get_input_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
+        return ClaraUtils.build_data_types(EngineDataType.SINT32())
 
     def get_output_data_types(self):
-        return ClaraUtils.build_data_types(EngineDataType.FLOAT())
+        return ClaraUtils.build_data_types(EngineDataType.SINT32())
 
     def get_states(self):
         pass
 
     def get_description(self):
-        return "Some engine2 description"
+        return "Calculates a big factorial!!!"
 
     def get_version(self):
         return "v1.1"
