@@ -6,6 +6,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
+from clara.sys.EngineLoader import EngineLoader
 from clara.sys.ServiceSysConfig import ServiceSysConfig
 from clara.sys.ServiceEngine import ServiceEngine
 from clara.util.ClaraLogger import ClaraLogger
@@ -45,8 +46,8 @@ class Service(ClaraBase):
         # Create service executor objects and fill the pool
         self._available_object_pool = dict()
         # Dynamically loads service engine class
-        self._engine = self._load_engine(self._engine_class, self._engine_name)
-        engine_instance = self._engine()
+        engine_instance = EngineLoader(engine_class,
+                                       engine_name).load_engine()
         self._service_sys_config = ServiceSysConfig(name.canonical_name,
                                                     initial_state)
         self._engine_pool = []
@@ -122,15 +123,6 @@ class Service(ClaraBase):
     def exit(self):
         self.stop_listening(self.subscription_handler)
         self._logger.log_info("service stopped")
-
-    def _load_engine(self, module_name, engine_name):
-        try:
-            loaded_module = __import__(module_name, fromlist=[engine_name])
-            return getattr(loaded_module, engine_name)
-
-        except ImportError as e:
-            self._logger.log_exception(e.message)
-            raise e
 
     @staticmethod
     def _build_request(topic, data):
