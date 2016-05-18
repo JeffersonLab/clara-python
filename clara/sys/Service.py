@@ -86,12 +86,12 @@ class Service(ClaraBase):
                         engine.release_semaphore()
                     return
 
-    def execute(self, msg):
+    def execute(self, message):
         while True:
             for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
                     try:
-                        engine.execute(msg)
+                        engine.execute(message)
                     except Exception as e:
                         self._logger.log_exception(e.message)
                     finally:
