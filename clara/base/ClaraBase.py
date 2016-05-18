@@ -19,9 +19,7 @@ class ClaraBase(xMsg):
 
     Clara service name convention - dpe-host_lang:container:engine_name
     """
-    sub_handler = str(xMsgConstants.UNDEFINED)
     clara_home = str(xMsgConstants.UNDEFINED)
-    _node_connection = str(xMsgConstants.UNDEFINED)
 
     def __init__(self, name, proxy_host, frontend_host, proxy_port,
                  frontend_port):
