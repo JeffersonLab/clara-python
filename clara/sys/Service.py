@@ -104,18 +104,22 @@ class Service(ClaraBase):
         report = setup.next_string()
         value = setup.next_integer()
 
-        if report == CConstants.SERVICE_REPORT_DONE:
-            self._service_sys_config.done_request = True
-            self._service_sys_config.done_report_threshold = value
-            self._service_sys_config.reset_done_request_count()
-
-        elif report == CConstants.SERVICE_REPORT_DATA:
-            self._service_sys_config.data_request = True
-            self._service_sys_config.data_report_threshold = value
-            self._service_sys_config.reset_data_request_count()
-
-        else:
-            self._logger.log_error("invalid report request: %s" % str(report))
+        for engine in self._engine_pool:
+            try:
+                if report == CConstants.SERVICE_REPORT_DONE:
+                    engine.sys_config.done_request = True
+                    engine.sys_config.done_report_threshold = value
+                    engine.sys_config.reset_done_request_count()
+                elif report == CConstants.SERVICE_REPORT_DATA:
+                    engine.sys_config.data_request = True
+                    engine.sys_config.data_report_threshold = value
+                    engine.sys_config.reset_data_request_count()
+                else:
+                    self._logger.log_error("invalid report request: %s"
+                                           % str(report))
+            except Exception as e:
+                self._logger.log_exception(e.message)
+            return
 
         if Service._get_reply_to(message):
             self._send_response(message, xMsgMeta.INFO, setup)
@@ -149,10 +153,9 @@ class _ServiceCallBack(xMsgCallBack):
 
     def callback(self, msg):
         try:
-            if not msg.metadata.action and msg.metadata.action != 0:
+            if not msg.metadata.HasField('action'):
                 self._logger.log_info("received : SETUP")
                 self._service.setup(msg)
-
             elif msg.metadata.action == xMsgMeta.EXECUTE:
                 self._logger.log_info("received : EXECUTE")
                 self._service.execute(msg)

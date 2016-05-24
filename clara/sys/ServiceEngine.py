@@ -28,7 +28,7 @@ class ServiceEngine(ClaraBase):
                                             frontend_address.port)
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)
-        self._sys_config = service_sys_configuration
+        self.sys_config = service_sys_configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
         self._logger = ClaraLogger(repr(self))
@@ -119,7 +119,7 @@ class ServiceEngine(ClaraBase):
             self._report(xMsgConstants.WARNING, engine_data)
 
     def _report(self, topic_prefix, engine_data):
-        topic = xMsgTopic.wrap(topic_prefix + ":" + self.myname)
+        topic = xMsgTopic.wrap(str(topic_prefix) + ":" + self.myname)
         msg = self.serialize(topic, engine_data,
                              self._engine_object.get_output_data_types())
         self.send_frontend(msg)
@@ -128,19 +128,15 @@ class ServiceEngine(ClaraBase):
         self._report(xMsgConstants.DATA, data)
 
     def _report_done(self, data):
-        mimetype = data.mimetype
-        data_object = data.get_data()
-        data.set_data(Mimetype.STRING, xMsgConstants.DONE)
         self._report(xMsgConstants.DONE, data)
-        data.set_data(mimetype, data_object)
 
     def _send_reports(self, outgoing_data):
-        if self._sys_config.data_request:
+        if self.sys_config.data_request:
             self._report_data(outgoing_data)
-            self._sys_config.reset_data_request_count()
-        if self._sys_config.done_request:
+            self.sys_config.reset_data_request_count()
+        if self.sys_config.done_request:
             self._report_done(outgoing_data)
-            self._sys_config.reset_done_request_count()
+            self.sys_config.reset_done_request_count()
 
     def _send_response(self, outgoing_data, outgoing_links):
         for link in outgoing_links:
@@ -158,6 +154,7 @@ class ServiceEngine(ClaraBase):
     def execute(self, message):
         in_data = None
         outgoing_data = None
+        self.sys_config.add_request()
 
         try:
             in_data = self._get_engine_data(message)

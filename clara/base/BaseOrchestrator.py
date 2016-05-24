@@ -2,21 +2,19 @@
 
 import random
 
+from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgExceptions import MalformedCanonicalName
 from xmsg.core.xMsgMessage import xMsgMessage
-from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
 from clara.engine.EngineDataType import EngineDataType, Mimetype
 from clara.util.CConstants import CConstants
-from clara.util.report.ReportType import ReportType
+from clara.util.reports.ReportType import ReportType
 
 
 class BaseOrchestrator(object):
-    base = CConstants.UNDEFINED
-    name = CConstants.UNDEFINED
 
     def __init__(self, fe_host="localhost", pool_size=2):
         self.fe_host = fe_host
@@ -135,7 +133,8 @@ class BaseOrchestrator(object):
                                                event_count):
         topic = ClaraUtils.build_topic(CConstants.SERVICE, service_name)
         data = ClaraUtils.build_data(ReportType.DONE, str(event_count))
-        self.base.send(self._create_request(topic, data))
+        msg = self._create_request(topic, data)
+        self.base.send(msg)
 
     def configure_service_done_reporting_stop(self, service_name):
         pass
@@ -231,9 +230,3 @@ class BaseOrchestrator(object):
 
         message = self.base.serialize(topic, input_data, self.datatypes)
         self.base.send(message)
-
-    def start_reporting_done(self):
-        pass
-
-    def start_reporting_data(self):
-        pass
