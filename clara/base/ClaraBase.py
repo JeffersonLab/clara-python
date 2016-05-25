@@ -23,13 +23,17 @@ class ClaraBase(xMsg):
 
     def __init__(self, name, proxy_host, frontend_host, proxy_port,
                  frontend_port):
-        proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
-        fe_address = RegAddress(host=frontend_host, port=frontend_port)
-        super(ClaraBase, self).__init__(name, proxy_address, fe_address)
+        self._proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
+        self._fe_address = RegAddress(host=frontend_host, port=frontend_port)
+        super(ClaraBase, self).__init__(name, self._proxy_address,
+                                        self._fe_address)
 
         # Create a socket connections to the xMsg node
         self.clara_home = os.environ.get('PCLARA_HOME')
         self._node_connection = self.connect()
+
+    def get_frontend_address(self):
+        return self._fe_address
 
     def listen(self, topic, callback):
         """This method simply calls xMsg subscribe method passing the reference

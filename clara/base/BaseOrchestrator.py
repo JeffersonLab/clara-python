@@ -17,10 +17,9 @@ from clara.util.reports.ReportType import ReportType
 class BaseOrchestrator(object):
 
     def __init__(self, fe_host="localhost", pool_size=2):
-        self.fe_host = fe_host
         self.pool_size = pool_size
         self.name = BaseOrchestrator._generate_name()
-        self.base = self._get_clara_base()
+        self.base = self._get_clara_base(fe_host)
         self.datatypes = set()
         self.subscription = dict()
 
@@ -28,9 +27,8 @@ class BaseOrchestrator(object):
     def _generate_name():
         return "orchestrator_%d" % (random.randint(0, 1000))
 
-    def _get_clara_base(self):
-        localhost = ClaraUtils.localhost()
-        return ClaraBase(self.name, localhost, localhost,
+    def _get_clara_base(self, fe_host):
+        return ClaraBase(self.name, ClaraUtils.localhost(), fe_host,
                          int(xMsgConstants.DEFAULT_PORT),
                          int(xMsgConstants.REGISTRAR_PORT))
 
