@@ -4,7 +4,6 @@
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
-from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
@@ -96,7 +95,8 @@ class Dpe(ClaraBase):
             else:
                 container = Container(ContainerName(self.dpe_name,
                                                     container_name),
-                                      ProxyAddress(), RegAddress())
+                                      self.default_proxy_address,
+                                      self.default_registrar_address)
                 self.my_containers[container_name] = container
 
         except Exception as e:

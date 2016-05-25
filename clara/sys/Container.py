@@ -1,7 +1,5 @@
 # coding=utf-8
 
-from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
-
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraNames import ServiceName
 from clara.sys.Service import Service
@@ -42,8 +40,8 @@ class Container(ClaraBase):
                                   engine_name,
                                   service_pool_size,
                                   initial_state,
-                                  ProxyAddress(),
-                                  RegAddress())
+                                  self.default_proxy_address,
+                                  self.default_registrar_address)
                 self.my_services[service_name.canonical_name()] = service
 
             except Exception as e:
