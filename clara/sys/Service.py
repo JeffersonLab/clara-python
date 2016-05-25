@@ -32,8 +32,8 @@ class Service(ClaraBase):
                  initial_state, local_address, frontend_address):
         super(Service, self).__init__(name.canonical_name(),
                                       local_address.host,
-                                      frontend_address.host,
                                       local_address.pub_port,
+                                      frontend_address.host,
                                       frontend_address.port)
 
         self._logger = ClaraLogger(repr(self))

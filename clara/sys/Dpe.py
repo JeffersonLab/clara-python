@@ -21,16 +21,28 @@ class Dpe(ClaraBase):
     my_containers = dict()
     subscription_handler = None
 
-    def __init__(self, local_address, frontend_address,
+    def __init__(self,
+                 proxy_host="localhost",
+                 frontend_host="localhost",
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
                  frontend_port=int(xMsgConstants.REGISTRAR_PORT)):
-        dpe_name = DpeName(xMsgUtil.host_to_ip(local_address),
-                           proxy_port, ClaraLang.PYTHON)
+
+        self.is_frontend = True
+
+        if proxy_host == frontend_host:
+            proxy_host = xMsgUtil.host_to_ip(proxy_host)
+            frontend_host = proxy_host
+        else:
+            proxy_host = xMsgUtil.host_to_ip(proxy_host)
+            frontend_host = xMsgUtil.host_to_ip(frontend_host)
+            self.is_frontend = False
+
+        dpe_name = DpeName(str(proxy_host), proxy_port, ClaraLang.PYTHON)
 
         super(Dpe, self).__init__(dpe_name.canonical_name(),
-                                  local_address,
-                                  frontend_address,
+                                  proxy_host,
                                   proxy_port,
+                                  frontend_host,
                                   frontend_port)
         self.dpe_name = dpe_name
         self._logger = ClaraLogger(repr(self))
@@ -184,11 +196,11 @@ def main():
                         default=7771)
 
     args = parser.parse_args()
-    frontend_address = args.fe_host
+    frontend_host = args.fe_host
     frontend_port = args.fe_port
     local_port = args.dpe_port
 
-    Dpe("localhost", frontend_address, local_port, frontend_port)
+    Dpe("localhost", frontend_host, local_port, frontend_port)
 
 
 if __name__ == "__main__":

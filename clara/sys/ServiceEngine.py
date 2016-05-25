@@ -23,8 +23,8 @@ class ServiceEngine(ClaraBase):
                  service_sys_configuration):
         super(ServiceEngine, self).__init__(name,
                                             local_address.host,
-                                            frontend_address.host,
                                             local_address.pub_port,
+                                            frontend_address.host,
                                             frontend_address.port)
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)

@@ -14,8 +14,8 @@ class Container(ClaraBase):
     def __init__(self, container_name, local_address, frontend_address):
         super(Container, self).__init__(container_name.canonical_name(),
                                         local_address.host,
-                                        frontend_address.host,
                                         local_address.pub_port,
+                                        frontend_address.host,
                                         frontend_address.port)
         self._container_name = container_name
         self._logger = ClaraLogger(repr(self))

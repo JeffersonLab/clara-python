@@ -5,6 +5,7 @@ import random
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgExceptions import MalformedCanonicalName
 from xmsg.core.xMsgMessage import xMsgMessage
+from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
@@ -28,8 +29,10 @@ class BaseOrchestrator(object):
         return "orchestrator_%d" % (random.randint(0, 1000))
 
     def _get_clara_base(self, fe_host):
-        return ClaraBase(self.name, ClaraUtils.localhost(), fe_host,
+        return ClaraBase(self.name,
+                         ClaraUtils.localhost(),
                          int(xMsgConstants.DEFAULT_PORT),
+                         xMsgUtil.host_to_ip(fe_host),
                          int(xMsgConstants.REGISTRAR_PORT))
 
     @staticmethod

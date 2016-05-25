@@ -21,11 +21,17 @@ class ClaraBase(xMsg):
     """
     clara_home = str(xMsgConstants.UNDEFINED)
 
-    def __init__(self, name, proxy_host, frontend_host, proxy_port,
-                 frontend_port):
+    def __init__(self,
+                 name,
+                 proxy_host="localhost",
+                 proxy_port=int(xMsgConstants.DEFAULT_PORT),
+                 frontend_host="localhost",
+                 frontend_port=int(xMsgConstants.REGISTRAR_PORT)):
+
         self._proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
         self._fe_address = RegAddress(host=frontend_host, port=frontend_port)
-        super(ClaraBase, self).__init__(name, self._proxy_address,
+        super(ClaraBase, self).__init__(name,
+                                        self._proxy_address,
                                         self._fe_address)
 
         # Create a socket connections to the xMsg node
