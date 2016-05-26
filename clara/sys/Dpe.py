@@ -74,14 +74,15 @@ class Dpe(ClaraBase):
         print " Name             = " + self.myname
         print " Date             = " + xMsgUtil.current_time()
         print " Version          = " + platform.python_version()
-        print " Lang             = Python"
+        print " Binding          = Python"
         print ""
         print " Proxy Host       = %s" % self.default_proxy_address.host
         print " Proxy Port       = %d" % self.default_proxy_address.pub_port
         print ""
-        print " Frontend Host    = %s" % self.default_registrar_address.host
-        print " Frontend Post    = %d" % self.default_registrar_address.port
-        print ""
+        if self.is_frontend:
+            print " Frontend Host    = %s" % self.default_registrar_address.host
+            print " Frontend Post    = %d" % self.default_registrar_address.port
+            print ""
         print "=" * 80
         print ""
 
