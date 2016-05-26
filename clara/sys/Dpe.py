@@ -24,7 +24,7 @@ class Dpe(ClaraBase):
                  proxy_host="localhost",
                  frontend_host="localhost",
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
-                 frontend_port=int(xMsgConstants.REGISTRAR_PORT)):
+                 frontend_port=int(xMsgConstants.DEFAULT_PORT)):
 
         self.is_frontend = True
 

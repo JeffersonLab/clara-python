@@ -26,17 +26,22 @@ class ClaraBase(xMsg):
                  proxy_host="localhost",
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
                  frontend_host="localhost",
-                 frontend_port=int(xMsgConstants.REGISTRAR_PORT)):
+                 frontend_port=int(xMsgConstants.DEFAULT_PORT)):
 
-        self._proxy_address = ProxyAddress(host=proxy_host, pub_port=proxy_port)
-        self._fe_address = RegAddress(host=frontend_host, port=frontend_port)
+        self._proxy_address = ProxyAddress(host=proxy_host,
+                                           pub_port=proxy_port)
+        self._fe_address = ProxyAddress(host=frontend_host,
+                                        pub_port=frontend_port)
         super(ClaraBase, self).__init__(name,
                                         self._proxy_address,
-                                        self._fe_address)
+                                        RegAddress(host=frontend_host,
+                                                   port=int(xMsgConstants.
+                                                            REGISTRAR_PORT)))
 
         # Create a socket connections to the xMsg node
         self.clara_home = os.environ.get('PCLARA_HOME')
-        self._node_connection = self.connect()
+        self._proxy_connection = self.connect(self._proxy_address)
+        self._fe_connection = self.connect(self._fe_address)
 
     def get_frontend_address(self):
         return self._fe_address
@@ -49,7 +54,7 @@ class ClaraBase(xMsg):
             topic (xMsgTopic): Topic of subscription
             callback (xMsgCallBack): User provided callback object
         """
-        return self.subscribe(topic, self._node_connection, callback)
+        return self.subscribe(topic, self._proxy_connection, callback)
 
     def stop_listening(self, handle):
         """Stops listening to a subscription defined by the handler
@@ -65,11 +70,10 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
-        self.publish(self._node_connection, msg)
+        self.publish(self._proxy_connection, msg)
 
     def send_frontend(self, msg):
-        # TODO: Placeholder for now, needs to refactor frontend connections
-        self.publish(self._node_connection, msg)
+        self.publish(self._fe_connection, msg)
 
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
@@ -78,7 +82,7 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): xMsg transient message object
             timeout (int): response message timeout in seconds
         """
-        self.sync_publish(self._node_connection, msg, timeout)
+        self.sync_publish(self._proxy_connection, msg, timeout)
 
     def register(self, topic, description=None):
         self.register_as_subscriber(self.default_registrar_address, topic,
