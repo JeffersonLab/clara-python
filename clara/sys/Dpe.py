@@ -26,15 +26,12 @@ class Dpe(ClaraBase):
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
                  frontend_port=int(xMsgConstants.DEFAULT_PORT)):
 
-        self.is_frontend = True
-
         if proxy_host == frontend_host:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = proxy_host
         else:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = xMsgUtil.host_to_ip(frontend_host)
-            self.is_frontend = False
 
         dpe_name = DpeName(str(proxy_host), proxy_port, ClaraLang.PYTHON)
 
@@ -43,6 +40,7 @@ class Dpe(ClaraBase):
                                   proxy_port,
                                   frontend_host,
                                   frontend_port)
+        self._is_frontend = True if frontend_host == proxy_host else False
         self.dpe_name = dpe_name
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
@@ -79,7 +77,7 @@ class Dpe(ClaraBase):
         print " Proxy Host       = %s" % self.default_proxy_address.host
         print " Proxy Port       = %d" % self.default_proxy_address.pub_port
         print ""
-        if self.is_frontend:
+        if not self._is_frontend:
             print " Frontend Host    = %s" % self.default_registrar_address.host
             print " Frontend Post    = %d" % self.default_registrar_address.port
             print ""
