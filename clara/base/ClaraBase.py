@@ -6,10 +6,12 @@ from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgTopic import xMsgTopic
+from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
 from clara.base.error.ClaraException import ClaraException
+from clara.base.ClaraUtils import ClaraUtils
 from clara.engine.EngineData import EngineData
 from clara.engine.EngineDataType import EngineDataType, Mimetype
 
@@ -70,7 +72,10 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
-        self.publish(self._proxy_connection, msg)
+        address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic))
+        connection = self.connect(address)
+        xMsgUtil.sleep(0.01)
+        self.publish(connection, msg)
 
     def send_frontend(self, msg):
         self.publish(self._fe_connection, msg)

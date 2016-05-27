@@ -59,6 +59,13 @@ class ClaraUtils(object):
         return CNAME_VALIDATOR.match(canonical_name).group(6)
 
     @staticmethod
+    def get_dpe_host(canonical_name):
+        host = canonical_name[0:canonical_name.find(CConstants.LANG_SEP)]
+        if host.find(":") != -1:
+            return host[1 + host.find(":"):]
+        return host
+
+    @staticmethod
     def get_engine_name(canonical_name):
         return CNAME_VALIDATOR.match(canonical_name).group(8)
 

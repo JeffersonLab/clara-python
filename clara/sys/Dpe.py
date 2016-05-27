@@ -74,12 +74,12 @@ class Dpe(ClaraBase):
         print " Version          = " + platform.python_version()
         print " Binding          = Python"
         print ""
-        print " Proxy Host       = %s" % self.default_proxy_address.host
-        print " Proxy Port       = %d" % self.default_proxy_address.pub_port
+        print " Proxy Host       = %s" % self._proxy_address.host
+        print " Proxy Port       = %d" % self._proxy_address.pub_port
         print ""
         if not self._is_frontend:
-            print " Frontend Host    = %s" % self.default_registrar_address.host
-            print " Frontend Post    = %d" % self.default_registrar_address.port
+            print " Frontend Host    = %s" % self._fe_address.host
+            print " Frontend Port    = %d" % self._fe_address.pub_port
             print ""
         print "=" * 80
         print ""
