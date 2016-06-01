@@ -79,7 +79,9 @@ class ClaraBase(xMsg):
         self.connection_manager.release_proxy_connection(conn)
 
     def send_frontend(self, msg):
-        self.publish(self._fe_connection, msg)
+        conn = self.connection_manager.get_proxy_connection(self._fe_address)
+        self.publish(conn, msg)
+        self.connection_manager.release_proxy_connection(conn)
 
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
