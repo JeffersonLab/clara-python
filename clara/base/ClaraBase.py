@@ -6,7 +6,6 @@ from xmsg.core.xMsg import xMsg
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgTopic import xMsgTopic
-from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 from xmsg.net.xMsgAddress import ProxyAddress, RegAddress
 
@@ -56,7 +55,9 @@ class ClaraBase(xMsg):
             topic (xMsgTopic): Topic of subscription
             callback (xMsgCallBack): User provided callback object
         """
-        return self.subscribe(topic, self._proxy_connection, callback)
+        host_address = ClaraUtils.get_dpe_host(topic)
+
+        return self.subscribe(ProxyAddress(host_address), topic, callback)
 
     def stop_listening(self, handle):
         """Stops listening to a subscription defined by the handler
@@ -72,10 +73,10 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
-        address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic))
-        connection = self.connect(address)
-        xMsgUtil.sleep(0.01)
-        self.publish(connection, msg)
+        proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic))
+        conn = self.connection_manager.get_proxy_connection(proxy_address)
+        self.publish(conn, msg)
+        self.connection_manager.release_proxy_connection(conn)
 
     def send_frontend(self, msg):
         self.publish(self._fe_connection, msg)
