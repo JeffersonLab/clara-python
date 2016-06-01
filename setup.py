@@ -50,7 +50,7 @@ if __name__ == "__main__":
           url='https://claraweb.jlab.org',
           license=LICENSE,
           long_description=README,
-          install_requires=['xmsg>=2.4.1'],
+          install_requires=['xmsg==2.4.3'],
           test_suite="tests",
           tests_require=['pytest', 'xmsg>=2.4.1'],
           cmdclass={
