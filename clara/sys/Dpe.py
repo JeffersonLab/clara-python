@@ -190,8 +190,8 @@ def main():
     parser.add_argument("--fe_host", help="Frontend address", type=str,
                         default="localhost")
     parser.add_argument("--fe_port", help="Frontend port", type=int,
-                        default=8888)
-    parser.add_argument("--dpe_port", help="Local dpe address", type=int,
+                        default=7771)
+    parser.add_argument("--dpe_port", help="Local port", type=int,
                         default=7771)
 
     args = parser.parse_args()
