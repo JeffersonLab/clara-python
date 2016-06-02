@@ -39,10 +39,7 @@ class ClaraBase(xMsg):
                                                    port=int(xMsgConstants.
                                                             REGISTRAR_PORT)))
 
-        # Create a socket connections to the xMsg node
         self.clara_home = os.environ.get('PCLARA_HOME')
-        self._proxy_connection = self.connect(self._proxy_address)
-        self._fe_connection = self.connect(self._fe_address)
 
     def get_frontend_address(self):
         return self._fe_address
@@ -74,14 +71,12 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): xMsg transient message object
         """
         proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic))
-        conn = self.connection_manager.get_proxy_connection(proxy_address)
+        conn = self.get_connection(proxy_address)
         self.publish(conn, msg)
-        self.connection_manager.release_proxy_connection(conn)
 
     def send_frontend(self, msg):
-        conn = self.connection_manager.get_proxy_connection(self._fe_address)
+        conn = self.get_connection(self._fe_address)
         self.publish(conn, msg)
-        self.connection_manager.release_proxy_connection(conn)
 
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
