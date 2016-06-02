@@ -85,7 +85,8 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): xMsg transient message object
             timeout (int): response message timeout in seconds
         """
-        self.sync_publish(self._proxy_connection, msg, timeout)
+        conn = self.get_connection(ClaraUtils.get_dpe_host(msg.topic))
+        self.sync_publish(conn, msg, timeout)
 
     def register(self, topic, description=None):
         self.register_as_subscriber(self.default_registrar_address, topic,
