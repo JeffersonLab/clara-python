@@ -166,3 +166,6 @@ class _ServiceCallBack(xMsgCallBack):
 
         except Exception as e:
             self._logger.log_exception(str(e))
+
+        finally:
+            return msg
