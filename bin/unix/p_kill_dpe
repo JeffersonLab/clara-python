@@ -1,9 +1,0 @@
-#!/bin/csh -f
-
-# author gurjyan
-# date 9.26.14
-
-set a = `ps aux | grep Dpe | grep -v grep| awk '{print $2}'`
-foreach x ( $a )
-kill -15 $x
-end
