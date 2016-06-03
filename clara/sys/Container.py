@@ -14,7 +14,7 @@ class Container(ClaraBase):
                                         local_address.host,
                                         local_address.pub_port,
                                         frontend_address.host,
-                                        frontend_address.port)
+                                        frontend_address.pub_port)
         self._container_name = container_name
         self._logger = ClaraLogger(repr(self))
         self._logger.log_info("container deployed")
@@ -40,8 +40,8 @@ class Container(ClaraBase):
                                   engine_name,
                                   service_pool_size,
                                   initial_state,
-                                  self.default_proxy_address,
-                                  self.default_registrar_address)
+                                  self._proxy_address,
+                                  self._fe_address)
                 self.my_services[service_name.canonical_name()] = service
 
             except Exception as e:

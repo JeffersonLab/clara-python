@@ -34,7 +34,7 @@ class Service(ClaraBase):
                                       local_address.host,
                                       local_address.pub_port,
                                       frontend_address.host,
-                                      frontend_address.port)
+                                      frontend_address.pub_port)
 
         self._logger = ClaraLogger(repr(self))
         # user provided engine class container class name

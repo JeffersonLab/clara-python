@@ -25,7 +25,7 @@ class ServiceEngine(ClaraBase):
                                             local_address.host,
                                             local_address.pub_port,
                                             frontend_address.host,
-                                            frontend_address.port)
+                                            frontend_address.pub_port)
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)
         self.sys_config = service_sys_configuration
