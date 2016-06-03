@@ -94,8 +94,8 @@ class Dpe(ClaraBase):
             else:
                 container = Container(ContainerName(self.dpe_name,
                                                     container_name),
-                                      self.default_proxy_address,
-                                      self.default_registrar_address)
+                                      self._proxy_address,
+                                      self._fe_address)
                 self.my_containers[container_name] = container
 
         except Exception as e:
