@@ -46,6 +46,8 @@ class Dpe(ClaraBase):
         self._print_logo()
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
+        self.subscription_handler = None
+
         try:
             self.subscription_handler = self.listen(topic, _DpeCallBack(self))
             xMsgUtil.keep_alive()
@@ -53,15 +55,17 @@ class Dpe(ClaraBase):
         except KeyboardInterrupt:
             self._exit()
 
+        finally:
+            self.stop_listening(self.subscription_handler)
+
     def __repr__(self):
         return str("Dpe:%s" % self.myname)
 
     def _exit(self):
         self._logger.log_info("Gracefully quitting the dpe...")
-        for container in self.my_containers:
+        for container in self.my_containers.itervalues():
             container.exit()
             container.destroy()
-        self.stop_listening(self.subscription_handler)
 
     def _print_logo(self):
         import platform

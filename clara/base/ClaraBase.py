@@ -51,6 +51,8 @@ class ClaraBase(xMsg):
         Args:
             topic (xMsgTopic): Topic of subscription
             callback (xMsgCallBack): User provided callback object
+        Returns:
+            xMsgSubscription
         """
         host_address = ClaraUtils.get_dpe_host(topic)
 

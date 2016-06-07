@@ -54,5 +54,5 @@ class Container(ClaraBase):
             service.exit()
 
     def _remove_services(self):
-        for service in self.my_services:
+        for service in self.my_services.itervalues():
             service.exit()

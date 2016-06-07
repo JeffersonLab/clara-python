@@ -71,6 +71,8 @@ class Service(ClaraBase):
         except Exception as e:
             self._logger.log_exception(str(e))
             raise e
+        except KeyboardInterrupt:
+            return
 
     def __repr__(self):
         return str("Service:%s" % self.myname)
