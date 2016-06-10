@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# author royarzun
+# date 12.11.15
+
+if [ "$1" = "-h" -o "$1" = "-help" ]
+then
+    echo ""
+    echo " Starts Clara DPE (python binding) "
+    echo "-----------------------------------"
+    echo " synopsis: p_dpe"
+    echo ""
+else
+    if ! $(python -c 'from clara.sys.Dpe import main' &> /dev/null);
+    then
+        echo "Please check that Clara and its dependencies are installed in your system or virtual environment";
+    else
+        python -c 'from clara.sys.Dpe import main; main()'
+    fi
+
+fi

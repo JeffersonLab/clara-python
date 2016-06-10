@@ -1,4 +1,0 @@
--r common.txt
--e git+https://royarzun@git.earthdata.nasa.gov/scm/naiads/xmsg-python.git#egg=pxmsg-pclara-dev
-pytest==2.0.0
-mock==1.0.1

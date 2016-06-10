@@ -1,34 +1,64 @@
 #!/usr/bin/env python
-'''
-Created on 27-02-2015
+# coding=utf-8
 
-@author: royarzun
-'''
+import os
+import clara
+from distutils.core import setup, Command
 from setuptools.command.test import test as TestCommand
-from setuptools import setup, find_packages
+from setuptools import find_packages
 
-class PyTest(TestCommand):
-    
-    
+
+class ClaraTest(TestCommand):
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
         self.test_args = []
         self.test_suite = True
-        
-    def run_tests(self):   
+
+    def run_tests(self):
         import pytest
         pytest.main(self.test_args)
 
 
-setup(name='pClara',
-      version='1.0',
-      description='pClara',
-      author='Vardan Gyurgyan',
-      author_email='vardan@jlab.org',
-      url='https://claraweb.jlab.org',
-      test_suite = "tests",
-      tests_require=['pytest'],
-      cmdclass = {'test': PyTest},
-      packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
-      install_requires = ['pyzmq>=14.5.0','protobuf>=2.6'],
-     )
+class ClaraClean(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        os.system('rm -vrf ./.cache ./.eggs ./build ./dist')
+        os.system('rm -vrf ./*.tgz ./*.egg-info')
+        os.system('find . -name "*.pyc" -exec rm -vrf {} \;')
+        os.system('find . -name "__pycache__" -exec rm -rf {} \;')
+
+with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme_file:
+    README = readme_file.read()
+
+with open(os.path.join(os.path.dirname(__file__), 'LICENSE')) as license_file:
+    LICENSE = license_file.read()
+
+if __name__ == "__main__":
+    setup(name='clara',
+          version=clara.__version__,
+          description='Clara Framework for python',
+          author='Ricardo Oyarzun',
+          author_email='oyarzun@jlab.org',
+          url='https://claraweb.jlab.org',
+          license=LICENSE,
+          long_description=README,
+          install_requires=['xmsg==2.4.3'],
+          test_suite="tests",
+          tests_require=['pytest', 'xmsg>=2.4.1'],
+          cmdclass={
+              'test': ClaraTest,
+              'clean': ClaraClean,
+          },
+          packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
+                                          "tests", "examples", "examples.*"]),
+          package_dir={"clara": "clara"},
+          scripts=['bin/unix/p_dpe']
+          )
