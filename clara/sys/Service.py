@@ -6,6 +6,7 @@ from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraUtils import ClaraUtils
+from clara.engine.EngineDataType import Mimetype
 from clara.sys.EngineLoader import EngineLoader
 from clara.sys.ServiceSysConfig import ServiceSysConfig
 from clara.sys.ServiceEngine import ServiceEngine
@@ -132,8 +133,7 @@ class Service(ClaraBase):
 
     @staticmethod
     def _build_request(topic, data):
-        metadata = xMsgMeta.dataType = "text/string"
-        return xMsgMessage(topic, metadata, data)
+        return xMsgMessage(topic, Mimetype.STRING, data)
 
     @staticmethod
     def _get_reply_to(message):
