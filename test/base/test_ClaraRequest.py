@@ -14,7 +14,7 @@ class TestClaraRequest(unittest.TestCase):
     def test_deploy_container_request_constructor(self):
         frontend = ""
         container = ContainerName(self.dpe, "asdf")
-        base = ClaraBase("myname", "localhost", "localhost", 7771, 8888)
+        base = ClaraBase("myname", "localhost",  7771, "localhost", 8888)
         deploy_container_req = DeployContainerRequest(base, frontend,
                                                       container)
         self.assertIsInstance(deploy_container_req, DeployContainerRequest)
@@ -23,7 +23,7 @@ class TestClaraRequest(unittest.TestCase):
         frontend = ""
         container = ContainerName(self.dpe, "asdf")
         service = ServiceName(container, "foobar")
-        base = ClaraBase("myname", "localhost", "localhost", 7771, 8888)
+        base = ClaraBase("myname", "localhost", 7771, "localhost",8888)
         deploy_service_req = DeployServiceRequest(base, frontend, service,
                                                   "class_path")
         self.assertIsInstance(deploy_service_req, DeployServiceRequest)
