@@ -1,6 +1,9 @@
 # coding=utf-8
 
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgUtil import xMsgUtil
+
+from clara.base.ClaraLang import ClaraLang
 
 
 class BaseReport(object):
@@ -12,6 +15,13 @@ class BaseReport(object):
     _start_time = xMsgConstants.UNDEFINED
     _snapshot_time = xMsgConstants.UNDEFINED
     _requests_count = xMsgConstants.UNDEFINED
+
+    def __init__(self, name, author, description):
+        self._name = name
+        self._author = author
+        self._lang = ClaraLang.PYTHON
+        self._description = description
+        self._start_time = xMsgUtil.current_time()
 
     @property
     def name(self):
