@@ -8,6 +8,7 @@
 *.pyc
 *.pyd
 *.egg
+*.eggs
 *.egg-info
 
 build/
