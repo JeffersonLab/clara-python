@@ -1,9 +1,12 @@
 # coding=utf-8
 
+from getpass import getuser
+
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraNames import ServiceName
 from clara.sys.Service import Service
 from clara.util.ClaraLogger import ClaraLogger
+from clara.util.reports.ContainerReport import ContainerReport
 
 
 class Container(ClaraBase):
@@ -18,6 +21,7 @@ class Container(ClaraBase):
         self._container_name = container_name
         self._logger = ClaraLogger(repr(self))
         self._logger.log_info("container deployed")
+        self._report = ContainerReport(self, getuser())
 
     def __repr__(self):
         return str("Container:%s" % self.myname)
@@ -43,14 +47,19 @@ class Container(ClaraBase):
                                   self._proxy_address,
                                   self._fe_address)
                 self.my_services[service_name.canonical_name()] = service
+                self._report.add_service(service.get_report())
 
             except Exception as e:
                 self._logger.log_exception("%s: %s" % (str(service_name), e))
                 raise e
 
+    def get_report(self):
+        return self._report
+
     def remove_service(self, service_name):
         if service_name in self.my_services:
             service = self.my_services.pop(service_name)
+            self._report.remove_service(service.get_report())
             service.exit()
 
     def _remove_services(self):
