@@ -42,6 +42,11 @@ class ClaraBase(xMsg):
         self.clara_home = os.environ.get('PCLARA_HOME')
 
     def get_frontend_address(self):
+        """Returns the frontend address
+
+        Returns:
+            ProxyAddress
+        """
         return self._fe_address
 
     def listen(self, topic, callback):
@@ -77,6 +82,11 @@ class ClaraBase(xMsg):
         self.publish(conn, msg)
 
     def send_frontend(self, msg):
+        """Sends xMsgMessage object to the Frontend
+
+        Args:
+            msg (xMsgMessage): xMsg transient message object
+        """
         conn = self.get_connection(self._fe_address)
         self.publish(conn, msg)
 
@@ -91,13 +101,31 @@ class ClaraBase(xMsg):
         self.sync_publish(conn, msg, timeout)
 
     def register(self, topic, description=None):
-        self.register_as_subscriber(self.default_registrar_address, topic,
+        """Registers the clara actor into the cloud registrar
+
+        Args:
+            topic (xMsgTopic): topic to be suscribed
+            description (str): description of the actor
+        """
+        self.register_as_subscriber(self.default_registrar_address,
+                                    topic,
                                     description)
 
     def remove_registration(self, topic):
+        """Removes actor's registration from the given topic
+
+        Args:
+            topic (xMsgTopic): topic which actor will stop receiving
+        """
         self.remove_as_subscriber(topic)
 
     def discover(self, topic):
+        """Discover other clara actors publishing the given topic
+        Args:
+            topic (xMsgTopic): topic to discover in the cloud
+        Returns:
+            Set
+        """
         return self.find_subscriber(topic)
 
     def serialize(self, topic, engine_data, datatypes):
@@ -164,6 +192,16 @@ class ClaraBase(xMsg):
                              % msg.metadata.dataType)
 
     def build_system_error_data(self, msg, severity, description):
+        """Builds an EngineData object for error reporting
+
+        Args:
+            msg (xMsgMessage): message received
+            severity (int): severity of the error
+            description (str): description of the error
+
+        Returns:
+            EngineData
+        """
         out_data = EngineData()
         out_data.set_data(Mimetype.STRING, msg)
         out_data.description = description
