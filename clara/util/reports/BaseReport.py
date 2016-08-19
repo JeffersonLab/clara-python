@@ -16,7 +16,7 @@ class BaseReport(object):
     snapshot_time = xMsgConstants.UNDEFINED
     requests_count = xMsgConstants.UNDEFINED
 
-    def __init__(self, name, author, description):
+    def __init__(self, name, author, description=""):
         self.name = name
         self.author = author
         self.lang = ClaraLang.PYTHON
