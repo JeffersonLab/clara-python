@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from multiprocessing import cpu_count
+
 from psutil import virtual_memory, cpu_percent
 
 from clara.util.CConstants import CConstants
@@ -17,8 +18,8 @@ class DpeReport(BaseReport):
         self._clara_home = base.clara_home
         self._core_count = cpu_count()
         self._memory_size = virtual_memory().total
-        self._alive_data = self.name + CConstants.DATA_SEP + self._core_count +\
-                          CConstants.DATA_SEP + self._clara_home
+        self._alive_data = self.name + CConstants.DATA_SEP +\
+            self._core_count + CConstants.DATA_SEP + self._clara_home
 
     def add_container(self, container_report):
         if not self._containers.has_key(container_report.name):
