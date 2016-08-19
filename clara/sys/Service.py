@@ -12,6 +12,7 @@ from clara.sys.ServiceEngine import ServiceEngine
 from clara.util.ClaraLogger import ClaraLogger
 from clara.util.CConstants import CConstants
 from clara.util.RequestParser import RequestParser
+from clara.util.reports.ServiceReport import ServiceReport
 
 
 class Service(ClaraBase):
@@ -60,6 +61,7 @@ class Service(ClaraBase):
         self._logger.log_info("deploying service...")
         # Get description defined in the service engine
         self.description = engine_instance.get_description()
+        self._report = ServiceReport(self, engine_instance)
 
         try:
             # Subscribe messages addressed to this service container
@@ -100,6 +102,15 @@ class Service(ClaraBase):
                     finally:
                         engine.release_semaphore()
                     return
+
+    def get_engine_class(self):
+        return self._engine_class
+
+    def get_engine_name(self):
+        return self._engine_name
+
+    def get_report(self):
+        return self._report
 
     def setup(self, message):
         setup = RequestParser.build_from_message(message)
