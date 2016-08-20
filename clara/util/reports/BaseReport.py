@@ -16,8 +16,6 @@ class BaseReport(object):
     snapshot_time = xMsgConstants.UNDEFINED
     requests_count = 0
 
-    _properties = ["snapshot_time"]
-
     def __init__(self, name, author, description=""):
         self.name = name
         self.author = author
@@ -26,12 +24,12 @@ class BaseReport(object):
         self.start_time = xMsgUtil.current_time()
         self.snapshot_time = xMsgUtil.current_time()
 
+    def _snap(self):
+        self.snapshot_time = xMsgUtil.current_time()
+
     def as_dict(self):
-        custom_dict = self.__dict__
-        for item in custom_dict:
-            if item in self._properties:
-                custom_dict[item] = str(xMsgUtil.current_time())
-        return custom_dict
+        self._snap()
+        return self.__dict__
 
     def increment_requests_count(self):
         self.requests_count += 1
