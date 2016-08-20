@@ -13,7 +13,7 @@ class ServiceReport(BaseReport):
     class_name = xMsgConstants.UNDEFINED
     version = xMsgConstants.UNDEFINED
 
-    failure_count = 0
+    failure_count = request_count = 0
     shm_reads = shm_writes = 0
     bytes_received = bytes_sent = 0
     execution_time = 0
@@ -43,6 +43,9 @@ class ServiceReport(BaseReport):
 
     def increment_execution_time(self, execution_time):
         self.execution_time += execution_time
+
+    def increment_request_count(self):
+        self.request_count += 1
 
     def to_json(self):
         return json.dumps(self.as_dict(), sort_keys=True)
