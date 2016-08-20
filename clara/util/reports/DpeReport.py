@@ -47,4 +47,3 @@ class DpeReport(BaseReport):
     def to_json(self):
         self._refresh()
         return json.dumps(self.as_dict(), sort_keys=True, indent=4)
-

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from getpass import getuser
+
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
@@ -12,6 +14,7 @@ from clara.base.ClaraUtils import ClaraUtils
 from clara.sys.Container import Container
 from clara.util.CConstants import CConstants
 from clara.util.ClaraLogger import ClaraLogger
+from clara.util.reports.DpeReport import DpeReport
 from clara.util.RequestParser import RequestParser
 
 
@@ -44,6 +47,7 @@ class Dpe(ClaraBase):
         self.dpe_name = dpe_name
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
+        self._report = DpeReport(self, getuser())
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         self.subscription_handler = None
@@ -101,6 +105,7 @@ class Dpe(ClaraBase):
                                       self._proxy_address,
                                       self._fe_address)
                 self.my_containers[container_name] = container
+                self._report.add_container(container.get_report())
 
         except Exception as e:
             self._logger.log_exception(e.message)
@@ -110,6 +115,7 @@ class Dpe(ClaraBase):
         container_name = parser.next_string()
         if container_name in self.my_containers:
             container = self.my_containers.pop(container_name)
+            self._report.remove_container(container.get_report())
             container.exit()
 
     def start_service(self, parser):
