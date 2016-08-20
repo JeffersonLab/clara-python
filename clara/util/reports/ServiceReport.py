@@ -1,6 +1,7 @@
 # coding=utf-8
 
 import json
+
 from xmsg.core.xMsgConstants import xMsgConstants
 
 from clara.util.reports.BaseReport import BaseReport
@@ -8,90 +9,46 @@ from clara.util.reports.BaseReport import BaseReport
 
 class ServiceReport(BaseReport):
 
-    _engine_name = xMsgConstants.UNDEFINED
-    _class_name = xMsgConstants.UNDEFINED
-    _failure_count = xMsgConstants.UNDEFINED
-    _shm_reads = xMsgConstants.UNDEFINED
-    _shm_writes = xMsgConstants.UNDEFINED
-    _bytes_received = xMsgConstants.UNDEFINED
-    _bytes_sent = xMsgConstants.UNDEFINED
-    _execution_time = xMsgConstants.UNDEFINED
-    _version = xMsgConstants.UNDEFINED
+    engine_name = xMsgConstants.UNDEFINED
+    class_name = xMsgConstants.UNDEFINED
+    version = xMsgConstants.UNDEFINED
 
-    def __init__(self, name):
-        self.name = name
+    failure_count = request_count = 0
+    shm_reads = shm_writes = 0
+    bytes_received = bytes_sent = 0
+    execution_time = 0
 
-    @property
-    def engine_name(self):
-        return self._engine_name
+    def __init__(self, service, engine):
+        super(ServiceReport, self).__init__(service.myname,
+                                            engine.get_author(),
+                                            engine.get_description())
+        self.engine_name = engine.myname
+        self.class_name = service.get_engine_name()
+        self.version = engine.get_version
 
-    @engine_name.setter
-    def engine_name(self, engine_name):
-        self._engine_name = engine_name
+    def increment_failure_count(self):
+        self.failure_count += 1
 
-    @property
-    def class_name(self):
-        return self._class_name
+    def increment_shm_reads(self):
+        self.shm_reads += 1
 
-    @class_name.setter
-    def class_name(self, class_name):
-        self._class_name = class_name
+    def increment_shm_writes(self):
+        self.shm_writes += 1
 
-    @property
-    def failure_count(self):
-        return self._failure_count
+    def increment_bytes_received(self, bytes_received):
+        self.bytes_received += bytes_received
 
-    @failure_count.setter
-    def failure_count(self, failure_count):
-        self._failure_count = failure_count
+    def increment_bytes_sent(self, bytes_sent):
+        self.bytes_sent += bytes_sent
 
-    @property
-    def shm_reads(self):
-        return self._shm_reads
+    def increment_execution_time(self, execution_time):
+        self.execution_time += execution_time
 
-    @shm_reads.setter
-    def shm_reads(self, shm_reads):
-        self._shm_reads = shm_reads
-
-    @property
-    def shm_writes(self):
-        return self._shm_writes
-
-    @shm_writes.setter
-    def shm_writes(self, shm_writes):
-        self._shm_writes = shm_writes
-
-    @property
-    def bytes_received(self):
-        return self._bytes_received
-
-    @bytes_received.setter
-    def bytes_received(self, bytes_received):
-        self._bytes_received = bytes_received
-
-    @property
-    def bytes_sent(self):
-        return self._bytes_sent
-
-    @bytes_sent.setter
-    def bytes_sent(self, bytes_sent):
-        self._bytes_sent = bytes_sent
-
-    @property
-    def execution_time(self):
-        return self._execution_time
-
-    @execution_time.setter
-    def execution_time(self, execution_time):
-        self._execution_time = execution_time
-
-    @property
-    def version(self):
-        return self._version
-
-    @version.setter
-    def version(self, v):
-        self._version = v
+    def increment_request_count(self):
+        self.request_count += 1
 
     def to_json(self):
-        return json.dumps(self.__dict__, sort_keys=True)
+        return json.dumps(self.as_dict(), sort_keys=True)
+
+    def to_str(self):
+        return self.as_dict()

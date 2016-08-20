@@ -1,5 +1,7 @@
 # coding=utf-8
 
+import sys
+import time
 from threading import Semaphore
 
 from xmsg.core.xMsgConstants import xMsgConstants
@@ -20,7 +22,7 @@ from clara.util.ClaraLogger import ClaraLogger
 class ServiceEngine(ClaraBase):
 
     def __init__(self, name, local_address, frontend_address, user_engine,
-                 service_sys_configuration):
+                 service_sys_configuration, service_report):
         super(ServiceEngine, self).__init__(name,
                                             local_address.host,
                                             local_address.pub_port,
@@ -31,6 +33,7 @@ class ServiceEngine(ClaraBase):
         self.sys_config = service_sys_configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
+        self._report = service_report
         self._logger = ClaraLogger(repr(self))
         self.execution_time = 0
 
@@ -79,8 +82,10 @@ class ServiceEngine(ClaraBase):
         return reply_to
 
     def _get_engine_data(self, message):
-        return self.de_serialize(message,
-                                 self._engine_object.get_input_data_types())
+        msg = self.de_serialize(message,
+                                self._engine_object.get_input_data_types())
+        self._report.increment_bytes_received(sys.getsizeof(msg))
+        return msg
 
     def _get_links(self, engine_input_data, engine_output_data):
         owner_ss = ServiceState(engine_output_data.engine_name(),
@@ -108,8 +113,10 @@ class ServiceEngine(ClaraBase):
 
     def _put_engine_data(self, data, receiver):
         topic = ClaraUtils.build_topic(CConstants.SERVICE, receiver)
-        return self.serialize(topic, data,
-                              self._engine_object.get_output_data_types())
+        msg = self.serialize(topic, data,
+                             self._engine_object.get_output_data_types())
+        self._report.increment_bytes_sent(sys.getsizeof(msg))
+        return msg
 
     def _report_problem(self, engine_data):
         status = engine_data.status
@@ -155,14 +162,19 @@ class ServiceEngine(ClaraBase):
         in_data = None
         outgoing_data = None
         self.sys_config.add_request()
+        self._report.increment_request_count()
 
         try:
             in_data = self._get_engine_data(message)
             self._parse_composition(in_data)
+            start_time = time.time()
             outgoing_data = self._execute_engine(in_data)
+            elapsed_time = time.time() - start_time
+            self._report.increment_execution_time(elapsed_time)
 
         except Exception as e:
             self._logger.log_exception(e.message)
+            self._report.increment_failure_count()
             outgoing_data = self.build_system_error_data("unhandled exception",
                                                          -4, e.message)
             raise e

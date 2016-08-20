@@ -11,6 +11,7 @@ class CConstants(object):
     DPE_PING = "dpePing"
     DPE_EXIT = "dpeExit"
     DPE_ALIVE = "dpeAlive"
+    DPE_REPORT = "dpeReport"
     LIST_DPES = "listDpes"
 
     CONTAINER = "container"
