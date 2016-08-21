@@ -7,7 +7,6 @@ from getpass import getuser
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
-from xmsg.core.xMsgMessage import xMsgMessage
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
@@ -29,8 +28,8 @@ class Dpe(ClaraBase):
                  proxy_host="localhost",
                  frontend_host="localhost",
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
-                 frontend_port=int(xMsgConstants.DEFAULT_PORT)):
-
+                 frontend_port=int(xMsgConstants.DEFAULT_PORT),
+                 report_interval=5):
         if proxy_host == frontend_host:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = proxy_host
@@ -52,7 +51,8 @@ class Dpe(ClaraBase):
 
         self._report = DpeReport(self, getuser())
         self._report_control = Event()
-        self._report_service = _ReportingService(self._report_control, 5, self)
+        self._report_service = _ReportingService(self._report_control,
+                                                 report_interval, self)
         self._report_service.start()
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
@@ -175,6 +175,7 @@ class _ReportingService(Thread):
         self._base = base
 
     def run(self):
+        from xmsg.core.xMsgMessage import xMsgMessage
         while not self._stopped.wait(self._interval):
             report = self._base.get_report().to_json()
             self._base.send_frontend(
@@ -228,13 +229,16 @@ def main():
                         default=7771)
     parser.add_argument("--dpe_port", help="Local port", type=int,
                         default=7771)
+    parser.add_argument("--report_interval", help="Reporting interval",
+                        type=int, default=5)
 
     args = parser.parse_args()
     frontend_host = args.fe_host
     frontend_port = args.fe_port
     local_port = args.dpe_port
+    report_interval = args.report_interval
 
-    Dpe("localhost", frontend_host, local_port, frontend_port)
+    Dpe("localhost", frontend_host, local_port, frontend_port, report_interval)
 
 
 if __name__ == "__main__":
