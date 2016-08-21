@@ -30,6 +30,19 @@ class Dpe(ClaraBase):
                  proxy_port=int(xMsgConstants.DEFAULT_PORT),
                  frontend_port=int(xMsgConstants.DEFAULT_PORT),
                  report_interval=5):
+        """Dpe Constructor
+
+        Args:
+            proxy_host (String): local hostname
+            frontend_host (String): frontend hostname
+            proxy_port (int): proxy port, default is 7771
+            frontend_port (int): frontend port, default is 7771
+            report_interval (int): time interval in seconds for reporting
+                service to update the frontend
+
+        Returns:
+            Dpe: Dpe object
+        """
         if proxy_host == frontend_host:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = proxy_host
@@ -100,10 +113,23 @@ class Dpe(ClaraBase):
         print ""
 
     def get_report(self):
+        """Returns DPE report object
+
+        Returns:
+            DpeReport
+        """
         return self._report
 
-    def start_container(self, parser):
-        container_name = parser.next_string()
+    def start_container(self, request):
+        """Starts a Clara container.
+
+        Containers are required in order to launch a Clara service
+
+        Args:
+            request (RequestParser): Request received from Orchestrator to
+                create a Container
+        """
+        container_name = request.next_string()
         try:
             if container_name in self.my_containers:
                 self._logger.log_warning("Container " + str(container_name) +
@@ -121,22 +147,34 @@ class Dpe(ClaraBase):
             self._logger.log_exception(e.message)
             raise e
 
-    def stop_container(self, parser):
-        container_name = parser.next_string()
+    def stop_container(self, request):
+        """Removes a Clara container and its contained services
+
+        Args:
+            request (RequestParser): Request received from Orchestrator to
+                stop a Container
+        """
+        container_name = request.next_string()
         if container_name in self.my_containers:
             container = self.my_containers.pop(container_name)
             self._report.remove_container(container.get_report())
             container.exit()
 
-    def start_service(self, parser):
+    def start_service(self, request):
+        """Starts a Clara service
+
+        Args:
+            request (RequestParser): Request received from Orchestrator to
+                start a Service
+        """
         try:
-            service_name = parser.next_string()
+            service_name = request.next_string()
             container_name = ClaraUtils.get_container_name(service_name)
-            engine_name = parser.next_string()
-            engine_class = parser.next_string()
-            pool_size = parser.next_integer()
-            description = parser.next_string()
-            initial_state = parser.next_string()
+            engine_name = request.next_string()
+            engine_class = request.next_string()
+            pool_size = request.next_integer()
+            description = request.next_string()
+            initial_state = request.next_string()
 
             if container_name in self.my_containers:
                 self.my_containers[container_name].add_service(engine_name,
@@ -148,9 +186,15 @@ class Dpe(ClaraBase):
             self._logger.log_exception(e.message)
             raise e
 
-    def stop_service(self, parser):
-        container_name = parser.next_string()
-        engine_name = parser.next_string()
+    def stop_service(self, request):
+        """Stops a running Clara service
+
+        Args:
+            request (RequestParser): Request received from Orchestrator to
+                stop a Service
+        """
+        container_name = request.next_string()
+        engine_name = request.next_string()
         service_name = ClaraUtils.form_service_name(container_name,
                                                     engine_name)
         if container_name in self.my_containers:
