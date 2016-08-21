@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from threading import Thread, Event
 from getpass import getuser
 
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.core.xMsgMessage import xMsgMessage
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
@@ -43,11 +45,15 @@ class Dpe(ClaraBase):
                                   proxy_port,
                                   frontend_host,
                                   frontend_port)
-        self._is_frontend = True if frontend_host == proxy_host else False
         self.dpe_name = dpe_name
+        self._is_frontend = True if frontend_host == proxy_host else False
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
+
         self._report = DpeReport(self, getuser())
+        self._report_control = Event()
+        self._report_service = _ReportingService(self._report_control, 5, self)
+        self._report_service.start()
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         self.subscription_handler = None
@@ -66,6 +72,7 @@ class Dpe(ClaraBase):
         return str("Dpe:%s" % self.myname)
 
     def _exit(self):
+        self._report_control.set()
         self._logger.log_info("Gracefully quitting the dpe...")
         for container in self.my_containers.itervalues():
             container.exit()
@@ -91,6 +98,9 @@ class Dpe(ClaraBase):
             print ""
         print "=" * 80
         print ""
+
+    def get_report(self):
+        return self._report
 
     def start_container(self, parser):
         container_name = parser.next_string()
@@ -154,6 +164,21 @@ class Dpe(ClaraBase):
         else:
             raise Exception("Could not stop service %s: missing container "
                             % service_name)
+
+
+class _ReportingService(Thread):
+
+    def __init__(self, event, interval, base):
+        Thread.__init__(self)
+        self._stopped = event
+        self._interval = interval
+        self._base = base
+
+    def run(self):
+        while not self._stopped.wait(self._interval):
+            report = self._base.get_report().to_json()
+            self._base.send_frontend(
+                xMsgMessage.create_with_string(CConstants.DPE_REPORT, report))
 
 
 class _DpeCallBack(xMsgCallBack):
