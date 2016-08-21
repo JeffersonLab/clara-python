@@ -222,6 +222,9 @@ class _ReportingService(Thread):
         from xmsg.core.xMsgMessage import xMsgMessage
         while not self._stopped.wait(self._interval):
             report = self._base.get_report().to_json()
+            report_alive = self._base.get_report().get_alive_data()
+            self._base.send_frontend(
+                xMsgMessage.create_with_string(CConstants.ALIVE, report_alive))
             self._base.send_frontend(
                 xMsgMessage.create_with_string(CConstants.DPE_REPORT, report))
 
