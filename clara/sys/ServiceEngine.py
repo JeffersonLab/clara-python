@@ -55,7 +55,7 @@ class ServiceEngine(ClaraBase):
 
         except Exception as e:
             self._logger.log_exception(e.message)
-            outgoing_data = self.build_system_error_data("unhandled exception",
+            outgoing_data = self.build_system_error_data(message,
                                                          -4, e.message)
         finally:
             self._update_metadata(input_data.metadata, outgoing_data.metadata)
@@ -150,15 +150,12 @@ class ServiceEngine(ClaraBase):
             msg = self._put_engine_data(outgoing_data, link)
             self.send(msg)
 
-    def _execute_engine(self, engine_input_data):
-        out_data = self._engine_object.execute(engine_input_data)
-        if not out_data:
-            self._logger.log_exception("null engine result")
-            raise Exception("null engine result")
-
-        return out_data
-
     def execute(self, message):
+        """Executes the engine with the given input data
+
+        Args:
+            message (xMsgMessage): message containing input data
+        """
         in_data = None
         outgoing_data = None
         self.sys_config.add_request()
@@ -175,8 +172,8 @@ class ServiceEngine(ClaraBase):
         except Exception as e:
             self._logger.log_exception(e.message)
             self._report.increment_failure_count()
-            outgoing_data = self.build_system_error_data("unhandled exception",
-                                                         -4, e.message)
+            outgoing_data = self.build_system_error_data(message, -4,
+                                                         e.message)
             raise e
         finally:
             self._update_metadata(message.metadata, outgoing_data.metadata)
@@ -191,8 +188,26 @@ class ServiceEngine(ClaraBase):
         self._send_response(outgoing_data, self._get_links(in_data,
                                                            outgoing_data))
 
+    def _execute_engine(self, engine_input_data):
+        out_data = self._engine_object.execute(engine_input_data)
+        if not out_data:
+            self._logger.log_exception("null engine result")
+            raise Exception("null engine result")
+
+        return out_data
+
     def try_acquire_semaphore(self):
+        """Returns true if service semaphore is available in a non blocking op
+
+        Returns:
+            boolean
+        """
         return self._semaphore.acquire(blocking=False)
 
     def release_semaphore(self):
+        """Releases engine semaphore
+
+        Returns:
+            boolean
+        """
         return self._semaphore.release()
