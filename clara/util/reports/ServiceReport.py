@@ -13,18 +13,17 @@ class ServiceReport(BaseReport):
     class_name = xMsgConstants.UNDEFINED
     version = xMsgConstants.UNDEFINED
 
-    failure_count = n_requests = 0
-    shm_reads = shm_writes = 0
-    bytes_recv = bytes_sent = 0
-    exec_time = 0
-
     def __init__(self, service, engine):
         super(ServiceReport, self).__init__(service.myname,
                                             engine.get_author(),
                                             engine.get_description())
-        self.engine_name = engine.myname
+        self.engine_name = service.myname
         self.class_name = service.get_engine_name()
-        self.version = engine.get_version
+        self.version = engine.get_version()
+        self.n_failures = self.n_requests = 0
+        self.shm_reads = self.shm_writes = 0
+        self.bytes_recv = self.bytes_sent = 0
+        self.exec_time = 0
 
     def increment_failure_count(self):
         self.failure_count += 1
