@@ -20,6 +20,14 @@ from clara.util.RequestParser import RequestParser
 
 
 class Dpe(ClaraBase):
+    """Clara data processing environment. It can play the role of the Front-End
+    (FE), which is the static point of the entire cloud. It creates and manages
+    the registration database (local and case of being assigned as an FE: global
+    database). Note this is a copy of the subscribers database resident in the
+    xMsg registration database. This also creates a shared memory for
+    communicating Clara transient data objects between services within the same
+    process (this avoids data serialization and de-serialization).
+    """
 
     my_containers = dict()
     subscription_handler = None
@@ -211,8 +219,20 @@ class Dpe(ClaraBase):
 
 
 class _ReportingService(Thread):
+    """DPE Reporting service
 
+    Service in charge of reporting Runtime time and Registration data to the
+    Frontend DPE. The user defines the time interval between updates, default is
+    5.
+    """
     def __init__(self, event, interval, base):
+        """
+        Args:
+            event (threading.Event): Event object for thread controlling, kill
+                the thread properly.
+            interval (int): time interval in seconds for updating the frontend
+            base (ClaraBase): ClaraBase object
+        """
         Thread.__init__(self)
         self._stopped = event
         self._interval = interval
