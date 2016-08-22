@@ -13,10 +13,10 @@ class ServiceReport(BaseReport):
     class_name = xMsgConstants.UNDEFINED
     version = xMsgConstants.UNDEFINED
 
-    failure_count = request_count = 0
+    failure_count = n_requests = 0
     shm_reads = shm_writes = 0
-    bytes_received = bytes_sent = 0
-    execution_time = 0
+    bytes_recv = bytes_sent = 0
+    exec_time = 0
 
     def __init__(self, service, engine):
         super(ServiceReport, self).__init__(service.myname,
@@ -36,16 +36,16 @@ class ServiceReport(BaseReport):
         self.shm_writes += 1
 
     def increment_bytes_received(self, bytes_received):
-        self.bytes_received += bytes_received
+        self.bytes_recv += bytes_received
 
     def increment_bytes_sent(self, bytes_sent):
         self.bytes_sent += bytes_sent
 
     def increment_execution_time(self, execution_time):
-        self.execution_time += execution_time
+        self.exec_time += execution_time
 
     def increment_request_count(self):
-        self.request_count += 1
+        self.n_requests += 1
 
     def to_json(self):
         return json.dumps(self.as_dict(), sort_keys=True)
