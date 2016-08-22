@@ -46,4 +46,6 @@ class DpeReport(BaseReport):
 
     def to_json(self):
         self._refresh()
-        return json.dumps(self.as_dict(), sort_keys=True, indent=4)
+        dpe_dict = dict()
+        dpe_dict["DPERuntime"] = self.as_dict()
+        return json.dumps(dpe_dict, sort_keys=True, indent=4)
