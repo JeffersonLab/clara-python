@@ -25,6 +25,8 @@ class Mimetype(object):
     ARRAY_STRING = u"text/array-string"
     ARRAY_BYTES = u"binary/array-string"
 
+    JSON = u"application/json",
+
     NATIVE = u"native"
 
 
@@ -103,6 +105,11 @@ class EngineDataType(object):
     def ARRAY_STRING(cls):
         mimetype = Mimetype.ARRAY_STRING
         return cls(mimetype, PrimitiveSerializer(mimetype))
+
+    @classmethod
+    def JSON(cls):
+        mimetype = Mimetype.JSON
+        return cls(mimetype, StringSerializer())
 
 
 class PrimitiveSerializer(ClaraSerializer):
@@ -211,3 +218,15 @@ class RawSerializer(ClaraSerializer):
 
     def write(self, data):
         return data
+
+
+class StringSerializer(ClaraSerializer):
+
+    def __init__(self):
+        super(StringSerializer, self).__init__()
+
+    def read(self, data):
+        return str(data).decode("utf-8")
+
+    def write(self, data):
+        return str(data).encode("utf-8")
