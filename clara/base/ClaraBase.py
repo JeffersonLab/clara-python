@@ -39,7 +39,7 @@ class ClaraBase(xMsg):
                                                    port=int(xMsgConstants.
                                                             REGISTRAR_PORT)))
 
-        self.clara_home = os.environ.get('PCLARA_HOME')
+        self.clara_home = os.environ.get('PCLARA_HOME') or ""
 
     def get_frontend_address(self):
         """Returns the frontend address

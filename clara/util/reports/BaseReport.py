@@ -9,7 +9,7 @@ from clara.base.ClaraLang import ClaraLang
 class BaseReport(object):
 
     name = xMsgConstants.UNDEFINED
-    lang = xMsgConstants.UNDEFINED
+    language = xMsgConstants.UNDEFINED
     author = xMsgConstants.UNDEFINED
     description = xMsgConstants.UNDEFINED
     start_time = xMsgConstants.UNDEFINED
@@ -27,9 +27,10 @@ class BaseReport(object):
     def _snap(self):
         self.snapshot_time = xMsgUtil.current_time()
 
-    def as_dict(self):
+    def as_dict(self, exclude_list=[]):
         self._snap()
-        return self.__dict__
+        key_set = set(self.__dict__.keys()) - set(exclude_list)
+        return {k: self.__dict__[k] for k in key_set}
 
     def increment_requests_count(self):
         self.requests_count += 1
