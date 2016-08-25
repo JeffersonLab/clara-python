@@ -25,7 +25,7 @@ class Mimetype(object):
     ARRAY_STRING = u"text/array-string"
     ARRAY_BYTES = u"binary/array-string"
 
-    JSON = u"application/json",
+    JSON = u"application/json"
 
     NATIVE = u"native"
 
