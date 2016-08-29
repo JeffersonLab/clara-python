@@ -97,6 +97,9 @@ class Engine(Engine):
         pass
 ```
 
+For further help in creating services for the clara framework in python, you can
+also refer to [Clara Bootstrap](https://github.com/royarzun/Clara-bootstrap), a collection
+ of scripts meant to make life easier for service developers.
 
 ### Contact
 

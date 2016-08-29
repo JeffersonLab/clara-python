@@ -26,7 +26,7 @@ class ServiceReport(BaseReport):
         self.exec_time = 0
 
     def increment_failure_count(self):
-        self.failure_count += 1
+        self.n_failures += 1
 
     def increment_shm_reads(self):
         self.shm_reads += 1
