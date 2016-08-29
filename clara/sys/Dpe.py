@@ -244,9 +244,11 @@ class _ReportingService(Thread):
             report = self._base.get_report().to_json()
             report_alive = self._base.get_report().get_alive_data()
             self._base.send_frontend(
-                xMsgMessage.create_with_string(CConstants.ALIVE, report_alive))
+                xMsgMessage.create_with_string(CConstants.DPE_ALIVE,
+                                               report_alive))
             self._base.send_frontend(
-                xMsgMessage.create_with_string(CConstants.DPE_REPORT, report))
+                xMsgMessage.create_with_string(CConstants.DPE_REPORT,
+                                               report))
 
 
 class _DpeCallBack(xMsgCallBack):
