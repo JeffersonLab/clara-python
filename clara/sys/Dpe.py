@@ -51,12 +51,14 @@ class Dpe(ClaraBase):
         Returns:
             Dpe: Dpe object
         """
-        if proxy_host == frontend_host:
+        if proxy_host == frontend_host and proxy_host == frontend_port:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = proxy_host
+            _is_frontend = True
         else:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = xMsgUtil.host_to_ip(frontend_host)
+            _is_frontend = False
 
         dpe_name = DpeName(str(proxy_host), proxy_port, ClaraLang.PYTHON)
 
@@ -66,7 +68,7 @@ class Dpe(ClaraBase):
                                   frontend_host,
                                   frontend_port)
         self.dpe_name = dpe_name
-        self._is_frontend = True if frontend_host == proxy_host else False
+        self._is_frontend = _is_frontend
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
 
@@ -84,10 +86,8 @@ class Dpe(ClaraBase):
             xMsgUtil.keep_alive()
 
         except KeyboardInterrupt:
-            self._exit()
-
-        finally:
             self.stop_listening(self.subscription_handler)
+            self._exit()
 
     def __repr__(self):
         return str("Dpe:%s" % self.myname)
@@ -295,9 +295,9 @@ def main():
     parser.add_argument("--fe_host", help="Frontend address", type=str,
                         default="localhost")
     parser.add_argument("--fe_port", help="Frontend port", type=int,
-                        default=7771)
+                        default=int(xMsgConstants.DEFAULT_PORT))
     parser.add_argument("--dpe_port", help="Local port", type=int,
-                        default=7771)
+                        default=int(xMsgConstants.DEFAULT_PORT))
     parser.add_argument("--report_interval", help="Reporting interval",
                         type=int, default=5)
 
