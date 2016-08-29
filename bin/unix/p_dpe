@@ -3,19 +3,9 @@
 # author royarzun
 # date 12.11.15
 
-if [ "$1" = "-h" -o "$1" = "-help" ]
+if ! $(python -c 'from clara.sys.Dpe import main' &> /dev/null);
 then
-    echo ""
-    echo " Starts Clara DPE (python binding) "
-    echo "-----------------------------------"
-    echo " synopsis: p_dpe"
-    echo ""
+    echo "Please check that Clara and its dependencies are installed in your system or virtual environment";
 else
-    if ! $(python -c 'from clara.sys.Dpe import main' &> /dev/null);
-    then
-        echo "Please check that Clara and its dependencies are installed in your system or virtual environment";
-    else
-        python -c 'from clara.sys.Dpe import main; main()'
-    fi
-
+    python -m 'clara.sys.Dpe' ${@}
 fi
