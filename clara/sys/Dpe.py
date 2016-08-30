@@ -7,6 +7,7 @@ from getpass import getuser
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
@@ -43,8 +44,8 @@ class Dpe(ClaraBase):
         Args:
             proxy_host (String): local hostname
             frontend_host (String): frontend hostname
-            proxy_port (int): proxy port, default is 7771
-            frontend_port (int): frontend port, default is 7771
+            proxy_port (int): proxy port, default is 7791
+            frontend_port (int): frontend port, default is 7791
             report_interval (int): time interval in seconds for reporting
                 service to update the frontend
 
@@ -262,6 +263,8 @@ class _DpeCallBack(xMsgCallBack):
         try:
             parser = RequestParser.build_from_message(msg)
             cmd = parser.next_string()
+            response = parser.request()
+
             self._logger.log_info("received: %s" % cmd)
 
             if cmd == CConstants.STOP_DPE:
@@ -278,6 +281,12 @@ class _DpeCallBack(xMsgCallBack):
 
             elif cmd == CConstants.STOP_SERVICE:
                 self._dpe.stop_service(parser)
+
+            else:
+                self._logger.log_error("received unknown command...")
+
+            if msg.has_reply_topic():
+                self._dpe.send_response(msg, xMsgMeta.INFO, response)
 
         except Exception as e:
             self._logger.log_exception(e.message)

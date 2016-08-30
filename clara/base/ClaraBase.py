@@ -90,6 +90,23 @@ class ClaraBase(xMsg):
         conn = self.get_connection(self._fe_address)
         self.publish(conn, msg)
 
+    def send_response(self, msg, status, data):
+        """Sends response to sender
+
+        Args:
+            msg (xMsgMessage): received from sender
+            status (xMsgMeta.Status): status of the request
+            data (String): attached data with the response
+        """
+        try:
+            msg.metadata.dataType = "text/string"
+            r_msg = xMsgMessage.create_with_string(msg.get_reply_topic(), data)
+            r_msg.metadata.author = self.myname
+            r_msg.metadata.status = status
+            self.send(r_msg)
+        except Exception as e:
+            print e.message
+
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
 

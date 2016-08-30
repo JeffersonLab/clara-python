@@ -1,8 +1,8 @@
 # coding=utf-8
 
 import re
-
 import psutil
+
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgConstants import xMsgConstants
 
@@ -71,7 +71,7 @@ class ClaraUtils(object):
 
     @staticmethod
     def form_dpe_name(host, lang, dpe_port=None):
-        if dpe_port and dpe_port != 7771:
+        if dpe_port and dpe_port != int(xMsgConstants.DEFAULT_PORT):
             return host + "%" + str(dpe_port) + CConstants.LANG_SEP + str(lang)
         else:
             return host + CConstants.LANG_SEP + str(lang)
