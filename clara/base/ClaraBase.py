@@ -36,8 +36,7 @@ class ClaraBase(xMsg):
         super(ClaraBase, self).__init__(name,
                                         self._proxy_address,
                                         RegAddress(host=frontend_host,
-                                                   port=int(xMsgConstants.
-                                                            REGISTRAR_PORT)))
+                                                   port=frontend_port))
 
         self.clara_home = os.environ.get('PCLARA_HOME') or ""
 
@@ -59,9 +58,9 @@ class ClaraBase(xMsg):
         Returns:
             xMsgSubscription
         """
-        host_address = ClaraUtils.get_dpe_host(topic)
+        proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(topic))
 
-        return self.subscribe(ProxyAddress(host_address), topic, callback)
+        return self.subscribe(proxy_address, topic, callback)
 
     def stop_listening(self, handle):
         """Stops listening to a subscription defined by the handler
@@ -77,7 +76,8 @@ class ClaraBase(xMsg):
         Args:
             msg (xMsgMessage): xMsg transient message object
         """
-        proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic))
+        proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic),
+                                     ClaraUtils.get_dpe_port(msg.topic))
         conn = self.get_connection(proxy_address)
         self.publish(conn, msg)
 
@@ -90,6 +90,23 @@ class ClaraBase(xMsg):
         conn = self.get_connection(self._fe_address)
         self.publish(conn, msg)
 
+    def send_response(self, msg, status, data):
+        """Sends response to sender
+
+        Args:
+            msg (xMsgMessage): received from sender
+            status (xMsgMeta.Status): status of the request
+            data (String): attached data with the response
+        """
+        try:
+            msg.metadata.dataType = "text/string"
+            r_msg = xMsgMessage.create_with_string(msg.get_reply_topic(), data)
+            r_msg.metadata.author = self.myname
+            r_msg.metadata.status = status
+            self.send(r_msg)
+        except Exception as e:
+            print e.message
+
     def sync_send(self, msg, timeout):
         """Sends xMsgMessage object to an xMsg actor synchronously
 
@@ -97,7 +114,9 @@ class ClaraBase(xMsg):
             msg (xMsgMessage): xMsg transient message object
             timeout (int): response message timeout in seconds
         """
-        conn = self.get_connection(ClaraUtils.get_dpe_host(msg.topic))
+        proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(msg.topic),
+                                     ClaraUtils.get_dpe_port(msg.topic))
+        conn = self.get_connection(proxy_address)
         self.sync_publish(conn, msg, timeout)
 
     def register(self, topic, description=None):

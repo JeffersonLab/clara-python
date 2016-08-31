@@ -7,6 +7,7 @@ from getpass import getuser
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
+from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
@@ -43,20 +44,22 @@ class Dpe(ClaraBase):
         Args:
             proxy_host (String): local hostname
             frontend_host (String): frontend hostname
-            proxy_port (int): proxy port, default is 7771
-            frontend_port (int): frontend port, default is 7771
+            proxy_port (int): proxy port, default is 7791
+            frontend_port (int): frontend port, default is 7791
             report_interval (int): time interval in seconds for reporting
                 service to update the frontend
 
         Returns:
             Dpe: Dpe object
         """
-        if proxy_host == frontend_host:
+        if proxy_host == frontend_host and proxy_host == frontend_port:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = proxy_host
+            _is_frontend = True
         else:
             proxy_host = xMsgUtil.host_to_ip(proxy_host)
             frontend_host = xMsgUtil.host_to_ip(frontend_host)
+            _is_frontend = False
 
         dpe_name = DpeName(str(proxy_host), proxy_port, ClaraLang.PYTHON)
 
@@ -66,7 +69,7 @@ class Dpe(ClaraBase):
                                   frontend_host,
                                   frontend_port)
         self.dpe_name = dpe_name
-        self._is_frontend = True if frontend_host == proxy_host else False
+        self._is_frontend = _is_frontend
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
 
@@ -84,10 +87,8 @@ class Dpe(ClaraBase):
             xMsgUtil.keep_alive()
 
         except KeyboardInterrupt:
-            self._exit()
-
-        finally:
             self.stop_listening(self.subscription_handler)
+            self._exit()
 
     def __repr__(self):
         return str("Dpe:%s" % self.myname)
@@ -262,6 +263,8 @@ class _DpeCallBack(xMsgCallBack):
         try:
             parser = RequestParser.build_from_message(msg)
             cmd = parser.next_string()
+            response = parser.request()
+
             self._logger.log_info("received: %s" % cmd)
 
             if cmd == CConstants.STOP_DPE:
@@ -279,6 +282,12 @@ class _DpeCallBack(xMsgCallBack):
             elif cmd == CConstants.STOP_SERVICE:
                 self._dpe.stop_service(parser)
 
+            else:
+                self._logger.log_error("received unknown command...")
+
+            if msg.has_reply_topic():
+                self._dpe.send_response(msg, xMsgMeta.INFO, response)
+
         except Exception as e:
             self._logger.log_exception(e.message)
             raise e
@@ -295,9 +304,9 @@ def main():
     parser.add_argument("--fe_host", help="Frontend address", type=str,
                         default="localhost")
     parser.add_argument("--fe_port", help="Frontend port", type=int,
-                        default=7771)
+                        default=int(xMsgConstants.DEFAULT_PORT))
     parser.add_argument("--dpe_port", help="Local port", type=int,
-                        default=7771)
+                        default=int(xMsgConstants.DEFAULT_PORT))
     parser.add_argument("--report_interval", help="Reporting interval",
                         type=int, default=5)
 

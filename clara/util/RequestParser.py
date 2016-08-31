@@ -9,8 +9,8 @@ class RequestParser(object):
         Args:
             data (String): data request string
         """
-        self.cmd_data = data
-        self.tokens = data.split("?")
+        self._request = data
+        self._tokens = data.split("?")
 
     @classmethod
     def build_from_message(cls, msg):
@@ -36,10 +36,10 @@ class RequestParser(object):
             cmd_data (String): string token from request
         """
         try:
-            return self.tokens.pop(0)
+            return self._tokens.pop(0)
 
         except IndexError:
-            raise Exception("Invalid request: " + self.cmd_data)
+            raise Exception("Invalid request: " + self._request)
 
     def next_integer(self):
         """Returns the following integer from the Request
@@ -48,7 +48,15 @@ class RequestParser(object):
             cmd_data (int): string token from request
         """
         try:
-            return int(self.tokens.pop(0))
+            return int(self._tokens.pop(0))
 
         except IndexError:
-            raise Exception("Invalid request: " + self.cmd_data)
+            raise Exception("Invalid request: " + self._request)
+
+    def request(self):
+        """Returns request as array of str
+
+        Returns:
+            []: request string array
+        """
+        return self._request
