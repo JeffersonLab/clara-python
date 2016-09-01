@@ -177,8 +177,7 @@ class Dpe(ClaraBase):
                 start a Service
         """
         try:
-            service_name = request.next_string()
-            container_name = ClaraUtils.get_container_name(service_name)
+            container_name = request.next_string()
             engine_name = request.next_string()
             engine_class = request.next_string()
             pool_size = request.next_integer()
