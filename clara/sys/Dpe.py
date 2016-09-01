@@ -33,11 +33,7 @@ class Dpe(ClaraBase):
     my_containers = dict()
     subscription_handler = None
 
-    def __init__(self,
-                 proxy_host="localhost",
-                 frontend_host="localhost",
-                 proxy_port=int(xMsgConstants.DEFAULT_PORT),
-                 frontend_port=int(xMsgConstants.DEFAULT_PORT),
+    def __init__(self, proxy_host, frontend_host, proxy_port, frontend_port,
                  report_interval=5):
         """Dpe Constructor
 
@@ -222,8 +218,8 @@ class _ReportingService(Thread):
     """DPE Reporting service
 
     Service in charge of reporting Runtime time and Registration data to the
-    Frontend DPE. The user defines the time interval between updates, default is
-    5.
+    Frontend DPE. The user defines the time interval between updates, default
+    is 5.
     """
     def __init__(self, event, interval, base):
         """
