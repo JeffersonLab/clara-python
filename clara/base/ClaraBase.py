@@ -40,6 +40,10 @@ class ClaraBase(xMsg):
 
         self.clara_home = os.environ.get('PCLARA_HOME') or ""
 
+    def generic_send(self, msg):
+        conn = self.get_connection(self._proxy_address)
+        self.publish(conn, msg)
+
     def get_frontend_address(self):
         """Returns the frontend address
 
@@ -103,7 +107,7 @@ class ClaraBase(xMsg):
             r_msg = xMsgMessage.create_with_string(msg.get_reply_topic(), data)
             r_msg.metadata.author = self.myname
             r_msg.metadata.status = status
-            self.send(r_msg)
+            self.generic_send(r_msg)
         except Exception as e:
             print e.message
 
