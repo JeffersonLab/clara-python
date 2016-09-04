@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# coding=utf-8
+
+# author royarzun
+# date 12.11.15
+
+if $(python -c 'from clara.sys.Dpe import main' &> /dev/null); then
+    python -m 'clara.sys.Dpe' ${@}
+else
+    echo "Please check that Clara and its dependencies are installed in your system or virtual environment";
+fi
