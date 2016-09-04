@@ -86,9 +86,6 @@ class Dpe(ClaraBase):
             self.stop_listening(self.subscription_handler)
             self._exit()
 
-    def __repr__(self):
-        return str("Dpe:%s" % self.myname)
-
     def _exit(self):
         self._report_control.set()
         self._logger.log_info("Gracefully quitting the dpe...")

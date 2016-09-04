@@ -77,9 +77,6 @@ class Service(ClaraBase):
         except KeyboardInterrupt:
             return
 
-    def __repr__(self):
-        return str("Service:%s" % self.myname)
-
     def configure(self, message):
         while True:
             for engine in self._engine_pool:

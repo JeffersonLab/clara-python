@@ -30,9 +30,6 @@ class Container(ClaraBase):
         self._logger.log_info("container deployed")
         self._report = ContainerReport(self, getuser())
 
-    def __repr__(self):
-        return str("Container:%s" % self.myname)
-
     def exit(self):
         """Gracefully destroys this container"""
         self._remove_services()

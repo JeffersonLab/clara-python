@@ -1,5 +1,6 @@
 argparse>=1.2.1
 bitstring==3.1.4
+colorama
 enum34>=1.0.4
 mockito
 netifaces>=0.10.4

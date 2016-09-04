@@ -40,6 +40,9 @@ class ClaraBase(xMsg):
 
         self.clara_home = os.environ.get('PCLARA_HOME') or ""
 
+    def __repr__(self):
+        return str(self.myname)
+
     def generic_send(self, msg):
         conn = self.get_connection(self._proxy_address)
         self.publish(conn, msg)
