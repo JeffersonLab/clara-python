@@ -132,26 +132,15 @@ class Service(ClaraBase):
                 self._logger.log_exception(e.message)
             return
 
-        if Service._get_reply_to(message):
+        if message.has_reply_topic():
             self._send_response(message, xMsgMeta.INFO, setup)
 
     def exit(self):
         self.stop_listening(self.subscription_handler)
         self._logger.log_info("service stopped")
 
-    @staticmethod
-    def _build_request(topic, data):
-        metadata = xMsgMeta.dataType = "text/string"
-        return xMsgMessage(topic, metadata, data)
-
-    @staticmethod
-    def _get_reply_to(message):
-        reply = message.metadata.replyTo
-        reply_to = reply if reply and reply != "undefined" else None
-        return reply_to
-
     def _send_response(self, message, status, data):
-        response_message = Service._build_request(message.topic, data)
+        response_message = xMsgMessage.create_with_string(message.topic, data)
         response_message.metadata.status = status
         self.send(response_message)
 
