@@ -9,10 +9,26 @@ from clara.sys.ccc.Instruction import Instruction
 from clara.sys.ccc.Statement import Statement
 from clara.sys.ccc.Constants import Regex
 from clara.sys.ccc.Condition import Condition
-from clara.util.CUtility import CUtility
+from clara.sys.ccc.utils import remove_first
 
 
 class CCompiler(object):
+    """Clara compiler. Compiles the application logical description,
+
+    i.e. simple/conditional routing schema in a sets of instructions for a
+    specified service. Below is an example of the application code, written in
+    the specific Clara language:
+
+    S1 + S2;
+    if ( S1 == "abc" && S2 != "xyz") {
+        S2 + S3;
+    } elseif ( S1 == "fred" ) {
+        S2 + S4;
+    } else {
+        S2 + S5,S6,S7;
+    }
+    S4,S5 + &S8;
+    """
 
     _SYNTAX_ERROR = "Syntax error in the Clara routing program. Malformed " +\
                     "routing statement"
@@ -81,7 +97,7 @@ class CCompiler(object):
 
     def _parse_statement(self, statement_string):
         ti = Instruction(self._service_name)
-        statement_string = CUtility.remove_first(statement_string, "}")
+        statement_string = remove_first(statement_string, "}")
 
         pattern = re.compile(Regex.ROUTING_STATEMENT)
         match = pattern.match(statement_string)

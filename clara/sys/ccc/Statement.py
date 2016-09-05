@@ -1,10 +1,24 @@
 # coding=utf-8
 
 from clara.base.error.ClaraException import ClaraException
-from clara.util.CUtility import CUtility
+from clara.sys.ccc.utils import remove_first
 
 
 class Statement(object):
+    """This class presents routing schema for a service,
+
+    result of the Clara composition compiler, parsing routing statements of a
+    composition.
+
+    Contains Map that has keys = input service names, data from which are
+    required logically to be ANDed. I.e. data from all services in the AND must
+    be present in order for the receiving service to execute its service
+    engine.
+
+    Also contains a Set of names of all services that are linked to the service
+    of interest, i.e. names of all services that this services will send it's
+    output data.
+    """
 
     def __init__(self, statement_string, service_name):
         if service_name in statement_string:
@@ -66,8 +80,8 @@ class Statement(object):
         while True:
             try:
                 element = statement_iterator.next()
-                element = CUtility.remove_first(element, "&")
-                element = CUtility.remove_first(element, "{")
+                element = remove_first(element, "&")
+                element = remove_first(element, "{")
                 element_list.append(element)
             except StopIteration:
                 break
