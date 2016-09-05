@@ -76,7 +76,6 @@ class Service(ClaraBase):
                                                    engine_instance,
                                                    self._service_sys_config,
                                                    self._report))
-        self._logger.log_info("deploying service...")
         # Get description defined in the service engine
         self.description = engine_instance.get_description()
 
@@ -94,6 +93,11 @@ class Service(ClaraBase):
             return
 
     def configure(self, message):
+        """Configures engine from the engine pool
+
+        Args:
+            message (xMsgMessage): Input data for service engine
+        """
         while True:
             for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
@@ -106,6 +110,11 @@ class Service(ClaraBase):
                     return
 
     def execute(self, message):
+        """Executes engine from the engine pool
+
+        Args:
+            message (xMsgMessage): Input data for service engine
+        """
         while True:
             for engine in self._engine_pool:
                 if engine.try_acquire_semaphore():
@@ -117,16 +126,46 @@ class Service(ClaraBase):
                         engine.release_semaphore()
                     return
 
+    def exit(self):
+        """Exits the service gracefully"""
+        self.stop_listening(self.subscription_handler)
+        self._logger.log_info("service stopped")
+
     def get_engine_class(self):
+        """Returns the engine class as string
+
+        Returns:
+            String
+        """
         return self._engine_class
 
     def get_engine_name(self):
+        """Returns engine name as string
+
+        Returns:
+            String
+        """
         return self._engine_name
 
     def get_report(self):
+        """Returns service report object
+
+        Returns:
+            ServiceReport
+        """
         return self._report
 
+    def _send_response(self, message, status, data):
+        response_message = xMsgMessage.create_with_string(message.topic, data)
+        response_message.metadata.status = status
+        self.send(response_message)
+
     def setup(self, message):
+        """Configure service reporting messages
+
+        Args:
+            message (xMsgMessage): message with setup request
+        """
         setup = RequestParser.build_from_message(message)
         report = setup.next_string()
         value = setup.next_integer()
@@ -142,23 +181,14 @@ class Service(ClaraBase):
                     engine.sys_config.data_report_threshold = value
                     engine.sys_config.reset_data_request_count()
                 else:
-                    self._logger.log_error("invalid report request: %s"
-                                           % str(report))
+                    self._logger.log_error("invalid report request: " +
+                                           str(report))
             except Exception as e:
                 self._logger.log_exception(e.message)
             return
 
         if message.has_reply_topic():
             self._send_response(message, xMsgMeta.INFO, setup)
-
-    def exit(self):
-        self.stop_listening(self.subscription_handler)
-        self._logger.log_info("service stopped")
-
-    def _send_response(self, message, status, data):
-        response_message = xMsgMessage.create_with_string(message.topic, data)
-        response_message.metadata.status = status
-        self.send(response_message)
 
 
 class _ServiceCallBack(xMsgCallBack):
