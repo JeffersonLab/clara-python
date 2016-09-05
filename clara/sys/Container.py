@@ -30,13 +30,8 @@ class Container(ClaraBase):
         self._logger.log_info("container deployed")
         self._report = ContainerReport(self, getuser())
 
-    def exit(self):
-        """Gracefully destroys this container"""
-        self._remove_services()
-        self._logger.log_info("container stopped")
-
-    def add_service(self, engine_name, engine_class, service_pool_size,
-                    initial_state):
+    def add_service(self, engine_name, engine_class,
+                    service_pool_size, initial_state):
         """Add a new service into the service container
 
         Creates a new Clara service with the given parameters and attaches it
@@ -44,10 +39,10 @@ class Container(ClaraBase):
         also.
 
         Args:
-            engine_name:
-            engine_class:
-            service_pool_size:
-            initial_state:
+            engine_name (String): User engine name
+            engine_class (String): Python class containing the engine to deploy
+            service_pool_size (int): Pool size for the deployed service
+            initial_state (String): Initial state for service
         """
         service_name = ServiceName(self._container_name, engine_name)
 
@@ -70,6 +65,11 @@ class Container(ClaraBase):
                 self._logger.log_exception("%s: %s" % (str(service_name), e))
                 raise e
 
+    def exit(self):
+        """Gracefully destroys this container"""
+        self._remove_services()
+        self._logger.log_info("container stopped")
+
     def get_report(self):
         """Returns the Container report object
 
@@ -79,7 +79,11 @@ class Container(ClaraBase):
         return self._report
 
     def remove_service(self, service_name):
-        """Exits the given service"""
+        """Exits the given service
+
+        Args:
+            service_name (String) Service canonical name
+        """
         if service_name in self.my_services:
             service = self.my_services.pop(service_name)
             self._report.remove_service(service.get_report())
