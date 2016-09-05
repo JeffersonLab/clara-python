@@ -21,8 +21,20 @@ from clara.util.ClaraLogger import ClaraLogger
 
 class ServiceEngine(ClaraBase):
 
-    def __init__(self, name, local_address, frontend_address, user_engine,
+    def __init__(self, name,
+                 local_address, frontend_address, user_engine,
                  service_sys_configuration, service_report):
+        """A Service engine.
+
+        Every engine process a request in its own thread.
+        Args:
+            name: Service canonical name
+            local_address (ProxyAddress): Address info for local connection
+            frontend_address (ProxyAddress): Address info for FE connection
+            user_engine (Engine): User engine deployed
+            service_sys_configuration (ServiceSysConfig): Service system config
+            service_report (ServiceReport): Service report object
+        """
         super(ServiceEngine, self).__init__(name,
                                             local_address.host,
                                             local_address.pub_port,
@@ -30,18 +42,16 @@ class ServiceEngine(ClaraBase):
                                             frontend_address.pub_port)
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)
-        self.sys_config = service_sys_configuration
         self._compiler = CCompiler(self.myname)
         self._prev_composition = "undefined"
         self._report = service_report
         self._logger = ClaraLogger(repr(self))
-        self.execution_time = 0
 
-    def __repr__(self):
-        return str("ServiceEngine:%s" % self.myname)
+        self.execution_time = 0
+        self.sys_config = service_sys_configuration
 
     def configure(self, message):
-        """Sends configuration message to the Engine
+        """Configure the deployed Engine
 
         Args:
             message (xMsgMessage): message containing engine configuration data
@@ -60,9 +70,9 @@ class ServiceEngine(ClaraBase):
         finally:
             self._update_metadata(input_data.metadata, outgoing_data.metadata)
 
-        reply_to = self._get_reply_to(message)
-        if reply_to:
-            outgoing_message = self._put_engine_data(outgoing_data, reply_to)
+        if message.has_reply_topic():
+            outgoing_message = self._put_engine_data(outgoing_data,
+                                                     message.get_reply_topic())
             self.send(outgoing_message)
         else:
             self._report_problem(outgoing_data)
@@ -74,12 +84,6 @@ class ServiceEngine(ClaraBase):
         if output_data.get_data():
             output_data.set_data(Mimetype.STRING, "done")
         return output_data
-
-    @staticmethod
-    def _get_reply_to(message):
-        reply = message.metadata.replyTo
-        reply_to = reply if reply and reply != "undefined" else None
-        return reply_to
 
     def _get_engine_data(self, message):
         msg = self.de_serialize(message,
@@ -151,7 +155,7 @@ class ServiceEngine(ClaraBase):
             self.send(msg)
 
     def execute(self, message):
-        """Executes the engine with the given input data
+        """Executes the deployed engine with the given input data
 
         Args:
             message (xMsgMessage): message containing input data
@@ -178,9 +182,9 @@ class ServiceEngine(ClaraBase):
         finally:
             self._update_metadata(message.metadata, outgoing_data.metadata)
 
-        reply_to = self._get_reply_to(message)
-        if reply_to and reply_to != "undefined":
-            outgoing_message = self._put_engine_data(outgoing_data, reply_to)
+        if message.has_reply_topic():
+            outgoing_message = self._put_engine_data(outgoing_data,
+                                                     message.get_reply_topic())
             self.send(outgoing_message)
 
         self._send_reports(outgoing_data)

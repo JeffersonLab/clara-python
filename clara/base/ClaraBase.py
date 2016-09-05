@@ -16,9 +16,8 @@ from clara.engine.EngineDataType import EngineDataType, Mimetype
 
 
 class ClaraBase(xMsg):
-    """Base class for service and orchestrator classes as well
-
-    Clara service name convention - dpe-host_lang:container:engine_name
+    """Clara base class providing methods build services, service container
+    and orchestrator.
     """
     clara_home = str(xMsgConstants.UNDEFINED)
 
@@ -29,18 +28,26 @@ class ClaraBase(xMsg):
                  frontend_host="localhost",
                  frontend_port=int(xMsgConstants.DEFAULT_PORT)):
 
-        self._proxy_address = ProxyAddress(host=proxy_host,
-                                           pub_port=proxy_port)
-        self._fe_address = ProxyAddress(host=frontend_host,
-                                        pub_port=frontend_port)
+        self._proxy_address = ProxyAddress(proxy_host, proxy_port)
+        self._fe_address = ProxyAddress(frontend_host, frontend_port)
         super(ClaraBase, self).__init__(name,
                                         self._proxy_address,
-                                        RegAddress(host=frontend_host,
-                                                   port=frontend_port))
+                                        RegAddress(frontend_host,
+                                                   frontend_port))
 
         self.clara_home = os.environ.get('PCLARA_HOME') or ""
 
+    def __repr__(self):
+        return str(self.myname)
+
     def generic_send(self, msg):
+        """Sends a text message to another clara actor (message w/topic)
+
+        Sends message using connection from local proxy
+
+        Args:
+            msg (xMsgMessage): Message to send
+        """
         conn = self.get_connection(self._proxy_address)
         self.publish(conn, msg)
 
@@ -67,10 +74,10 @@ class ClaraBase(xMsg):
         return self.subscribe(proxy_address, topic, callback)
 
     def stop_listening(self, handle):
-        """Stops listening to a subscription defined by the handler
+        """Stops listening to a subscription
 
-        handle (xMsgSubscription): subscription handler object
-
+        Args:
+            handle (xMsgSubscription): subscription handler object
         """
         self.unsubscribe(handle)
 
@@ -103,7 +110,6 @@ class ClaraBase(xMsg):
             data (String): attached data with the response
         """
         try:
-            msg.metadata.dataType = "text/string"
             r_msg = xMsgMessage.create_with_string(msg.get_reply_topic(), data)
             r_msg.metadata.author = self.myname
             r_msg.metadata.status = status

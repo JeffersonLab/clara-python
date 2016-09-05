@@ -13,6 +13,13 @@ class Container(ClaraBase):
     my_services = dict()
 
     def __init__(self, container_name, local_address, frontend_address):
+        """Service container for clara
+
+        Args:
+            container_name (ContainerName): Container name
+            local_address (ProxyAddress): Local proxy address
+            frontend_address (ProxyAddress): Frontend address
+        """
         super(Container, self).__init__(container_name.canonical_name(),
                                         local_address.host,
                                         local_address.pub_port,
@@ -23,15 +30,20 @@ class Container(ClaraBase):
         self._logger.log_info("container deployed")
         self._report = ContainerReport(self, getuser())
 
-    def __repr__(self):
-        return str("Container:%s" % self.myname)
+    def add_service(self, engine_name, engine_class,
+                    service_pool_size, initial_state):
+        """Add a new service into the service container
 
-    def exit(self):
-        self._remove_services()
-        self._logger.log_info("container stopped")
+        Creates a new Clara service with the given parameters and attaches it
+        to this container. When container is destroyed all services are exited
+        also.
 
-    def add_service(self, engine_name, engine_class, service_pool_size,
-                    initial_state):
+        Args:
+            engine_name (String): User engine name
+            engine_class (String): Python class containing the engine to deploy
+            service_pool_size (int): Pool size for the deployed service
+            initial_state (String): Initial state for service
+        """
         service_name = ServiceName(self._container_name, engine_name)
 
         if service_name.canonical_name() in self.my_services:
@@ -53,16 +65,32 @@ class Container(ClaraBase):
                 self._logger.log_exception("%s: %s" % (str(service_name), e))
                 raise e
 
+    def exit(self):
+        """Gracefully destroys this container"""
+        self._remove_services()
+        self._logger.log_info("container stopped")
+
     def get_report(self):
+        """Returns the Container report object
+
+        Returns:
+            ContainerReport
+        """
         return self._report
 
     def remove_service(self, service_name):
+        """Exits the given service
+
+        Args:
+            service_name (String) Service canonical name
+        """
         if service_name in self.my_services:
             service = self.my_services.pop(service_name)
             self._report.remove_service(service.get_report())
             service.exit()
 
     def _remove_services(self):
+        """Exits all services"""
         self._report.remove_services()
         for service in self.my_services.itervalues():
             service.exit()
