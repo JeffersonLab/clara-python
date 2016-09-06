@@ -70,11 +70,12 @@ class Dpe(ClaraBase):
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
 
-        self._report = DpeReport(self, getuser())
-        self._report_control = Event()
-        self._report_service = _ReportingService(self._report_control,
-                                                 report_interval, self)
-        self._report_service.start()
+        if not self._is_frontend:
+            self._report = DpeReport(self, getuser())
+            self._report_control = Event()
+            self._report_service = _ReportingService(self._report_control,
+                                                     report_interval, self)
+            self._report_service.start()
 
         topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         self.subscription_handler = None
