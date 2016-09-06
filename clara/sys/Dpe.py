@@ -9,6 +9,7 @@ from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
+from clara import __version__ as clara_version
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
 from clara.base.ClaraNames import DpeName, ContainerName
@@ -95,14 +96,14 @@ class Dpe(ClaraBase):
 
     def _print_logo(self):
         import platform
-        print "=" * 80
-        print " " * 35 + "CLARA DPE"
-        print "=" * 80
+        print "=" * 50
+        print " " * 20 + "CLARA DPE"
+        print "=" * 50
         print ""
-        print " Name             = " + self.myname
-        print " Date             = " + xMsgUtil.current_time()
-        print " Version          = " + platform.python_version()
-        print " Binding          = Python"
+        print " Name             = %s" % self.myname
+        print " Date             = %s" % xMsgUtil.current_time()
+        print " Version          = %s" % clara_version
+        print " Lang             = python-%s" % platform.python_version()
         print ""
         print " Proxy Host       = %s" % self._proxy_address.host
         print " Proxy Port       = %d" % self._proxy_address.pub_port
@@ -111,7 +112,7 @@ class Dpe(ClaraBase):
             print " Frontend Host    = %s" % self._fe_address.host
             print " Frontend Port    = %d" % self._fe_address.pub_port
             print ""
-        print "=" * 80
+        print "=" * 50
         print ""
 
     def get_report(self):

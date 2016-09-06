@@ -60,5 +60,5 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"clara": "clara"},
-          scripts=['scripts/unix/p_dpe']
+          scripts=['clara/scripts/unix/p_dpe']
           )
