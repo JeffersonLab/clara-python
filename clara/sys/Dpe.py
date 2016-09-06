@@ -96,9 +96,10 @@ class Dpe(ClaraBase):
 
     def _print_logo(self):
         import platform
-        print "=" * 50
+        logo_width = 50
+        print "=" * logo_width
         print " " * 20 + "CLARA DPE"
-        print "=" * 50
+        print "=" * logo_width
         print ""
         print " Name             = %s" % self.myname
         print " Date             = %s" % xMsgUtil.current_time()
@@ -112,7 +113,7 @@ class Dpe(ClaraBase):
             print " Frontend Host    = %s" % self._fe_address.host
             print " Frontend Port    = %d" % self._fe_address.pub_port
             print ""
-        print "=" * 50
+        print "=" * logo_width
         print ""
 
     def get_report(self):
