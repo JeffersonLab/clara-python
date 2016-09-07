@@ -10,10 +10,11 @@ from setuptools import find_packages
 
 class ClaraTest(TestCommand):
 
+    test_args = []
+    test_suite = True
+
     def finalize_options(self):
         TestCommand.finalize_options(self)
-        self.test_args = []
-        self.test_suite = True
 
     def run_tests(self):
         import pytest
@@ -50,9 +51,9 @@ if __name__ == "__main__":
           url='https://claraweb.jlab.org',
           license=LICENSE,
           long_description=README,
-          install_requires=['xmsg==2.4.3'],
+          install_requires=['xmsg>2.4'],
           test_suite="tests",
-          tests_require=['pytest', 'xmsg>=2.4.1'],
+          tests_require=['pytest', 'xmsg'],
           cmdclass={
               'test': ClaraTest,
               'clean': ClaraClean,
@@ -60,5 +61,5 @@ if __name__ == "__main__":
           packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
                                           "tests", "examples", "examples.*"]),
           package_dir={"clara": "clara"},
-          scripts=['scripts/unix/p_dpe']
+          scripts=['clara/scripts/unix/p_dpe']
           )

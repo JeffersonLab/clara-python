@@ -4,11 +4,16 @@
 from threading import Thread, Event
 from getpass import getuser
 
+import os
+import signal
+import subprocess
+
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
+from clara import __version__ as clara_version
 from clara.base.ClaraBase import ClaraBase
 from clara.base.ClaraLang import ClaraLang
 from clara.base.ClaraNames import DpeName, ContainerName
@@ -69,22 +74,15 @@ class Dpe(ClaraBase):
         self._logger = ClaraLogger(repr(self))
         self._print_logo()
 
-        self._report = DpeReport(self, getuser())
-        self._report_control = Event()
-        self._report_service = _ReportingService(self._report_control,
-                                                 report_interval, self)
-        self._report_service.start()
+        if not self._is_frontend:
+            self._report = DpeReport(self, getuser())
+            self._report_control = Event()
+            self._report_service = _ReportingService(self._report_control,
+                                                     report_interval, self)
+            self._report_service.start()
 
-        topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         self.subscription_handler = None
-
-        try:
-            self.subscription_handler = self.listen(topic, _DpeCallBack(self))
-            xMsgUtil.keep_alive()
-
-        except KeyboardInterrupt:
-            self.stop_listening(self.subscription_handler)
-            self._exit()
+        self._start()
 
     def _exit(self):
         self._report_control.set()
@@ -95,14 +93,15 @@ class Dpe(ClaraBase):
 
     def _print_logo(self):
         import platform
-        print "=" * 80
-        print " " * 35 + "CLARA DPE"
-        print "=" * 80
+        logo_width = 50
+        print "=" * logo_width
+        print " " * 20 + "CLARA DPE"
+        print "=" * logo_width
         print ""
-        print " Name             = " + self.myname
-        print " Date             = " + xMsgUtil.current_time()
-        print " Version          = " + platform.python_version()
-        print " Binding          = Python"
+        print " Name             = %s" % self.myname
+        print " Date             = %s" % xMsgUtil.current_time()
+        print " Version          = %s" % clara_version
+        print " Lang             = python-%s" % platform.python_version()
         print ""
         print " Proxy Host       = %s" % self._proxy_address.host
         print " Proxy Port       = %d" % self._proxy_address.pub_port
@@ -111,8 +110,21 @@ class Dpe(ClaraBase):
             print " Frontend Host    = %s" % self._fe_address.host
             print " Frontend Port    = %d" % self._fe_address.pub_port
             print ""
-        print "=" * 80
+        print "=" * logo_width
         print ""
+
+    def _start(self):
+        proxy_process = subprocess.Popen(['px_proxy'])
+
+        try:
+            topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
+            self.subscription_handler = self.listen(topic, _DpeCallBack(self))
+            xMsgUtil.keep_alive()
+
+        except KeyboardInterrupt:
+            self._exit()
+            self.stop_listening(self.subscription_handler)
+            os.kill(proxy_process.pid, signal.SIGINT)
 
     def get_report(self):
         """Returns DPE report object

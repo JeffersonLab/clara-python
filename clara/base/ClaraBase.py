@@ -70,8 +70,8 @@ class ClaraBase(xMsg):
             xMsgSubscription
         """
         proxy_address = ProxyAddress(ClaraUtils.get_dpe_host(topic))
-
-        return self.subscribe(proxy_address, topic, callback)
+        handler = self.subscribe(proxy_address, topic, callback)
+        return handler
 
     def stop_listening(self, handle):
         """Stops listening to a subscription
