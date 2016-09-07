@@ -4,6 +4,10 @@
 from threading import Thread, Event
 from getpass import getuser
 
+import os
+import signal
+import subprocess
+
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
@@ -77,16 +81,8 @@ class Dpe(ClaraBase):
                                                      report_interval, self)
             self._report_service.start()
 
-        topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
         self.subscription_handler = None
-
-        try:
-            self.subscription_handler = self.listen(topic, _DpeCallBack(self))
-            xMsgUtil.keep_alive()
-
-        except KeyboardInterrupt:
-            self.stop_listening(self.subscription_handler)
-            self._exit()
+        self._start()
 
     def _exit(self):
         self._report_control.set()
@@ -116,6 +112,19 @@ class Dpe(ClaraBase):
             print ""
         print "=" * logo_width
         print ""
+
+    def _start(self):
+        proxy_process = subprocess.Popen(['px_proxy'])
+
+        try:
+            topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
+            self.subscription_handler = self.listen(topic, _DpeCallBack(self))
+            xMsgUtil.keep_alive()
+
+        except KeyboardInterrupt:
+            self._exit()
+            self.stop_listening(self.subscription_handler)
+            os.kill(proxy_process.pid, signal.SIGINT)
 
     def get_report(self):
         """Returns DPE report object
