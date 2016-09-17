@@ -31,9 +31,9 @@ class BaseOrchestrator(object):
     def _get_clara_base(self, fe_host):
         return ClaraBase(self.name,
                          ClaraUtils.localhost(),
-                         int(xMsgConstants.DEFAULT_PORT),
+                         xMsgConstants.DEFAULT_PORT,
                          xMsgUtil.host_to_ip(fe_host),
-                         int(xMsgConstants.REGISTRAR_PORT))
+                         xMsgConstants.REGISTRAR_PORT)
 
     @staticmethod
     def _create_request(topic, data, metadata=None):

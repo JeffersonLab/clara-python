@@ -43,7 +43,7 @@ class ServiceEngine(ClaraBase):
         self._engine_object = user_engine
         self._semaphore = Semaphore(1)
         self._compiler = CCompiler(self.myname)
-        self._prev_composition = "undefined"
+        self._prev_composition = xMsgConstants.UNDEFINED
         self._report = service_report
         self._logger = ClaraLogger(repr(self))
 
@@ -82,7 +82,7 @@ class ServiceEngine(ClaraBase):
         if not output_data:
             output_data = EngineData()
         if output_data.get_data():
-            output_data.set_data(Mimetype.STRING, "done")
+            output_data.set_data(Mimetype.STRING, xMsgConstants.DONE)
         return output_data
 
     def _get_engine_data(self, message):

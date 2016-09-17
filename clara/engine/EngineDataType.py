@@ -22,7 +22,7 @@ class Mimetype(object):
     ARRAY_SFIXED64 = u"binary/array-sfixed64"
     ARRAY_FLOAT = u"binary/array-float"
     ARRAY_DOUBLE = u"binary/array-double"
-    ARRAY_STRING = u"text/array-string"
+    ARRAY_STRING = u"binary/array-string"
     ARRAY_BYTES = u"binary/array-string"
 
     JSON = u"application/json"

@@ -5,8 +5,6 @@ from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
-from clara.base.ClaraUtils import ClaraUtils
-from clara.engine.EngineDataType import Mimetype
 from clara.sys.EngineLoader import EngineLoader
 from clara.sys.ServiceSysConfig import ServiceSysConfig
 from clara.sys.ServiceEngine import ServiceEngine
@@ -53,7 +51,6 @@ class Service(ClaraBase):
                                       local_address.pub_port,
                                       frontend_address.host,
                                       frontend_address.pub_port)
-
         self._logger = ClaraLogger(repr(self))
         # user provided engine class container class name
         self._engine_class = engine_class
@@ -82,8 +79,7 @@ class Service(ClaraBase):
 
         try:
             # Subscribe messages addressed to this service container
-            topic = ClaraUtils.build_topic(CConstants.SERVICE, self.myname)
-            self.subscription_handler = self.listen(topic,
+            self.subscription_handler = self.listen(self.myname,
                                                     _ServiceCallBack(self))
             self._logger.log_info("service deployed")
 
@@ -157,7 +153,7 @@ class Service(ClaraBase):
         return self._report
 
     def _send_response(self, message, status, data):
-        response_message = xMsgMessage.create_with_string(message.topic, data)
+        response_message = xMsgMessage.from_string(message.topic, data)
         response_message.metadata.status = status
         self.send(response_message)
 

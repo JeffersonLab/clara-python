@@ -19,14 +19,14 @@ class ClaraBase(xMsg):
     """Clara base class providing methods build services, service container
     and orchestrator.
     """
-    clara_home = str(xMsgConstants.UNDEFINED)
+    clara_home = xMsgConstants.UNDEFINED
 
     def __init__(self,
                  name,
                  proxy_host="localhost",
-                 proxy_port=int(xMsgConstants.DEFAULT_PORT),
+                 proxy_port=xMsgConstants.DEFAULT_PORT,
                  frontend_host="localhost",
-                 frontend_port=int(xMsgConstants.DEFAULT_PORT)):
+                 frontend_port=xMsgConstants.DEFAULT_PORT):
 
         self._proxy_address = ProxyAddress(proxy_host, proxy_port)
         self._fe_address = ProxyAddress(frontend_host, frontend_port)
@@ -110,7 +110,7 @@ class ClaraBase(xMsg):
             data (String): attached data with the response
         """
         try:
-            r_msg = xMsgMessage.create_with_string(msg.get_reply_topic(), data)
+            r_msg = xMsgMessage.from_string(msg.get_reply_topic(), data)
             r_msg.metadata.author = self.myname
             r_msg.metadata.status = status
             self.generic_send(r_msg)
@@ -146,7 +146,7 @@ class ClaraBase(xMsg):
         Args:
             topic (xMsgTopic): topic which actor will stop receiving
         """
-        self.remove_as_subscriber(topic)
+        self.remove_as_subscriber(self.default_registrar_address, topic)
 
     def discover(self, topic):
         """Discover other clara actors publishing the given topic
@@ -155,9 +155,10 @@ class ClaraBase(xMsg):
         Returns:
             Set
         """
-        return self.find_subscriber(topic)
+        return self.find_subscriber(self.default_registrar_address, topic)
 
-    def serialize(self, topic, engine_data, datatypes):
+    @staticmethod
+    def serialize(topic, engine_data, datatypes):
         """Builds a message by serializing passed data object using
         serialization routine defined in one of the data types objects
 
@@ -185,7 +186,8 @@ class ClaraBase(xMsg):
             msg.data = EngineDataType.STRING().serializer.write(engine_data.get_data())
             return msg
 
-    def de_serialize(self, msg, datatypes):
+    @staticmethod
+    def de_serialize(msg, datatypes):
         """ De serializes data of the message, represented as bytes into an
         object of az type defined using the mimetype/datatype of the metadata
 
@@ -220,7 +222,8 @@ class ClaraBase(xMsg):
         raise ClaraException("Clara-Error: Unsopported mimetype = %s"
                              % msg.metadata.dataType)
 
-    def build_system_error_data(self, msg, severity, description):
+    @staticmethod
+    def build_system_error_data(msg, severity, description):
         """Builds an EngineData object for error reporting
 
         Args:
