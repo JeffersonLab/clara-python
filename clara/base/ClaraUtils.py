@@ -71,7 +71,7 @@ class ClaraUtils(object):
 
     @staticmethod
     def form_dpe_name(host, lang, dpe_port=None):
-        if dpe_port and dpe_port != int(xMsgConstants.DEFAULT_PORT):
+        if dpe_port and dpe_port != xMsgConstants.DEFAULT_PORT:
             return host + "%" + str(dpe_port) + CConstants.LANG_SEP + str(lang)
         else:
             return host + CConstants.LANG_SEP + str(lang)
@@ -110,7 +110,7 @@ class ClaraUtils(object):
 
     @staticmethod
     def decompose_canonical_name(canonical_name):
-        port = int(xMsgConstants.DEFAULT_PORT)
+        port = xMsgConstants.DEFAULT_PORT
         decomposed = canonical_name.split(":")
         dpe, language = decomposed[0].split("_")
         if "%" in dpe:
@@ -119,8 +119,8 @@ class ClaraUtils(object):
         return [dpe, port, language] + decomposed[1:]
 
     @staticmethod
-    def build_data_types(engine_data_type):
+    def build_data_types(*engine_data_type):
         engine_data_type_set = set()
-        for data_type in [engine_data_type]:
+        for data_type in engine_data_type:
             engine_data_type_set.add(data_type)
         return engine_data_type_set

@@ -13,9 +13,9 @@ from clara.util.CConstants import CConstants
 class BaseRequest(object):
     __metaclass__ = ABCMeta
     __meta = xMsgMeta()
-    __base = str(xMsgConstants.UNDEFINED)
-    __topic = str(xMsgConstants.UNDEFINED)
-    __frontend = str(xMsgConstants.UNDEFINED)
+    __base = xMsgConstants.UNDEFINED
+    __topic = xMsgConstants.UNDEFINED
+    __frontend = xMsgConstants.UNDEFINED
 
     def __init__(self, base, frontend, topic):
         self.__frontend = frontend
