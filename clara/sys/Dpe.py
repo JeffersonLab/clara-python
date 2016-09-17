@@ -249,11 +249,9 @@ class _ReportingService(Thread):
             report = self._base.get_report().to_json()
             report_alive = self._base.get_report().get_alive_data()
             self._base.send_frontend(
-                xMsgMessage.create_with_string(CConstants.DPE_ALIVE,
-                                               report_alive))
+                xMsgMessage.from_string(CConstants.DPE_ALIVE, report_alive))
             self._base.send_frontend(
-                xMsgMessage.create_with_string(CConstants.DPE_REPORT,
-                                               report))
+                xMsgMessage.from_string(CConstants.DPE_REPORT, report))
 
 
 class _DpeCallBack(xMsgCallBack):
@@ -307,11 +305,11 @@ def main():
 
     parser.add_argument("--fe_host", help="Frontend address", type=str,
                         default="localhost")
-    parser.add_argument("--fe_port", help="Frontend port", type=int,
-                        default=int(xMsgConstants.DEFAULT_PORT))
-    parser.add_argument("--dpe_port", help="Local port", type=int,
-                        default=int(xMsgConstants.DEFAULT_PORT))
-    parser.add_argument("--report_interval", help="Reporting interval",
+    parser.add_argument("--fe-port", help="Frontend port", type=int,
+                        default=xMsgConstants.DEFAULT_PORT)
+    parser.add_argument("--dpe-port", help="Local port", type=int,
+                        default=xMsgConstants.DEFAULT_PORT)
+    parser.add_argument("--report-interval", help="Reporting interval",
                         type=int, default=5)
 
     args = parser.parse_args()

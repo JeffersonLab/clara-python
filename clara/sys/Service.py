@@ -5,7 +5,6 @@ from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.data.xMsgMeta_pb2 import xMsgMeta
 
 from clara.base.ClaraBase import ClaraBase
-from clara.base.ClaraUtils import ClaraUtils
 from clara.sys.EngineLoader import EngineLoader
 from clara.sys.ServiceSysConfig import ServiceSysConfig
 from clara.sys.ServiceEngine import ServiceEngine
@@ -154,7 +153,7 @@ class Service(ClaraBase):
         return self._report
 
     def _send_response(self, message, status, data):
-        response_message = xMsgMessage.create_with_string(message.topic, data)
+        response_message = xMsgMessage.from_string(message.topic, data)
         response_message.metadata.status = status
         self.send(response_message)
 
