@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding=utf-8
 
+from multiprocessing import Queue
+from multiprocessing.queues import Empty
 from threading import Thread, Event
 from getpass import getuser
 
@@ -8,6 +10,7 @@ import os
 import signal
 import subprocess
 
+from xmsg.core.xMsgMessage import xMsgMessage
 from xmsg.core.xMsgUtil import xMsgUtil
 from xmsg.core.xMsgCallBack import xMsgCallBack
 from xmsg.core.xMsgConstants import xMsgConstants
@@ -118,13 +121,52 @@ class Dpe(ClaraBase):
 
         try:
             topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
-            self.subscription_handler = self.listen(topic, _DpeCallBack(self))
-            xMsgUtil.keep_alive()
+            task_queue = Queue()
+            self.subscription_handler = self.listen(topic,
+                                                    _DpeCallBack(task_queue))
+
+            def _interruptible_get():
+                try:
+                    return task_queue.get_nowait()
+                except Empty:
+                    return None
+
+            while True:
+                s_msg = _interruptible_get()
+                if s_msg:
+                    msg = xMsgMessage.from_serialized_data(s_msg)
+                    self._process_request(msg)
 
         except KeyboardInterrupt:
+            print "Ctrl-C"
             self._exit()
             self.stop_listening(self.subscription_handler)
             os.kill(proxy_process.pid, signal.SIGINT)
+
+    def _process_request(self, request):
+        parser = RequestParser.build_from_message(request)
+        cmd = parser.next_string()
+        response = parser.request()
+
+        self._logger.log_info("received: %s" % cmd)
+
+        if cmd == CConstants.START_CONTAINER:
+            self.start_container(parser)
+
+        elif cmd == CConstants.STOP_CONTAINER:
+            self.stop_container(parser)
+
+        elif cmd == CConstants.START_SERVICE:
+            self.start_service(parser)
+
+        elif cmd == CConstants.STOP_SERVICE:
+            self.stop_service(parser)
+
+        else:
+            print "Unknown DPE request..."
+
+        if request.has_reply_topic():
+            self.send_response(request, xMsgMeta.INFO, response)
 
     def get_report(self):
         """Returns DPE report object
@@ -256,46 +298,13 @@ class _ReportingService(Thread):
 
 class _DpeCallBack(xMsgCallBack):
 
-    def __init__(self, dpe):
+    def __init__(self, q):
         super(_DpeCallBack, self).__init__()
-        self._dpe = dpe
-        self._logger = ClaraLogger(repr(dpe))
+        self._queue = q
 
     def callback(self, msg):
-        try:
-            parser = RequestParser.build_from_message(msg)
-            cmd = parser.next_string()
-            response = parser.request()
+        self._queue.put(msg.serialize())
 
-            self._logger.log_info("received: %s" % cmd)
-
-            if cmd == CConstants.STOP_DPE:
-                self._dpe.exit()
-
-            elif cmd == CConstants.START_CONTAINER:
-                self._dpe.start_container(parser)
-
-            elif cmd == CConstants.STOP_CONTAINER:
-                self._dpe.stop_container(parser)
-
-            elif cmd == CConstants.START_SERVICE:
-                self._dpe.start_service(parser)
-
-            elif cmd == CConstants.STOP_SERVICE:
-                self._dpe.stop_service(parser)
-
-            else:
-                self._logger.log_error("received unknown command...")
-
-            if msg.has_reply_topic():
-                self._dpe.send_response(msg, xMsgMeta.INFO, response)
-
-        except Exception as e:
-            self._logger.log_exception(e.message)
-            raise e
-
-        finally:
-            return msg
 
 
 def main():
