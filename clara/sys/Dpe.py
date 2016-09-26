@@ -312,7 +312,7 @@ def main():
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--fe_host", help="Frontend address", type=str,
+    parser.add_argument("--fe-host", help="Frontend address", type=str,
                         default="localhost")
     parser.add_argument("--fe-port", help="Frontend port", type=int,
                         default=xMsgConstants.DEFAULT_PORT)
