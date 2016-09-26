@@ -306,7 +306,6 @@ class _DpeCallBack(xMsgCallBack):
         self._queue.put(msg.serialize())
 
 
-
 def main():
     import argparse
 

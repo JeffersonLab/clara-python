@@ -42,12 +42,20 @@ class ClaraUtils(object):
 
     @staticmethod
     def get_dpe_name(canonical_name):
+        canonical_name = canonical_name.replace("dpe:", "")
         return CNAME_VALIDATOR.match(canonical_name).group(1)
 
     @staticmethod
     def get_dpe_port(canonical_name):
+        canonical_name = canonical_name.replace("dpe:", "")
+        canonical_name = canonical_name.replace("service:", "")
         port = CNAME_VALIDATOR.match(canonical_name).group(3)
-        return port if port else 7771
+        if port:
+            return port
+        elif "_python" in canonical_name:
+            return int(xMsgConstants.DEFAULT_PORT)
+        else:
+            return int(xMsgConstants.DEFAULT_JAVA_PORT)
 
     @staticmethod
     def get_container_canonical_name(canonical_name):
