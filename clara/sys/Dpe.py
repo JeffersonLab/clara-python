@@ -118,27 +118,21 @@ class Dpe(ClaraBase):
 
     def _start(self):
         proxy_process = subprocess.Popen(['px_proxy'])
-
+        task_queue = Queue()
         try:
             topic = ClaraUtils.build_topic(CConstants.DPE, self.myname)
-            task_queue = Queue()
             self.subscription_handler = self.listen(topic,
                                                     _DpeCallBack(task_queue))
 
-            def _interruptible_get():
-                try:
-                    return task_queue.get_nowait()
-                except Empty:
-                    return None
-
             while True:
-                s_msg = _interruptible_get()
+                s_msg = task_queue.get()
                 if s_msg:
                     msg = xMsgMessage.from_serialized_data(s_msg)
                     self._process_request(msg)
 
         except KeyboardInterrupt:
             print "Ctrl-C"
+            task_queue.close()
             self._exit()
             self.stop_listening(self.subscription_handler)
             os.kill(proxy_process.pid, signal.SIGINT)
