@@ -170,7 +170,7 @@ class BaseOrchestrator(object):
             raise ValueError("Bad Service name")
 
         dpe = ClaraUtils.get_dpe_name(service_name)
-        container_name = ClaraUtils.get_container_canonical_name(service_name)
+        container_name = ClaraUtils.get_container_name(service_name)
         engine_name = ClaraUtils.get_engine_name(service_name)
 
         topic = ClaraUtils.build_topic(CConstants.DPE, dpe)
@@ -221,8 +221,7 @@ class BaseOrchestrator(object):
             composition (String): service composition for execution
             input_data (EngineData): input data parameter for service execution
         """
-        topic = ClaraUtils.build_topic(CConstants.SERVICE,
-                                       composition.first_service())
+        topic = ClaraUtils.build_topic(composition.first_service())
         meta = xMsgMeta()
         meta.MergeFrom(input_data.metadata)
         meta.action = xMsgMeta.EXECUTE
