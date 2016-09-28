@@ -58,8 +58,7 @@ if __name__ == "__main__":
               'test': ClaraTest,
               'clean': ClaraClean,
           },
-          packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*",
-                                          "tests", "examples", "examples.*"]),
+          packages=find_packages(exclude=["test.*", "*.test", ]),
           package_dir={"clara": "clara"},
           scripts=['clara/scripts/unix/p_dpe']
           )
