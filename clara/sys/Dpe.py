@@ -229,6 +229,7 @@ class Dpe(ClaraBase):
                 self.my_containers[container_name].add_service(engine_name,
                                                                engine_class,
                                                                pool_size,
+                                                               description,
                                                                initial_state)
 
         except Exception as e:

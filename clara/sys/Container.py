@@ -31,7 +31,7 @@ class Container(ClaraBase):
         self._report = ContainerReport(self, getuser())
 
     def add_service(self, engine_name, engine_class,
-                    service_pool_size, initial_state):
+                    service_pool_size, description, initial_state):
         """Add a new service into the service container
 
         Creates a new Clara service with the given parameters and attaches it
@@ -42,6 +42,7 @@ class Container(ClaraBase):
             engine_name (String): User engine name
             engine_class (String): Python class containing the engine to deploy
             service_pool_size (int): Pool size for the deployed service
+            description (String): Service description. What the services does
             initial_state (String): Initial state for service
         """
         service_name = ServiceName(self._container_name, engine_name)
@@ -55,6 +56,7 @@ class Container(ClaraBase):
                                   engine_class,
                                   engine_name,
                                   service_pool_size,
+                                  description,
                                   initial_state,
                                   self._proxy_address,
                                   self._fe_address)

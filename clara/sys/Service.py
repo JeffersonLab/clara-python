@@ -28,7 +28,7 @@ class Service(ClaraBase):
             services
     """
 
-    def __init__(self, name, engine_class, engine_name, pool_size,
+    def __init__(self, name, engine_class, engine_name, pool_size, description,
                  initial_state, local_address, frontend_address):
         """Create thread pool to run requests to this service
 
@@ -40,6 +40,7 @@ class Service(ClaraBase):
             engine_class (String): Engine class containing Engine
             engine_name (String): Engine name
             pool_size (int): Service object pool size
+            description (String): Service description. What the service does
             initial_state (String): Initial state
             local_address (ProxyAddress): Address info for local proxy
                 connection
@@ -56,6 +57,8 @@ class Service(ClaraBase):
         self._engine_class = engine_class
         # actual engine class name
         self._engine_name = engine_name
+        # service description
+        self._description = description
         # pool size
         self._pool_size = pool_size
         # Create service executor objects and fill the pool
