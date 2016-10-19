@@ -103,3 +103,42 @@ class FactorialEngine(Engine):
 
     def destroy(self):
         pass
+
+
+class NoOpEngine(Engine):
+
+    def __init__(self):
+        super(NoOpEngine, self).__init__()
+
+    def configure(self, engine_data):
+        pass
+
+    def execute(self, engine_data):
+        return engine_data
+
+    def execute_group(self, data_array):
+        pass
+
+    def get_input_data_types(self):
+        return ClaraUtils.build_data_types(EngineDataType.STRING())
+
+    def get_output_data_types(self):
+        return ClaraUtils.build_data_types(EngineDataType.STRING())
+
+    def get_states(self):
+        pass
+
+    def get_description(self):
+        return "Does nothing!"
+
+    def get_version(self):
+        return "v1.0"
+
+    def get_author(self):
+        return "royarzun"
+
+    def reset(self):
+        pass
+
+    def destroy(self):
+        pass
