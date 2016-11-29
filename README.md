@@ -1,5 +1,5 @@
 
-# Clara for python
+# Clara for python [![Build Status](https://travis-ci.org/JeffersonLab/clara-python.svg?branch=dev)](https://travis-ci.org/JeffersonLab/clara-python)
 
 ## About the Clara framework
 
