@@ -10,7 +10,7 @@ from clara.base.ClaraLang import ClaraLang
 class TestDpeName(unittest.TestCase):
 
     def test_dpe_name(self):
-        dpe = DpeName("192.1.1.1", 7771, "python")
+        dpe = DpeName("192.1.1.1", 7791, "python")
         self.assertIsInstance(dpe, DpeName)
         self.assertEqual(dpe.canonical_name(), "192.1.1.1_python")
         self.assertEqual(dpe.name(), dpe.canonical_name())
