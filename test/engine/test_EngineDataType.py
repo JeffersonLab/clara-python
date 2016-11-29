@@ -23,7 +23,7 @@ class TestEngineDataType(unittest.TestCase):
         self.assertEqual(Mimetype.ARRAY_SFIXED64, u"binary/array-sfixed64")
         self.assertEqual(Mimetype.ARRAY_FLOAT, u"binary/array-float")
         self.assertEqual(Mimetype.ARRAY_DOUBLE, u"binary/array-double")
-        self.assertEqual(Mimetype.ARRAY_STRING, u"text/array-string")
+        self.assertEqual(Mimetype.ARRAY_STRING, u"binary/array-string")
         self.assertEqual(Mimetype.ARRAY_BYTES, u"binary/array-string")
 
     def test_proper_construction_of_types(self):
