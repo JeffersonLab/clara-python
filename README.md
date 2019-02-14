@@ -1,7 +1,6 @@
+# CLARA for Python
 
-# Clara for python
-
-## About the Clara framework
+## Overview
 
 The CLARA framework uses a service-oriented architecture ([SOA](https://en.wikipedia.org/wiki/Service-oriented_architecture "Service Oriented Architecture")) to enhance the efficiency, agility, and productivity of data processing activities. Services are the primary means through which data processing logic is implemented.
 
@@ -9,13 +8,13 @@ Data processing applications, developed using the CLARA framework, consist of se
 
 It is important to mention that CLARA makes a clear separation between the service programmer and the data processing application designer. An application designer can be productive by designing and composing data processing applications using available, efficiently and professionally written software services without knowing service programming technical details. Services usually are long-lived and are maintained and operated by their owners on distributed CLARA service containers. This approach provides an application designer the ability to modify data processing applications by incorporating different services in order to find optimal operational conditions, thus demonstrating the overall agility of the CLARA framework.
 
-## Installing Clara
+
+## Install
 
 ### Requirements
 
 The clara framework needs xMsg v2.4.1 to run. [xMsg](https://github.com/JeffersonLab/xmsg_python "xMsg @ Github")
  is a lightweight, yet full featured publish/subscribe messaging system, presenting asynchronous publish/subscribe inter-process communication protocol: an API layer in Java, Python and C++. Please refer to https://github.com/JeffersonLab/xmsg_python for installation instructions
-
 
 To install clara-python in your system, run:
 
@@ -24,6 +23,7 @@ $ pip install -r requirements.txt
 $ ./setup.py install
 ```
 
+
 ## Quick Start
 
 ### Starting a DPE
@@ -31,10 +31,10 @@ $ ./setup.py install
 Every data processing environment contains proxy, shared memory map, as well as registration databases for both publishers and subscribers. DPE subscribes control requests, such as “create a container”. DPE can create multiple containers. Every container defines a map of locally deployed service objects. Each service object creates and manages object and thread pools for every service-engine object, ready to run within a service. The number of service-engine objects and the size of the thread pool is set by the user, that is recommended to be less or equal to the number of the processor cores.
 
 ```sh
-$ p_dpe # or python clara/sys/Dpe.py
+$ p_dpe  # or python clara/sys/Dpe.py
 ```
 
-### Writing your Clara Engine
+### Writing an engine
 
 This is a very simple example of a Clara engine in python. User should create an engine class
 with a proper name, then add it to the **$CLARA_SERVICES** folder for the DPE to find it.
@@ -101,31 +101,11 @@ For further help in creating services for the clara framework in python, you can
 also refer to [Clara Bootstrap](https://github.com/royarzun/Clara-bootstrap), a collection
  of scripts meant to make life easier for service developers.
 
-### Contact
+
+## Authors
 
 For assistance contact the authors:
 
 * Vardan Gyurjyan    (<gurjyan@jlab.org>)
 * Sebastian Mancilla (<smancill@jlab.org>)
 * Ricardo Oyarzun    (<oyarzun@jlab.org>)
-
-## Copyright
-
-    Copyright (C) 2015. Jefferson Lab, Clara framework (JLAB). All Rights Reserved.
-    Permission to use, copy, modify, and distribute this software and its
-    documentation for educational, research, and not-for-profit purposes,
-    without fee and without a signed licensing agreement.
-
-    Author Ricardo Oyarzun
-    Department of Experimental Nuclear Physics, Jefferson Lab.
-
-    IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
-    INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
-    THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
-    OF THE POSSIBILITY OF SUCH DAMAGE.
-
-    JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-    THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-    PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
-    HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
-    SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
