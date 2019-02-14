@@ -9,4 +9,4 @@ protobuf>=2.6
 psutil==4.1.0
 pytest
 pyzmq>=14.5.0
--e git+https://github.com/JeffersonLab/xmsg_python#egg=xmsg
+-e git+https://github.com/JeffersonLab/xmsg-python#egg=xmsg
