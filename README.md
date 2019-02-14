@@ -1,5 +1,8 @@
 # CLARA for Python
 
+**WARNING: this project is out of date and unmaintained.**
+
+
 ## Overview
 
 The CLARA framework uses a service-oriented architecture ([SOA](https://en.wikipedia.org/wiki/Service-oriented_architecture "Service Oriented Architecture")) to enhance the efficiency, agility, and productivity of data processing activities. Services are the primary means through which data processing logic is implemented.
