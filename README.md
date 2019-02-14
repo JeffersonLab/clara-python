@@ -104,8 +104,8 @@ also refer to [Clara Bootstrap](https://github.com/royarzun/Clara-bootstrap), a 
 
 ## Authors
 
-For assistance contact the authors:
+* Vardan Gyurjyan
+* Sebastián Mancilla
+* Ricardo Oyarzún
 
-* Vardan Gyurjyan    (<gurjyan@jlab.org>)
-* Sebastian Mancilla (<smancill@jlab.org>)
-* Ricardo Oyarzun    (<oyarzun@jlab.org>)
+For assistance send an email to [clara@jlab.org](mailto:clara@jlab.org).
